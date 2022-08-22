@@ -1,0 +1,9 @@
+{
+  "parent": "vanillaquarry:generation/quarry_block",
+  "textures": {
+    "1": "vanillaquarry:block/quarry_block_on",
+    "2": "vanillaquarry:block/quarry_block_side",
+    "3": "vanillaquarry:block/quarry_block_top",
+    "particle": "vanillaquarry:block/quarry_block_side"
+  }
+}

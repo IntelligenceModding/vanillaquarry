@@ -1,0 +1,6 @@
+{
+  "block.vanillaquarry.quarry_block": "Quarry",
+  "item.vanillaquarry.area_card": "Area Card",
+  "message.vanillaquarry.savedfirst": "First position saved! Now select the second corner.",
+  "message.vanillaquarry.savedsecond": "New settings copied to the area card!"
+}
