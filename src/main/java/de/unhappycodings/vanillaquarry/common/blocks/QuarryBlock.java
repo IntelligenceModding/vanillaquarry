@@ -5,6 +5,7 @@ import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.vanillaquarry.common.network.PacketHandler;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryModePacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarrySpeedPacket;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -67,13 +68,15 @@ public class QuarryBlock extends BaseEntityBlock {
     @NotNull
     @Override
     public InteractionResult use(@NotNull BlockState state, Level levelIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
-        if (levelIn.isClientSide) return InteractionResult.SUCCESS;
+        //if (levelIn.isClientSide) return InteractionResult.SUCCESS;
         MenuProvider namedContainerProvider = this.getMenuProvider(state, levelIn, pos);
         if (namedContainerProvider != null) {
-            if (!(player instanceof ServerPlayer serverPlayerEntity)) return InteractionResult.PASS;
-            PacketHandler.sendToServer(new QuarrySpeedPacket(pos, (byte) 0));
-            PacketHandler.sendToServer(new QuarryModePacket(pos, (byte) -1));
-            NetworkHooks.openGui(serverPlayerEntity, namedContainerProvider, pos);
+            if (levelIn.isClientSide) {
+                PacketHandler.sendToServer(new QuarrySpeedPacket(pos, (byte) 0));
+                PacketHandler.sendToServer(new QuarryModePacket(pos, (byte) -1));
+            }
+            if (player instanceof ServerPlayer serverPlayerEntity)
+                NetworkHooks.openGui(serverPlayerEntity, namedContainerProvider, pos);
         }
         return InteractionResult.SUCCESS;
     }

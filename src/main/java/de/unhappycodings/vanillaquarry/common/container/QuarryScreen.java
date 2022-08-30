@@ -124,6 +124,12 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     @Override
+    public void onClose() {
+        this.getMenu().getTile().setChanged();
+        super.onClose();
+    }
+
+    @Override
     protected void init() {
         super.init();
         addElements();

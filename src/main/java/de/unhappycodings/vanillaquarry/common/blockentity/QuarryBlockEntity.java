@@ -319,6 +319,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("BurnTime", getBurnTime());
         nbt.putInt("TotalBurnTime", getTotalBurnTime());
+        nbt.putInt("Speed", getSpeed());
+        nbt.putInt("Mode", getMode());
         return nbt;
     }
 
@@ -326,6 +328,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public void handleUpdateTag(final CompoundTag tag) {
         setBurnTime(tag.getInt("BurnTime"));
         setTotalBurnTime(tag.getInt("TotalBurnTime"));
+        setSpeed(tag.getInt("Speed"));
+        setMode(tag.getInt("Mode"));
     }
 
     @Override
