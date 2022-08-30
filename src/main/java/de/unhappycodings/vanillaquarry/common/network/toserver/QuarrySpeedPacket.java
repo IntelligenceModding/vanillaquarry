@@ -23,13 +23,14 @@ public class QuarrySpeedPacket implements IPacket {
         return new QuarrySpeedPacket(buffer.readBlockPos(), buffer.readByte());
     }
 
+    @SuppressWarnings("ConstantConditions")
     public void handle(NetworkEvent.Context context) {
         ServerPlayer player = context.getSender();
         BlockEntity machine = player.getCommandSenderWorld().getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
         if (add != 0) {
             int newSpeed = blockEntity.getSpeed() + add;
-            if(newSpeed >= 0 && newSpeed <= 2) {
+            if (newSpeed >= 0 && newSpeed <= 2) {
                 blockEntity.setSpeed(newSpeed);
                 PacketHandler.sendToClient(new QuarryClientSpeedPacket(machine.getBlockPos(), newSpeed), player);
             }

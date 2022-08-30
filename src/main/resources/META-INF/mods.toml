@@ -6,12 +6,12 @@ modId = "vanillaquarry"
 version = "1.0r"
 displayName = "VanillaQuarry"
 authors = "UnhappyWithoutU"
-description = '''Adds a Big Variation of Different Building and Functional Blocks to Minecraft Forge!'''
+description = ''''''
 
 [[dependencies.vanillaquarry]]
 modId = "forge"
 mandatory = true
-versionRange = "[40,)"
+versionRange = "[40.1,)"
 ordering = "NONE"
 side = "BOTH"
 

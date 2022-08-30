@@ -3,7 +3,6 @@ package de.unhappycodings.vanillaquarry.common.blocks;
 import de.unhappycodings.vanillaquarry.common.blockentity.ModBlockEntities;
 import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.vanillaquarry.common.network.PacketHandler;
-import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryClientSpeedPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryModePacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarrySpeedPacket;
 import net.minecraft.core.BlockPos;
@@ -17,7 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -44,11 +42,7 @@ public class QuarryBlock extends BaseEntityBlock {
 
     public QuarryBlock() {
         super(Properties.copy(Blocks.STONE).strength(3.0F, 6.0F));
-        this.registerDefaultState(this.stateDefinition.any()
-                .setValue(POWERED, false)
-                .setValue(WORKING, false)
-                .setValue(ACTIVE, false)
-                .setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false).setValue(WORKING, false).setValue(ACTIVE, false).setValue(FACING, Direction.NORTH));
     }
 
     @Override
@@ -69,6 +63,7 @@ public class QuarryBlock extends BaseEntityBlock {
         super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
     }
 
+    @SuppressWarnings("deprecation")
     @NotNull
     @Override
     public InteractionResult use(@NotNull BlockState state, Level levelIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
@@ -86,8 +81,7 @@ public class QuarryBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext pContext) {
-        return this.defaultBlockState().setValue(POWERED, false).setValue(WORKING, false).setValue(ACTIVE, false)
-                .setValue(FACING, pContext.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(POWERED, false).setValue(WORKING, false).setValue(ACTIVE, false).setValue(FACING, pContext.getHorizontalDirection().getOpposite());
     }
 
     @Override
@@ -95,11 +89,13 @@ public class QuarryBlock extends BaseEntityBlock {
         builder.add(POWERED, WORKING, ACTIVE, FACING);
     }
 
+    @SuppressWarnings("deprecation")
     @NotNull
     @Override
     public RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
+
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState blockState, @NotNull BlockEntityType<T> type) {
         return level.isClientSide ? null : (a, b, c, blockEntity) -> ((QuarryBlockEntity) blockEntity).tick();
     }

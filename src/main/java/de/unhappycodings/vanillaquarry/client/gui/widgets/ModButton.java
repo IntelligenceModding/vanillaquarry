@@ -5,8 +5,6 @@ import de.unhappycodings.vanillaquarry.VanillaQuarry;
 import de.unhappycodings.vanillaquarry.client.gui.GuiUtil;
 import de.unhappycodings.vanillaquarry.client.gui.widgets.base.BaseWidget;
 import de.unhappycodings.vanillaquarry.common.container.QuarryScreen;
-import de.unhappycodings.vanillaquarry.common.container.base.BaseScreen;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +12,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class ModButton extends BaseWidget {
@@ -54,8 +51,10 @@ public class ModButton extends BaseWidget {
     public void onClick(double pMouseX, double pMouseY) {
         if (isMouseOver(pMouseX, pMouseY)) {
             if (isValid != null && isValid.get()) {
-                onClick.run();
-                playDownSound(minecraft.getSoundManager());
+                if (onClick != null) {
+                    onClick.run();
+                    playDownSound(minecraft.getSoundManager());
+                }
             }
         }
         super.onClick(pMouseX, pMouseY);

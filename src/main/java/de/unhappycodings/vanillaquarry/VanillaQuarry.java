@@ -10,34 +10,31 @@ import de.unhappycodings.vanillaquarry.common.network.PacketHandler;
 import de.unhappycodings.vanillaquarry.common.registration.Registration;
 import de.unhappycodings.vanillaquarry.common.setup.ContainerTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 
 import java.util.Random;
-import java.util.UUID;
 
 @Mod("vanillaquarry")
 public class VanillaQuarry {
 
-    public static final Random RANDOM = new Random();
     public static final String MOD_ID = "vanillaquarry";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final ResourceLocation COUNTER_UP = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_plus.png");
     public static final ResourceLocation COUNTER_DOWN = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus.png");
     public static final ResourceLocation POWER = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/power.png");
     public static final ResourceLocation MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/mode.png");
+    public static final ResourceLocation INFO = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/information.png");
 
     public static final CreativeModeTab creativeTab = new ItemCreativeTab();
 
@@ -58,8 +55,8 @@ public class VanillaQuarry {
         bus.addListener(this::onCommonSetup);
     }
 
-    public void onCommonSetup(FMLClientSetupEvent event) {
-        PacketHandler.init();
+    public void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(PacketHandler::init);
     }
 
 }

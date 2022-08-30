@@ -7,11 +7,13 @@ import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.vanillaquarry.common.blocks.QuarryBlock;
 import de.unhappycodings.vanillaquarry.common.container.base.BaseScreen;
 import de.unhappycodings.vanillaquarry.common.container.base.BaseSlot;
+import de.unhappycodings.vanillaquarry.common.item.AreaCardItem;
 import de.unhappycodings.vanillaquarry.common.network.PacketHandler;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryChangedPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryModePacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryPowerPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarrySpeedPacket;
+import de.unhappycodings.vanillaquarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -23,37 +25,102 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class QuarryScreen extends BaseScreen<QuarryContainer> {
+    public ModButton MODE_MOUSE_BUTTON;
+    public ModButton INFO_MOUSE_BUTTON;
     QuarryContainer container;
+    boolean modeButtonIsHovered;
+    boolean infoButtonIsHovered;
+
     public QuarryScreen(QuarryContainer screenContainer, Inventory inv, Component titleIn) {
         super(screenContainer, inv, titleIn);
         this.container = screenContainer;
     }
 
     @Override
-    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {
+    protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
         drawText(new TranslatableComponent("block.vanillaquarry.quarry_block").getString(), pPoseStack, 71, 7);
-        drawText(new TextComponent("Inventory").getString(), pPoseStack, 8, 110);
-        drawText(new TextComponent("Speed").getString(), pPoseStack, 73, 27);
-        drawText(new TextComponent("Fuel").getString(), pPoseStack, 19, 20);
-        drawText(new TextComponent("Out").getString(), pPoseStack, 138, 20);
+        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.inventory").getString(), pPoseStack, 8, 110);
+        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.speed").getString(), pPoseStack, 73, 27);
+        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.fuel").getString(), pPoseStack, 19, 20);
+        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.out").getString(), pPoseStack, 138, 20);
         drawText(new TextComponent(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
-        drawText(new TextComponent("Y:" + "stop").getString(), pPoseStack, 73, 95);
-
-        drawText(new TextComponent("On").getString(), pPoseStack, 68, 59);
-        drawText(new TextComponent("Off").getString(), pPoseStack, 95, 59);
-
-        switch (getMenu().getTile().getMode()) {
-            case 0: drawCenteredText(new TextComponent("Default").getString(), pPoseStack, 87, 77); break;
-            case 1: drawCenteredText(new TextComponent("Efficient").getString(), pPoseStack, 87, 77); break;
-            case 2: drawCenteredText(new TextComponent("Fortune").getString(), pPoseStack, 87, 77); break;
-            case 3: drawCenteredText(new TextComponent("Silktouch").getString(), pPoseStack, 87, 77); break;
-            case 4: drawCenteredText(new TextComponent("Void").getString(), pPoseStack, 87, 77);
+        String yCoord = "stop";
+        ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 1);
+        if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY")) {
+            yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
         }
 
+        drawText(new TextComponent("Y: " + yCoord).getString(), pPoseStack, 73, 95);
+        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.power.on").getString(), pPoseStack, 68, 59);
+        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.power.off").getString(), pPoseStack, 95, 59);
+
+        switch (getMenu().getTile().getMode()) {
+            case 0 ->
+                    drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.default").getString(), pPoseStack, 87, 77);
+            case 1 ->
+                    drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.efficient").getString(), pPoseStack, 87, 77);
+            case 2 ->
+                    drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.fortune").getString(), pPoseStack, 87, 77);
+            case 3 ->
+                    drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.silktouch").getString(), pPoseStack, 87, 77);
+            case 4 ->
+                    drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.void").getString(), pPoseStack, 87, 77);
+        }
+
+        if (modeButtonIsHovered) {
+            List<Component> list = new ArrayList<>();
+            switch (getMenu().getTile().getMode()) {
+                case 0 -> {
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.default"));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.consumption.100").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.amount.16").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                } // Default
+                case 1 -> {
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.efficient"));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.consumption.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.amount.20").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.speed.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                } // Efficient
+                case 2 -> {
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.fortune"));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.consumption.200").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.amount.8").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                } // Fortune 3
+                case 3 -> {
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.silktouch"));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.consumption.200").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.amount.8").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                } // Silktouch
+                default -> {
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.void"));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.consumption.100").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                    list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.amount.16").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))); // Void
+                }
+            }
+            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+        }
+
+        if (infoButtonIsHovered) {
+            List<Component> list = new ArrayList<>();
+            list.add(new TextComponent("Informations"));
+            list.add(new TextComponent(""));
+            list.add(new TextComponent("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TextComponent(""));
+            list.add(new TextComponent("When turned off, the quarry").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TextComponent("will consume 1 BurnTick per second.").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TextComponent("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TextComponent("Changing the speed does not currently").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TextComponent("affect the fuel consumption!").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+        }
     }
 
     @Override
@@ -62,19 +129,23 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         addElements();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int x, int y) {
         super.renderBg(matrixStack, partialTicks, x, y);
+
         Level level = this.getMenu().getTile().getLevel();
         BlockPos pos = this.getMenu().getTile().getBlockPos();
-        //Render Status Dot and Fire
-        if (level.getBlockState(pos).getValue(QuarryBlock.POWERED))
-            blit(matrixStack, leftPos + 23, topPos + 86, 176, 0, 14, 14); // fire
+
+        int height = getLitProgress();
+        this.blit(matrixStack, leftPos + 23, topPos + 86 + 13 - height, 176, 13 - height, 14, height + 1);
+
         if (level.getBlockState(pos).getValue(QuarryBlock.ACTIVE)) {
             blit(matrixStack, leftPos + 63, topPos + 96, 176, 14, 5, 5); // green
         } else {
             blit(matrixStack, leftPos + 63, topPos + 96, 182, 14, 5, 5); // red
         }
+
         // Render slots
         for (Slot slot : container.slots) {
             if (slot instanceof BaseSlot baseSlot) {
@@ -85,30 +156,44 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
 
     protected void addElements() {
         QuarryBlockEntity tile = this.getMenu().getTile();
+        MODE_MOUSE_BUTTON = new ModButton(56, 74, 64, 14, VanillaQuarry.MODE, this::changeMode, tile, this, 64, 28);
+        INFO_MOUSE_BUTTON = new ModButton(161, 6, 9, 9, VanillaQuarry.INFO, null, tile, this, 9, 18);
         addRenderableWidget(new ModButton(69, 38, 10, 14, VanillaQuarry.COUNTER_DOWN, () -> changeSpeed((byte) -1, tile), tile, this, 10, 28));
-        addRenderableWidget(new ModButton(95, 38, 10, 14, VanillaQuarry.COUNTER_UP, () -> changeSpeed((byte) 1, tile), tile, this, 10 ,28));
+        addRenderableWidget(new ModButton(95, 38, 10, 14, VanillaQuarry.COUNTER_UP, () -> changeSpeed((byte) 1, tile), tile, this, 10, 28));
 
         addRenderableWidget(new ModButton(61, 56, 25, 14, VanillaQuarry.POWER, () -> changePower(true, tile), tile, this, 25, 28));
         addRenderableWidget(new ModButton(90, 56, 25, 14, VanillaQuarry.POWER, () -> changePower(false, tile), tile, this, 25, 28));
 
-        TextComponent hoverComponent = switch (tile.getMode()) {
-            case 0 -> new TextComponent("Default mining. Nothing special. 16B/coal"); // Default
-            case 1 -> new TextComponent("Mines with a higher efficiency, but 0.25x slower. 20B/coal"); // Efficient
-            case 2 -> new TextComponent("Doubles and tripples all mined block. 10B/coal"); // Fortune
-            case 3 -> new TextComponent("Breaks all blocks with fineness. 10B/coal"); // Silktouch
-            default -> new TextComponent("Default mining, but voids all mined Blocks. 15B/coal"); // Void
-        };
-        addRenderableWidget(new ModButton(56, 74, 64, 14, VanillaQuarry.MODE, () -> changeMode(), tile, this, 64, 28).addHoverText(() -> new TextComponent("Hallo")));
+        addRenderableWidget(MODE_MOUSE_BUTTON);
+        addRenderableWidget(INFO_MOUSE_BUTTON);
     }
 
     @Override
     protected void slotClicked(@NotNull Slot pSlot, int pSlotId, int pMouseButton, @NotNull ClickType pType) {
         super.slotClicked(pSlot, pSlotId, pMouseButton, pType);
         sendChangedPacket();
+        if (pSlotId == 48) {
+            PacketHandler.sendToServer(new QuarryChangedPacket(pSlot.getItem(), "refresh", this.getMenu().getTile().getBlockPos()));
+        }
+    }
+
+    @Override
+    protected boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
+        if (MODE_MOUSE_BUTTON != null && MODE_MOUSE_BUTTON.isMouseOver(pMouseX, pMouseY)) {
+            modeButtonIsHovered = true;
+        } else {
+            if (modeButtonIsHovered) modeButtonIsHovered = false;
+        }
+        if (INFO_MOUSE_BUTTON != null && INFO_MOUSE_BUTTON.isMouseOver(pMouseX, pMouseY)) {
+            infoButtonIsHovered = true;
+        } else {
+            if (infoButtonIsHovered) infoButtonIsHovered = false;
+        }
+        return super.isHovering(pX, pY, pWidth, pHeight, pMouseX, pMouseY);
     }
 
     public void sendChangedPacket() {
-        PacketHandler.sendToServer(new QuarryChangedPacket(this.getMenu().getTile().getBlockPos()));
+        PacketHandler.sendToServer(new QuarryChangedPacket(null, "changed", this.getMenu().getTile().getBlockPos()));
     }
 
     private void changeMode() {
@@ -142,10 +227,26 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     public void drawCenteredText(String text, PoseStack stack, int x, int y) {
-        Minecraft.getInstance().font.draw(stack, text, x - (Minecraft.getInstance().font.width(text) / 2), y, 4210752);
+        Minecraft.getInstance().font.draw(stack, text, x - (Minecraft.getInstance().font.width(text) / 2f), y, 1315860);
     }
 
     public void drawText(String text, PoseStack stack, int x, int y) {
-        Minecraft.getInstance().font.draw(stack, text, x, y, 4210752);
+        Minecraft.getInstance().font.draw(stack, text, x, y, 1315860);
+    }
+
+    public int getBurnTime() {
+        return container.getTile().getBurnTime();
+    }
+
+    public int getTotalBurnTime() {
+        return container.getTile().getTotalBurnTime();
+    }
+
+    public int getLitProgress() {
+        int total = container.getTile().getTotalBurnTime();
+        if (total == 0) {
+            total = 1;
+        }
+        return (container.getTile().getBurnTime() * 13) / total;
     }
 }

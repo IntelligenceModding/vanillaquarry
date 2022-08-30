@@ -1,7 +1,6 @@
 package de.unhappycodings.vanillaquarry.client.gui.widgets.base;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import de.unhappycodings.vanillaquarry.VanillaQuarry;
 import de.unhappycodings.vanillaquarry.client.gui.GuiUtil;
 import de.unhappycodings.vanillaquarry.client.gui.widgets.ModButton;
 import de.unhappycodings.vanillaquarry.common.container.QuarryScreen;
@@ -11,7 +10,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,8 +71,7 @@ public abstract class BaseWidget extends AbstractWidget {
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         for (BaseWidget child : children) {
-            if (child instanceof ModButton)
-                child.mouseClicked(pMouseX, pMouseY, pButton);
+            if (child instanceof ModButton) child.mouseClicked(pMouseX, pMouseY, pButton);
         }
 
         return super.mouseClicked(pMouseX, pMouseY, pButton);
@@ -82,8 +79,7 @@ public abstract class BaseWidget extends AbstractWidget {
 
     @Override
     public void playDownSound(@NotNull SoundManager pHandler) {
-        if (this instanceof ModButton)
-            super.playDownSound(pHandler);
+        if (this instanceof ModButton) super.playDownSound(pHandler);
     }
 
     public <ELEMENT extends BaseWidget> ELEMENT addChild(ELEMENT child) {

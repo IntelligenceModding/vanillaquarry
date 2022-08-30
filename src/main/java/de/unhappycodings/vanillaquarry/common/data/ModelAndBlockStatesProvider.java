@@ -24,27 +24,13 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
         quarryBlock(ModBlocks.QUARRY.get());
     }
 
+
+    @SuppressWarnings("ConstantConditions")
     public void quarryBlock(QuarryBlock block) {
-        ModelFile quarryOff = models().withExistingParent(block.getRegistryName().toString() + "_off", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block"))
-                .texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_off"))
-                .texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"))
-                .texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top"))
-                .texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
-        ModelFile quarryIdle = models().withExistingParent(block.getRegistryName().toString() + "_idle", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block"))
-                .texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_idle"))
-                .texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"))
-                .texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top"))
-                .texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
-        ModelFile quarryOn = models().withExistingParent(block.getRegistryName().toString() + "_on", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block"))
-                .texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_on"))
-                .texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"))
-                .texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top"))
-                .texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
-        ModelFile quarryWorking = models().withExistingParent(block.getRegistryName().toString() + "_work", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block"))
-                .texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_work"))
-                .texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"))
-                .texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top"))
-                .texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryOff = models().withExistingParent(block.getRegistryName().toString() + "_off", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_off")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryIdle = models().withExistingParent(block.getRegistryName().toString() + "_idle", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_idle")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryOn = models().withExistingParent(block.getRegistryName().toString() + "_on", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_on")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryWorking = models().withExistingParent(block.getRegistryName().toString() + "_work", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_work")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
         quarryBlock(block, quarryOff, quarryIdle, quarryOn, quarryWorking);
     }
 
@@ -55,16 +41,11 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
             boolean working = state.getValue(QuarryBlock.WORKING);
             boolean active = state.getValue(QuarryBlock.ACTIVE);
             if (powered && !active)
-                return ConfiguredModel.builder().modelFile(idle)
-                        .rotationY(getSensorRotation(facing)).build();
+                return ConfiguredModel.builder().modelFile(idle).rotationY(getSensorRotation(facing)).build();
             if (active && !working)
-                return ConfiguredModel.builder().modelFile(on)
-                        .rotationY(getSensorRotation(facing)).build();
-            if (working)
-                return ConfiguredModel.builder().modelFile(work)
-                        .rotationY(getSensorRotation(facing)).build();
-            return ConfiguredModel.builder().modelFile(off)
-                    .rotationY(getSensorRotation(facing)).build();
+                return ConfiguredModel.builder().modelFile(on).rotationY(getSensorRotation(facing)).build();
+            if (working) return ConfiguredModel.builder().modelFile(work).rotationY(getSensorRotation(facing)).build();
+            return ConfiguredModel.builder().modelFile(off).rotationY(getSensorRotation(facing)).build();
         });
     }
 

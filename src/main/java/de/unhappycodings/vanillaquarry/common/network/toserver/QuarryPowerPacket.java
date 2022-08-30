@@ -8,7 +8,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkEvent;
 
 public class QuarryPowerPacket implements IPacket {
@@ -25,11 +24,17 @@ public class QuarryPowerPacket implements IPacket {
         return new QuarryPowerPacket(buffer.readBlockPos(), buffer.readBoolean());
     }
 
+    @SuppressWarnings("ConstantConditions")
     public void handle(NetworkEvent.Context context) {
         ServerPlayer player = context.getSender();
         Level level = player.getCommandSenderWorld();
+        BlockEntity machine = player.getCommandSenderWorld().getBlockEntity(pos);
+        if (!(machine instanceof QuarryBlockEntity)) return;
         if (level.getBlockState(pos).getValue(QuarryBlock.POWERED)) {
             level.setBlockAndUpdate(pos, level.getBlockState(pos).setValue(QuarryBlock.ACTIVE, add));
+            if (!add) {
+                level.setBlockAndUpdate(pos, level.getBlockState(pos).setValue(QuarryBlock.WORKING, false));
+            }
         }
     }
 

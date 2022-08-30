@@ -10,9 +10,7 @@ import de.unhappycodings.vanillaquarry.common.util.TagUtil;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -22,14 +20,13 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 
-//TODO: Make a more advanced slot system.
+// CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public class BaseSlot extends SlotItemHandler {
     public static final ResourceLocation GHOST_OVERLAY = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/slot/ghost_overlay.png");
 
@@ -37,7 +34,6 @@ public class BaseSlot extends SlotItemHandler {
     private final Predicate<ItemStack> canPlace;
     public boolean isEnabled = true;
     int size;
-    private ResourceLocation texture;
     private Pair<Predicate<ItemStack>, ResourceLocation> overlay;
     private ItemStack[] ghostOverlays;
     private int nextGhostItemTick = 0;
@@ -48,7 +44,6 @@ public class BaseSlot extends SlotItemHandler {
         super(itemHandler, index, xPosition, yPosition);
         this.inventory = inventory;
         this.size = 18;
-        this.texture = texture;
         this.canPlace = canPlace;
         this.ghostOverlays = ghostOverlays;
     }

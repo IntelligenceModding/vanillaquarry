@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemStack;
 
+// CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public class RenderUtil {
 
     //Adapted from ItemRenderer
@@ -37,8 +38,7 @@ public class RenderUtil {
         PoseStack posestack1 = new PoseStack();
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         boolean flag = !bakedmodel.usesBlockLight();
-        if (flag)
-            Lighting.setupForFlatItems();
+        if (flag) Lighting.setupForFlatItems();
 
         itemRenderer.render(stack, ItemTransforms.TransformType.GUI, false, posestack1, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
         bufferSource.endBatch();

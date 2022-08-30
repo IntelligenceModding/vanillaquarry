@@ -9,23 +9,15 @@ import de.unhappycodings.vanillaquarry.common.item.ModItems;
 import de.unhappycodings.vanillaquarry.common.setup.ContainerTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -40,16 +32,13 @@ public class QuarryContainer extends BaseContainer {
         super(ContainerTypes.QUARRY_CONTAINER.get(), id, inventory, pos, level);
         layoutPlayerInventorySlots(8, 122);
         if (tileEntity != null) {
-
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
-
                 for (Map.Entry<ResourceKey<Item>, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
                     if (ForgeHooks.getBurnTime(new ItemStack(entry.getValue()), null) > 0) {
                         if (!entry.getValue().getRegistryName().toString().contains("bucket"))
                             burnables.add(entry.getValue());
                     }
                 }
-
                 addSlot(new BaseSlot(handler, inventory, 0, 13, 30, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
                 addSlot(new BaseSlot(handler, inventory, 1, 31, 30, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
                 addSlot(new BaseSlot(handler, inventory, 2, 13, 48, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
@@ -64,7 +53,8 @@ public class QuarryContainer extends BaseContainer {
                 addSlot(new SlotInputHandler(handler, 10, 129, 66, new SlotCondition().setNeededItem(Items.AIR))); //Output
                 addSlot(new SlotInputHandler(handler, 11, 147, 66, new SlotCondition().setNeededItem(Items.AIR))); //Output
 
-                addSlot(new BaseSlot(handler, inventory, 12, 138, 87, BaseSlot.GHOST_OVERLAY, stack -> stack.is(ModItems.AREA_CARD.get())).addGhostOverlays(ModItems.AREA_CARD.get()));; //Card
+                addSlot(new BaseSlot(handler, inventory, 12, 138, 87, BaseSlot.GHOST_OVERLAY, stack -> stack.is(ModItems.AREA_CARD.get())).addGhostOverlays(ModItems.AREA_CARD.get()));
+                ; //Card
             });
         }
     }

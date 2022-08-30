@@ -24,16 +24,13 @@ public class CommonConfig {
 
     private static void init(ForgeConfigSpec.Builder commonBuilder) {
         commonBuilder.push("General");
-        areaCardOverlayColorFirstCorner = commonBuilder.comment("What Color should the overlay at the first corner be [Format: #RRGGBB]")
-                .define("first_corner_overlay_color", "#116300");
-        areaCardOverlayColorSecondCorner = commonBuilder.comment("What Color should the overlay at the second corner be [Format: #RRGGBB]")
-                .define("second_corner_overlay_color", "#630000");
+        areaCardOverlayColorFirstCorner = commonBuilder.comment("What Color should the overlay at the first corner be [Format: #RRGGBB]").define("first_corner_overlay_color", "#116300");
+        areaCardOverlayColorSecondCorner = commonBuilder.comment("What Color should the overlay at the second corner be [Format: #RRGGBB]").define("second_corner_overlay_color", "#630000");
         commonBuilder.pop();
     }
 
     public static void loadConfigFile(ForgeConfigSpec config, String path) {
-        final CommentedFileConfig file = CommentedFileConfig.builder(new File(path))
-                .sync().autosave().writingMode(WritingMode.REPLACE).build();
+        final CommentedFileConfig file = CommentedFileConfig.builder(new File(path)).sync().autosave().writingMode(WritingMode.REPLACE).build();
         file.load();
         config.setConfig(file);
     }

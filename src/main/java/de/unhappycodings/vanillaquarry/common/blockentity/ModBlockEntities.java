@@ -11,9 +11,8 @@ public final class ModBlockEntities {
 
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, VanillaQuarry.MOD_ID);
 
-    public static final RegistryObject<BlockEntityType<QuarryBlockEntity>> QUARRY_BLOCK =
-            BLOCK_ENTITIES.register("wireless_lamp_controller", () ->
-                    BlockEntityType.Builder.of(QuarryBlockEntity::new, ModBlocks.QUARRY.get()).build(null));
+    public static final RegistryObject<BlockEntityType<QuarryBlockEntity>> QUARRY_BLOCK = BLOCK_ENTITIES.register("quarry_block",
+            () -> BlockEntityType.Builder.of(QuarryBlockEntity::new, ModBlocks.QUARRY.get()).build(null));
 
     private ModBlockEntities() {
     }

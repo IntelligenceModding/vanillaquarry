@@ -5,6 +5,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
+// CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public class SlotInputHandler extends SlotItemHandler {
 
     SlotCondition condition;

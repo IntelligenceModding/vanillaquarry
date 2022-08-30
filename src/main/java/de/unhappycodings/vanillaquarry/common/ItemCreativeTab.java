@@ -1,14 +1,12 @@
 package de.unhappycodings.vanillaquarry.common;
 
-import de.unhappycodings.vanillaquarry.common.blocks.ModBlocks;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
+import de.unhappycodings.vanillaquarry.common.blocks.ModBlocks;
 import de.unhappycodings.vanillaquarry.common.item.ModItems;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,9 +28,7 @@ public class ItemCreativeTab extends CreativeModeTab {
         int index = 0;
 
         ArrayList<Item> blockList = new ArrayList<>();
-        Collections.addAll(blockList,
-                ModBlocks.QUARRY.get().asItem(), ModItems.AREA_CARD.get().asItem()
-        );
+        Collections.addAll(blockList, ModBlocks.QUARRY.get().asItem(), ModItems.AREA_CARD.get().asItem());
 
         for (Item i : blockList) {
             items.add(index, new ItemStack(i));

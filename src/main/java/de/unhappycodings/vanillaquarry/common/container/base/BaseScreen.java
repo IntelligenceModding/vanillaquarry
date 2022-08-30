@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+// CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public abstract class BaseScreen<T extends BaseContainer> extends AbstractContainerScreen<T> {
 
     public BaseScreen(T screenContainer, Inventory inv, Component titleIn) {

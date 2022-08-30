@@ -16,16 +16,17 @@ public class ItemModelProvider extends net.minecraftforge.client.model.generator
         super(gen, VanillaQuarry.MOD_ID, exFileHelper);
     }
 
+
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void registerModels() {
-        withExistingParent(ModBlocks.QUARRY.get().getRegistryName().toString(),
-                new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_off"));
+        withExistingParent(ModBlocks.QUARRY.get().getRegistryName().toString(), new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_off"));
         simpleItem(ModItems.AREA_CARD.get());
     }
 
     private void simpleItem(Item item) {
-        withExistingParent(Objects.requireNonNull(item.getRegistryName()).toString(), "item/generated").texture("layer0",
-                new ResourceLocation(this.modid, "item/" + item.getRegistryName().getPath()));
+        withExistingParent(Objects.requireNonNull(item.getRegistryName()).toString(), "item/generated")
+                .texture("layer0", new ResourceLocation(this.modid, "item/" + item.getRegistryName().getPath()));
     }
 
 }

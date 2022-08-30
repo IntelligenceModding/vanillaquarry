@@ -5,6 +5,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
+// CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public interface IPacket {
 
     static <MSG extends IPacket> void handle(MSG message, Supplier<NetworkEvent.Context> context) {
