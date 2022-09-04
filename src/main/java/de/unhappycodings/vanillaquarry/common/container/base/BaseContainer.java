@@ -1,6 +1,10 @@
 package de.unhappycodings.vanillaquarry.common.container.base;
 
 import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
+import de.unhappycodings.vanillaquarry.common.item.AreaCardItem;
+import de.unhappycodings.vanillaquarry.common.item.ModItems;
+import de.unhappycodings.vanillaquarry.common.network.PacketHandler;
+import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryChangedPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -42,6 +46,9 @@ public abstract class BaseContainer extends AbstractContainerMenu {
         Slot sourceSlot = slots.get(index);
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem();
+        if (sourceStack.is(ModItems.AREA_CARD.get())) {
+            PacketHandler.sendToServer(new QuarryChangedPacket(sourceStack, 1, tileEntity.getBlockPos()));
+        }
         ItemStack copyOfSourceStack = sourceStack.copy();
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)) {

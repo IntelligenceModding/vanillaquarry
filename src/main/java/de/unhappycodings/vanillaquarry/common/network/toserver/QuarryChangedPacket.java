@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -13,36 +14,37 @@ import java.util.Objects;
 
 public class QuarryChangedPacket implements IPacket {
     BlockPos pos;
-    String type;
     ItemStack stack;
+    int type;
 
-    public QuarryChangedPacket(ItemStack stack, String type, BlockPos pos) {
+    public QuarryChangedPacket(ItemStack stack, int type, BlockPos pos) {
         this.pos = pos;
         this.type = type;
         this.stack = stack;
     }
 
     public static QuarryChangedPacket decode(FriendlyByteBuf buffer) {
-        return new QuarryChangedPacket(null, null, buffer.readBlockPos());
+        return new QuarryChangedPacket(buffer.readItem(), buffer.readInt(), buffer.readBlockPos());
     }
 
     @SuppressWarnings("ConstantConditions")
     public void handle(NetworkEvent.Context context) {
-        if (Objects.equals(type, "changed")) {
+        if (type == 0) { // changed
             ServerPlayer player = context.getSender();
             Level level = player.getCommandSenderWorld();
             level.getBlockEntity(pos).setChanged();
         }
-        if (Objects.equals(type, "refresh")) {
+        if (type == 1) { // refresh
             ServerPlayer player = context.getSender();
             Level level = player.getCommandSenderWorld();
             level.getBlockEntity(pos).setChanged();
             ((QuarryBlockEntity) level.getBlockEntity(pos)).refreshPositions(stack);
         }
-
     }
 
     public void encode(FriendlyByteBuf buffer) {
+        buffer.writeItem(stack != null ? stack : new ItemStack(Items.AIR));
+        buffer.writeInt(type);
         buffer.writeBlockPos(pos);
     }
 }

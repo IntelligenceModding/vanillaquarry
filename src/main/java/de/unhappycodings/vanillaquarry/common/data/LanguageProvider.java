@@ -30,12 +30,9 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.vanillaquarry.quarry.mode.silktouch", "Silk Touch");
         add("gui.vanillaquarry.quarry.mode.void", "Void");
 
-        add("gui.vanillaquarry.quarry.tooltip.consumption.100", "Consumption: 100 ticks");
-        add("gui.vanillaquarry.quarry.tooltip.amount.16", "1 coal: 16 blocks");
-        add("gui.vanillaquarry.quarry.tooltip.consumption.200", "Consumption: 200 ticks");
-        add("gui.vanillaquarry.quarry.tooltip.amount.8", "1 coal: 8 blocks");
-        add("gui.vanillaquarry.quarry.tooltip.consumption.80", "Consumption: 80 ticks");
-        add("gui.vanillaquarry.quarry.tooltip.amount.20", "1 coal: 20 blocks");
+        add("gui.vanillaquarry.quarry.tooltip.consumption", "Consumption:");
+        add("gui.vanillaquarry.quarry.tooltip.coal", "1 coal:");
+        add("gui.vanillaquarry.quarry.tooltip.blocks", "blocks");
 
         add("gui.vanillaquarry.quarry.tooltip.speed.80", "at 80% speed");
 

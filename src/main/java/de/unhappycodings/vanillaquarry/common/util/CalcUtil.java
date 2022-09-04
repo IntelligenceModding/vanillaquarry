@@ -51,4 +51,17 @@ public class CalcUtil {
         return blocks;
     }
 
+    public static float getNeededTicks(int mode, int speed) {
+        int fuelModifier = switch (mode) {
+            case 1 -> 80;     // Efficient
+            case 2, 3 -> 200; // Fortune, Silktouch
+            default -> 100;   // Default, Void
+        };
+        switch (speed) {
+            case 1 -> fuelModifier *= 1.25;
+            case 2 -> fuelModifier *= 1.5;
+        }
+        return fuelModifier;
+    }
+
 }

@@ -17,9 +17,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
@@ -63,7 +61,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     private static final int SPEED_0 = 15;
     private static final int SPEED_1 = 10;
-    private static final int SPEED_2 = 0; // 5
+    private static final int SPEED_2 = 5; // 5
     private int speedModifier = 0;
     private boolean isFortune = false;
 
@@ -88,17 +86,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         return super.getCapability(cap, side);
     }
 
-    /*
-    TextComponent hoverComponent = switch (tile.getMode()) {
-        case 0 -> new TextComponent("Default mining. Nothing special. 16B/coal"); // Default
-        case 1 -> new TextComponent("Mines with a higher efficiency, but 0.25x slower. 20B/coal"); // Efficient
-        case 2 -> new TextComponent("Doubles and tripples all mined block. Doubles Fuel Consume. 8B/coal"); // Fortune 3
-        case 3 -> new TextComponent("Breaks all blocks with fineness. Doubles Fuel Consume. 8B/coal"); // Silktouch
-        default -> new TextComponent("Default mining, but voids all mined Blocks. 15B/coal"); // Void
-    };
-     */
-
-
     @SuppressWarnings("ConstantConditions")
     public void tick() {
         if (level.isClientSide) return;
@@ -110,7 +97,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         List<ItemStack> input = new ArrayList<>();
         for (int i = 0; i <= 5; i++)
             input.add(getItem(i));
-        if (burnTime <= 201) {
+        if (burnTime <= 301) {
             for (int i = 0; i < input.size(); i++) {
                 if (ForgeHooks.getBurnTime(input.get(i), null) > 0) {
                     totalBurnTime = ForgeHooks.getBurnTime(input.get(i), null);
@@ -138,20 +125,20 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                 CompoundTag itemTag = NbtUtil.getNbtTag(areaCardItem);
                 if (itemTag.contains("pos1") && itemTag.contains("pos2")) {
                     // Get Speed and set to variables
-                    if (speed == 0) if (!(ticks - speedModifier >= SPEED_0)) { ticks++; return; }
-                    if (speed == 1) if (!(ticks - speedModifier >= SPEED_1)) { ticks++; return; }
-                    if (speed == 2) if (!(ticks - speedModifier >= SPEED_2)) { ticks++; return; }
+                    if (speed == 0) if (!(ticks + speedModifier >= SPEED_0)) { ticks++; return; }
+                    if (speed == 1) if (!(ticks + speedModifier >= SPEED_1)) { ticks++; return; }
+                    if (speed == 2) if (!(ticks + speedModifier >= SPEED_2)) { ticks++; return; }
 
                     // Get Mode to variables to work with in-code easilier!
-                    int fuelModifier;
+                    float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
                     boolean isSilktouch;
                     boolean isVoid;
                     switch (entity.getMode()) {
-                        case 1: fuelModifier = 80; speedModifier = 5; isFortune = false; isSilktouch = false; isVoid = false; break; // Efficient
-                        case 2: fuelModifier = 200; speedModifier = 0; isFortune = true; isSilktouch = false; isVoid = false; break; // Fortune
-                        case 3: fuelModifier = 200; speedModifier = 0; isFortune = false; isSilktouch = true; isVoid = false; break; // Silktouch
-                        case 4: fuelModifier = 100; speedModifier = 0; isFortune = false; isSilktouch = false; isVoid = true; break;// Void
-                        default: fuelModifier = 100; speedModifier = 0; isFortune = false; isSilktouch = false; isVoid = false; // Default
+                        case 1 -> { speedModifier = -5; isFortune = false; isSilktouch = false; isVoid = false; } // Efficient
+                        case 2 -> { speedModifier = 0; isFortune = true; isSilktouch = false; isVoid = false; } // Fortune
+                        case 3 -> { speedModifier = 0; isFortune = false; isSilktouch = true; isVoid = false; } // Silktouch
+                        case 4 -> { speedModifier = 0; isFortune = false; isSilktouch = false; isVoid = true; } // Void
+                        default -> { speedModifier = 0; isFortune = false; isSilktouch = false; isVoid = false; }      // Default
                     }
                     if (blockStateList == null || blockStateList.isEmpty()) refreshPositions(areaCardItem);
                     if (blockStateList.size() > 0 && burnTime > fuelModifier) {
@@ -195,6 +182,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                             }
                             boolean broken = false;
                             for (ItemStack drop : drops) {
+                                if (isVoid) { broken = true; break;}
                                 setChanged();
                                 int index = hasOutputSpace(drop);
                                 if (index != 0) {
@@ -245,8 +233,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     }
 
     private boolean allowedToBreak(BlockState state, Level world, BlockPos pos, Player player) {
-        System.out.println(state.getBlock().canEntityDestroy(state, world, pos, player));
-        if (!state.getBlock().canEntityDestroy(state, world, pos, player))
+        if (!state.getBlock().canEntityDestroy(state, world, pos, player) || state.getDestroySpeed(level, pos) == -1)
             return false;
         BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, player);
         MinecraftForge.EVENT_BUS.post(event);
@@ -254,6 +241,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     }
 
     public void refreshPositions(ItemStack itemStack) {
+        System.out.println("Called!");
         CompoundTag pos1 = (CompoundTag) itemStack.getOrCreateTag().get("pos1");
         CompoundTag pos2 = (CompoundTag) itemStack.getOrCreateTag().get("pos2");
         if (pos1 == null || pos2 == null) return;

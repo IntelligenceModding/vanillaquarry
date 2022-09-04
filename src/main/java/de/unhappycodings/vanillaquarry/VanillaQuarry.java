@@ -31,10 +31,17 @@ public class VanillaQuarry {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final ResourceLocation COUNTER_UP = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_plus.png");
+    public static final ResourceLocation COUNTER_UP_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_plus_dark.png");
     public static final ResourceLocation COUNTER_DOWN = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus.png");
+    public static final ResourceLocation COUNTER_DOWN_DARK  = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus_dark.png");
     public static final ResourceLocation POWER = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/power.png");
+    public static final ResourceLocation POWER_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/power_dark.png");
     public static final ResourceLocation MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/mode.png");
+    public static final ResourceLocation MODE_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/mode_dark.png");
     public static final ResourceLocation INFO = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/information.png");
+
+    public static final ResourceLocation WHITE_MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/dark_mode_switch_off.png");
+    public static final ResourceLocation DARK_MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/dark_mode_switch_on.png");
 
     public static final CreativeModeTab creativeTab = new ItemCreativeTab();
 

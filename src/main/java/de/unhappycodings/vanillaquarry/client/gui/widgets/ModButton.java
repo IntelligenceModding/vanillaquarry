@@ -4,8 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
 import de.unhappycodings.vanillaquarry.client.gui.GuiUtil;
 import de.unhappycodings.vanillaquarry.client.gui.widgets.base.BaseWidget;
+import de.unhappycodings.vanillaquarry.common.container.QuarryContainer;
 import de.unhappycodings.vanillaquarry.common.container.QuarryScreen;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,17 +24,19 @@ public class ModButton extends BaseWidget {
     private final Supplier<Boolean> isValid;
     private final ResourceLocation texture;
     private Supplier<Component> hoverText;
+    boolean playSound;
 
     int tX = 0;
     int tY = 0;
 
-    public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, BlockEntity tile, QuarryScreen screen, int tX, int tY) {
+    public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, BlockEntity tile, QuarryScreen screen, int tX, int tY, boolean playSound) {
         super(x, y, width, height, tile, screen);
         this.onClick = onClick;
         this.isValid = () -> true;
         this.texture = texture;
         this.tX = tX;
         this.tY = tY;
+        this.playSound = playSound;
     }
 
     public ModButton addHoverText(Supplier<Component> message) {
@@ -76,4 +80,9 @@ public class ModButton extends BaseWidget {
 
     }
 
+    @Override
+    public void playDownSound(@NotNull SoundManager pHandler) {
+        if (playSound)
+            super.playDownSound(pHandler);
+    }
 }

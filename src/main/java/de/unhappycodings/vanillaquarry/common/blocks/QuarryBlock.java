@@ -68,7 +68,6 @@ public class QuarryBlock extends BaseEntityBlock {
     @NotNull
     @Override
     public InteractionResult use(@NotNull BlockState state, Level levelIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
-        //if (levelIn.isClientSide) return InteractionResult.SUCCESS;
         MenuProvider namedContainerProvider = this.getMenuProvider(state, levelIn, pos);
         if (namedContainerProvider != null) {
             if (levelIn.isClientSide) {
