@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
+import de.unhappycodings.vanillaquarry.client.config.ClientConfig;
 import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.vanillaquarry.common.config.CommonConfig;
 import de.unhappycodings.vanillaquarry.common.item.AreaCardItem;
@@ -42,6 +43,7 @@ public class ForgeEvents {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void renderSquareAboveWorldCentre(RenderLevelLastEvent event) {
+        if (!ClientConfig.enableAreaCardCornerRendering.get()) return;
         Player player = Minecraft.getInstance().player;
         ItemStack item = player.getItemInHand(InteractionHand.MAIN_HAND);
         if (item.isEmpty()) return;

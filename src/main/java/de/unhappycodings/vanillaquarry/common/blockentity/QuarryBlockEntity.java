@@ -2,6 +2,7 @@ package de.unhappycodings.vanillaquarry.common.blockentity;
 
 import com.mojang.authlib.GameProfile;
 import de.unhappycodings.vanillaquarry.common.blocks.QuarryBlock;
+import de.unhappycodings.vanillaquarry.common.config.CommonConfig;
 import de.unhappycodings.vanillaquarry.common.container.QuarryContainer;
 import de.unhappycodings.vanillaquarry.common.item.ModItems;
 import de.unhappycodings.vanillaquarry.common.util.CalcUtil;
@@ -115,9 +116,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         if (!state.getValue(QuarryBlock.ACTIVE) && state.getValue(QuarryBlock.WORKING))
             level.setBlockAndUpdate(getBlockPos(), state.setValue(QuarryBlock.POWERED, burnTime > 0).setValue(QuarryBlock.WORKING, false));
 
-        if (burnTime > 0 && burnTicks >= 20 && !state.getValue(QuarryBlock.WORKING)) {
-            burnTime--; burnTicks = 0;
-        }
+        if (burnTime > CommonConfig.quarryIdleConsumption.get() && burnTicks >= 20 && !state.getValue(QuarryBlock.WORKING))
+            burnTime -= CommonConfig.quarryIdleConsumption.get(); burnTicks = 0;
         burnTicks++;
         if (state.getValue(QuarryBlock.ACTIVE)) {
             ItemStack areaCardItem = getItem(12);
@@ -131,6 +131,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
                     // Get Mode to variables to work with in-code easilier!
                     float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
+                    System.out.println(fuelModifier);
                     boolean isSilktouch;
                     boolean isVoid;
                     switch (entity.getMode()) {
@@ -164,7 +165,9 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                         }
                         if (level.getBlockState(currentBlock).getBlock() == Blocks.AIR) {
                             itemTag.putInt("lastBlock", blockIndex + 1);
+                            burnTime -= fuelModifier;
                         } else {
+                            System.out.println("runned 2");
                             FakePlayer player = FakePlayerFactory.get((ServerLevel) level, new GameProfile(
                                     UUID.fromString("6e483f02-30db-4454-b612-3a167614b576"), "VanillaQuarry Quarry"));
                             // Block Drops Looping with Inventory-Space Checking and Block Breaking
@@ -178,19 +181,27 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 }
                                 itemTag.putInt("lastBlock", blockIndex + 1);
                                 itemTag.putInt("currentY", currentBlock.getY());
+                                burnTime -= fuelModifier;
                                 return;
                             }
+                            System.out.println(drops);
                             boolean broken = false;
                             for (ItemStack drop : drops) {
-                                if (isVoid) { broken = true; break;}
+                                if (isVoid) {
+                                    itemTag.putInt("lastBlock", blockIndex + 1);
+                                    itemTag.putInt("currentY", currentBlock.getY());
+                                    burnTime -= fuelModifier;
+                                    broken = true;
+                                    break;
+                                }
                                 setChanged();
                                 int index = hasOutputSpace(drop);
                                 if (index != 0) {
                                     if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
-                                        if (!isVoid)
-                                            setItem(index, new ItemStack(drop.getItem(), (getItem(index).getCount() + drop.getCount())));
-                                        broken = true;
+                                        System.out.println("runned 4");
+                                        setItem(index, new ItemStack(drop.getItem(), (getItem(index).getCount() + drop.getCount())));
                                         burnTime -= fuelModifier;
+                                        broken = true;
                                     }
                                     itemTag.putInt("lastBlock", blockIndex + 1);
                                     itemTag.putInt("currentY", currentBlock.getY());

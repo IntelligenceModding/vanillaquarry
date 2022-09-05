@@ -6,6 +6,7 @@ import de.unhappycodings.vanillaquarry.client.config.ClientConfig;
 import de.unhappycodings.vanillaquarry.client.gui.widgets.ModButton;
 import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.vanillaquarry.common.blocks.QuarryBlock;
+import de.unhappycodings.vanillaquarry.common.config.CommonConfig;
 import de.unhappycodings.vanillaquarry.common.container.base.BaseScreen;
 import de.unhappycodings.vanillaquarry.common.container.base.BaseSlot;
 import de.unhappycodings.vanillaquarry.common.item.AreaCardItem;
@@ -55,7 +56,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.fuel").getString(), pPoseStack, 19, 20);
         drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.out").getString(), pPoseStack, 138, 20);
         drawText(new TextComponent(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
-        String yCoord = "stop";
+        String yCoord = new TranslatableComponent("gui.vanillaquarry.quarry.text.stop").getString();
         ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 1);
         if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY")) {
             yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
@@ -100,10 +101,12 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             list.add(new TextComponent("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(new TextComponent(""));
             list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.when_turned_off").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.will_consume").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TextComponent(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.will_consume").getString().replace("#", CommonConfig.quarryIdleConsumption.get().toString())).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(new TextComponent("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.changing_speed").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TextComponent("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
     }
@@ -152,7 +155,8 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         MODE_MOUSE_BUTTON = new ModButton(56, 74, 64, 14, darkmode ? VanillaQuarry.MODE_DARK : VanillaQuarry.MODE, this::changeMode, tile, this, 64, 28, true);
         INFO_MOUSE_BUTTON = new ModButton(161, 6, 9, 9, VanillaQuarry.INFO, null, tile, this, 9, 18, false);
 
-        addRenderableWidget(new ModButton(146, 7, 12, 8, darkmode ? VanillaQuarry.DARK_MODE : VanillaQuarry.WHITE_MODE, () -> {refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, tile, this, 12, 16, true));
+        if (ClientConfig.enableEnableQuarryDarkmodeButton.get())
+            addRenderableWidget(new ModButton(146, 7, 12, 8, darkmode ? VanillaQuarry.DARK_MODE : VanillaQuarry.WHITE_MODE, () -> {refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, tile, this, 12, 16, true));
         addRenderableWidget(new ModButton(69, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_DOWN_DARK : VanillaQuarry.COUNTER_DOWN, () -> changeSpeed((byte) -1, tile), tile, this, 10, 28, true));
         addRenderableWidget(new ModButton(95, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_UP_DARK : VanillaQuarry.COUNTER_UP, () -> changeSpeed((byte) 1, tile), tile, this, 10, 28, true));
         addRenderableWidget(new ModButton(61, 56, 25, 14, darkmode ? VanillaQuarry.POWER_DARK : VanillaQuarry.POWER, () -> changePower(true, tile), tile, this, 25, 28, true));

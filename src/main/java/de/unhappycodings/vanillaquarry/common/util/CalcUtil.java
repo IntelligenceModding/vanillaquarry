@@ -1,5 +1,6 @@
 package de.unhappycodings.vanillaquarry.common.util;
 
+import de.unhappycodings.vanillaquarry.common.config.CommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -52,14 +53,18 @@ public class CalcUtil {
     }
 
     public static float getNeededTicks(int mode, int speed) {
+        System.out.println(mode);
         int fuelModifier = switch (mode) {
-            case 1 -> 80;     // Efficient
-            case 2, 3 -> 200; // Fortune, Silktouch
-            default -> 100;   // Default, Void
+            case 1 -> CommonConfig.quarryEfficientModeConsumption.get();  // Efficient
+            case 2 -> CommonConfig.quarryFortuneModeConsumption.get();    // Fortune
+            case 3 -> CommonConfig.quarrySilkTouchModeConsumption.get();  // Silktouch
+            case 4 -> CommonConfig.quarryVoidModeConsumption.get();       // Void
+            default -> CommonConfig.quarryDefaultModeConsumption.get();   // Default
         };
         switch (speed) {
-            case 1 -> fuelModifier *= 1.25;
-            case 2 -> fuelModifier *= 1.5;
+            case 0 -> fuelModifier *= CommonConfig.quarrySpeedOneModifier.get();
+            case 1 -> fuelModifier *= CommonConfig.quarrySpeedTwoModifier.get();
+            case 2 -> fuelModifier *= CommonConfig.quarrySpeedThreeModifier.get();
         }
         return fuelModifier;
     }
