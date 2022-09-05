@@ -34,6 +34,12 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.vanillaquarry.quarry.tooltip.coal", "1 coal:");
         add("gui.vanillaquarry.quarry.tooltip.blocks", "blocks");
 
+        add("gui.vanillaquarry.quarry.tooltip.informations", "Informations");
+        add("gui.vanillaquarry.quarry.tooltip.when_turned_off", "When turned off, the quarry");
+        add("gui.vanillaquarry.quarry.tooltip.will_consume", "will consume 1 BurnTick per second.");
+        add("gui.vanillaquarry.quarry.tooltip.changing_speed", "Changing the speed does also");
+        add("gui.vanillaquarry.quarry.tooltip.affect_fuel", "affect the fuel consumption!");
+
         add("gui.vanillaquarry.quarry.tooltip.speed.80", "at 80% speed");
 
         add("item.vanillaquarry.areacard.text.box", "Box (Solid)");

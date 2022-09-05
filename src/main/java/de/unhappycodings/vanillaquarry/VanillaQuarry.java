@@ -1,6 +1,7 @@
 package de.unhappycodings.vanillaquarry;
 
 import com.mojang.logging.LogUtils;
+import de.unhappycodings.vanillaquarry.client.config.ClientConfig;
 import de.unhappycodings.vanillaquarry.common.ItemCreativeTab;
 import de.unhappycodings.vanillaquarry.common.blockentity.ModBlockEntities;
 import de.unhappycodings.vanillaquarry.common.blocks.ModBlocks;
@@ -50,6 +51,7 @@ public class VanillaQuarry {
 
         LOGGER.info("[" + MOD_ID + "] Initialization");
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CommonConfig.commonConfig);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.clientConfig);
 
         Registration.register();
         ModItems.register();
@@ -58,6 +60,7 @@ public class VanillaQuarry {
         ModBlockEntities.BLOCK_ENTITIES.register(bus);
 
         CommonConfig.loadConfigFile(CommonConfig.commonConfig, FMLPaths.CONFIGDIR.get().resolve("vanillaquarry-common.toml").toString());
+        ClientConfig.loadConfigFile(ClientConfig.clientConfig, FMLPaths.CONFIGDIR.get().resolve("vanillaquarry-client.toml").toString());
         MinecraftForge.EVENT_BUS.register(this);
         bus.addListener(this::onCommonSetup);
     }
