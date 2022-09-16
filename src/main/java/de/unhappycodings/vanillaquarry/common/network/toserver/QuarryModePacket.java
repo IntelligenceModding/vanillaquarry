@@ -30,6 +30,13 @@ public class QuarryModePacket implements IPacket {
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
         if (add != -1) {
             int newMode = blockEntity.getMode() + add;
+            if (add == 10) {
+                newMode = blockEntity.getMode() - 1;
+                if (newMode < 0) newMode = 4;
+                blockEntity.setMode(newMode);
+                PacketHandler.sendToClient(new QuarryClientModePacket(machine.getBlockPos(), newMode), player);
+                return;
+            }
             if (newMode >= 0 && newMode <= 4) {
                 blockEntity.setMode(newMode);
                 PacketHandler.sendToClient(new QuarryClientModePacket(machine.getBlockPos(), newMode), player);

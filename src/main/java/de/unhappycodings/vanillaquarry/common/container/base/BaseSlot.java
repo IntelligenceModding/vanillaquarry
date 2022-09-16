@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
+import de.unhappycodings.vanillaquarry.client.config.ClientConfig;
 import de.unhappycodings.vanillaquarry.client.gui.GuiUtil;
 import de.unhappycodings.vanillaquarry.common.util.RenderUtil;
 import de.unhappycodings.vanillaquarry.common.util.TagUtil;
@@ -29,6 +30,7 @@ import java.util.function.Predicate;
 // CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public class BaseSlot extends SlotItemHandler {
     public static final ResourceLocation GHOST_OVERLAY = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/slot/ghost_overlay.png");
+    public static final ResourceLocation GHOST_OVERLAY_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/slot/ghost_overlay_dark.png");
 
     private final Inventory inventory;
     private final Predicate<ItemStack> canPlace;
@@ -48,11 +50,6 @@ public class BaseSlot extends SlotItemHandler {
         this.ghostOverlays = ghostOverlays;
     }
 
-    public BaseSlot addGhostOverlays(ItemStack... ghostOverlays) {
-        this.ghostOverlays = ArrayUtils.addAll(this.ghostOverlays, ghostOverlays);
-        return this;
-    }
-
     public BaseSlot addGhostOverlays(Item... ghostOverlays) {
         ItemStack[] items = new ItemStack[ghostOverlays.length];
         for (int i = 0; i < ghostOverlays.length; i++)
@@ -68,39 +65,6 @@ public class BaseSlot extends SlotItemHandler {
             items[i] = new ItemStack(ghostOverlays.get(i), 1);
         }
         this.ghostOverlays = ArrayUtils.addAll(this.ghostOverlays, items);
-        return this;
-    }
-
-    public BaseSlot addGhostItemTOverlays(List<TagKey<Item>> itemTag) {
-        ItemStack[] itemStacks = null;
-        for (TagKey<Item> tagKey : itemTag) {
-            Set<Item> items = TagUtil.getValuesOfItemTag(tagKey);
-            itemStacks = new ItemStack[items.size()];
-            int i = 0;
-            for (Item item : items) {
-                itemStacks[i] = new ItemStack(item, 1);
-                i++;
-            }
-        }
-        this.ghostOverlays = ArrayUtils.addAll(this.ghostOverlays, itemStacks);
-        return this;
-    }
-
-    public BaseSlot addGhostBlockTOverlays(TagKey<Block> blockTag) {
-        Set<Block> blocks = TagUtil.getValuesOfBlockTag(blockTag);
-        ItemStack[] itemStacks = new ItemStack[blocks.size()];
-        int i = 0;
-        for (Block item : blocks) {
-            itemStacks[i] = new ItemStack(item, 1);
-            i++;
-        }
-
-        this.ghostOverlays = ArrayUtils.addAll(this.ghostOverlays, itemStacks);
-        return this;
-    }
-
-    public BaseSlot addConditionOverlay(Predicate<ItemStack> stackPredicate, ResourceLocation overlay) {
-        this.overlay = Pair.of(stackPredicate, overlay);
         return this;
     }
 
@@ -161,7 +125,7 @@ public class BaseSlot extends SlotItemHandler {
 
             stack.pushPose();
             RenderUtil.renderGuiItem(currentGhostItem, x + this.x, y + this.y);
-            RenderSystem.setShaderTexture(0, GHOST_OVERLAY);
+            RenderSystem.setShaderTexture(0, ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY);
             RenderSystem.setShaderColor(1, 1, 1, 0.65f);
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();

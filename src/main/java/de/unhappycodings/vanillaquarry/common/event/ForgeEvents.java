@@ -9,12 +9,16 @@ import com.mojang.math.Matrix4f;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
 import de.unhappycodings.vanillaquarry.client.config.ClientConfig;
 import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
+import de.unhappycodings.vanillaquarry.common.blocks.QuarryBlock;
 import de.unhappycodings.vanillaquarry.common.config.CommonConfig;
 import de.unhappycodings.vanillaquarry.common.item.AreaCardItem;
 import de.unhappycodings.vanillaquarry.common.util.NbtUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -35,9 +39,24 @@ import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = VanillaQuarry.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvents {
+
+    @SubscribeEvent
+    public static void onQuarryBlockDestroy(BlockEvent.BreakEvent event) {
+        Player player = event.getPlayer();
+        Level level = event.getPlayer().getLevel();
+        BlockPos pos = event.getPos();
+        if (!(level.getBlockState(pos).getBlock() instanceof QuarryBlock)) return;
+        if (!Objects.equals(((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner(), player.getStringUUID())) {
+            String owner = ((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner();
+            event.setCanceled(true);
+            if (owner.isEmpty()) owner = "undefined";
+            player.sendMessage(new TranslatableComponent("gui.vanillaquarry.quarry.message.quarry_from").append(" " + owner + " ").append(new TranslatableComponent("gui.vanillaquarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW), Util.NIL_UUID);
+        }
+    }
 
     @SuppressWarnings({"ConstantConditions", "removal"})
     @SubscribeEvent

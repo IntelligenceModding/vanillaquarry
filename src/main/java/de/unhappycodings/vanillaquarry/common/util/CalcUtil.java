@@ -53,7 +53,6 @@ public class CalcUtil {
     }
 
     public static float getNeededTicks(int mode, int speed) {
-        System.out.println(mode);
         int fuelModifier = switch (mode) {
             case 1 -> CommonConfig.quarryEfficientModeConsumption.get();  // Efficient
             case 2 -> CommonConfig.quarryFortuneModeConsumption.get();    // Fortune

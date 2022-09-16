@@ -73,7 +73,6 @@ public abstract class BaseWidget extends AbstractWidget {
         for (BaseWidget child : children) {
             if (child instanceof ModButton) child.mouseClicked(pMouseX, pMouseY, pButton);
         }
-
         return super.mouseClicked(pMouseX, pMouseY, pButton);
     }
 

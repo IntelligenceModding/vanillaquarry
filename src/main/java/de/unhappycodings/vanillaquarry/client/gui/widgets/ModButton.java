@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
 import de.unhappycodings.vanillaquarry.client.gui.GuiUtil;
 import de.unhappycodings.vanillaquarry.client.gui.widgets.base.BaseWidget;
-import de.unhappycodings.vanillaquarry.common.container.QuarryContainer;
 import de.unhappycodings.vanillaquarry.common.container.QuarryScreen;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
@@ -21,6 +20,7 @@ public class ModButton extends BaseWidget {
     public static final ResourceLocation COUNTER_DOWN = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus.png");
 
     private final Runnable onClick;
+    private final Runnable onClickReverse;
     private final Supplier<Boolean> isValid;
     private final ResourceLocation texture;
     private Supplier<Component> hoverText;
@@ -29,19 +29,15 @@ public class ModButton extends BaseWidget {
     int tX = 0;
     int tY = 0;
 
-    public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, BlockEntity tile, QuarryScreen screen, int tX, int tY, boolean playSound) {
+    public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, Runnable onClickReverse, BlockEntity tile, QuarryScreen screen, int tX, int tY, boolean playSound) {
         super(x, y, width, height, tile, screen);
         this.onClick = onClick;
+        this.onClickReverse = onClickReverse;
         this.isValid = () -> true;
         this.texture = texture;
         this.tX = tX;
         this.tY = tY;
         this.playSound = playSound;
-    }
-
-    public ModButton addHoverText(Supplier<Component> message) {
-        this.hoverText = message;
-        return this;
     }
 
     @Override
@@ -52,13 +48,22 @@ public class ModButton extends BaseWidget {
     }
 
     @Override
+    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        if (QuarryScreen.MODE_MOUSE_BUTTON.isMouseOver(pMouseX, pMouseY) && pButton == 1) {
+            if (isValid != null && isValid.get() && onClickReverse != null) {
+                onClickReverse.run();
+                playDownSound(minecraft.getSoundManager());
+            }
+        }
+        return super.mouseClicked(pMouseX, pMouseY, pButton);
+    }
+
+    @Override
     public void onClick(double pMouseX, double pMouseY) {
         if (isMouseOver(pMouseX, pMouseY)) {
-            if (isValid != null && isValid.get()) {
-                if (onClick != null) {
-                    onClick.run();
-                    playDownSound(minecraft.getSoundManager());
-                }
+            if (isValid != null && isValid.get() && onClick != null) {
+                onClick.run();
+                playDownSound(minecraft.getSoundManager());
             }
         }
         super.onClick(pMouseX, pMouseY);
@@ -77,7 +82,7 @@ public class ModButton extends BaseWidget {
 
     @Override
     public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
-
+        // overridden by purpose
     }
 
     @Override

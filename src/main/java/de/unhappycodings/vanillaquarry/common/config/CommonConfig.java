@@ -22,9 +22,9 @@ public class CommonConfig {
     public static ForgeConfigSpec.ConfigValue<Integer> quarrySilkTouchModeConsumption;
     public static ForgeConfigSpec.ConfigValue<Integer> quarryVoidModeConsumption;
 
-    public static ForgeConfigSpec.ConfigValue<Float> quarrySpeedOneModifier;
-    public static ForgeConfigSpec.ConfigValue<Float> quarrySpeedTwoModifier;
-    public static ForgeConfigSpec.ConfigValue<Float> quarrySpeedThreeModifier;
+    public static ForgeConfigSpec.ConfigValue<Double> quarrySpeedOneModifier;
+    public static ForgeConfigSpec.ConfigValue<Double> quarrySpeedTwoModifier;
+    public static ForgeConfigSpec.ConfigValue<Double> quarrySpeedThreeModifier;
     //endregion
 
     static {
@@ -55,11 +55,11 @@ public class CommonConfig {
                 .define("quarry_mode_void_consumption", 100);
 
         quarrySpeedOneModifier = commonBuilder.comment("Speed 1 BurnTick consumption multiplier")
-                .define("quarry_speed_one_multiplier", 1f);
+                .define("quarry_speed_one_multiplier", 1.0);
         quarrySpeedTwoModifier = commonBuilder.comment("Speed 2 BurnTick consumption multiplier")
-                .define("quarry_speed_two_multiplier", 1.25f);
+                .define("quarry_speed_two_multiplier", 1.25);
         quarrySpeedThreeModifier = commonBuilder.comment("Speed 3 BurnTick consumption multiplier")
-                .define("quarry_speed_three_multiplier", 1.5f);
+                .define("quarry_speed_three_multiplier", 1.5);
         commonBuilder.pop();
     }
 

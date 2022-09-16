@@ -66,12 +66,14 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     private int speedModifier = 0;
     private boolean isFortune = false;
 
+    private String owner;
     private int burnTicks;
     private int ticks;
     private int speed;
     private int mode;
     private int burnTime;
     private int totalBurnTime;
+    private boolean locked;
 
     public QuarryBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.QUARRY_BLOCK.get(), pPos, pBlockState);
@@ -90,7 +92,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     @SuppressWarnings("ConstantConditions")
     public void tick() {
         if (level.isClientSide) return;
-        if (level.getGameTime() % 10 == 0)
+        if (level.getGameTime() % 5 == 0)
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
         QuarryBlockEntity entity = this;
         Level level = getLevel();
@@ -116,8 +118,10 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         if (!state.getValue(QuarryBlock.ACTIVE) && state.getValue(QuarryBlock.WORKING))
             level.setBlockAndUpdate(getBlockPos(), state.setValue(QuarryBlock.POWERED, burnTime > 0).setValue(QuarryBlock.WORKING, false));
 
-        if (burnTime > CommonConfig.quarryIdleConsumption.get() && burnTicks >= 20 && !state.getValue(QuarryBlock.WORKING))
-            burnTime -= CommonConfig.quarryIdleConsumption.get(); burnTicks = 0;
+        if (burnTime >= CommonConfig.quarryIdleConsumption.get() && burnTicks >= 20 && !state.getValue(QuarryBlock.WORKING)) {
+            burnTime -= CommonConfig.quarryIdleConsumption.get();
+            burnTicks = 0;
+        }
         burnTicks++;
         if (state.getValue(QuarryBlock.ACTIVE)) {
             ItemStack areaCardItem = getItem(12);
@@ -131,7 +135,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
                     // Get Mode to variables to work with in-code easilier!
                     float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
-                    System.out.println(fuelModifier);
                     boolean isSilktouch;
                     boolean isVoid;
                     switch (entity.getMode()) {
@@ -167,9 +170,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                             itemTag.putInt("lastBlock", blockIndex + 1);
                             burnTime -= fuelModifier;
                         } else {
-                            System.out.println("runned 2");
-                            FakePlayer player = FakePlayerFactory.get((ServerLevel) level, new GameProfile(
-                                    UUID.fromString("6e483f02-30db-4454-b612-3a167614b576"), "VanillaQuarry Quarry"));
+                            FakePlayer player = FakePlayerFactory.get((ServerLevel) level, new GameProfile(UUID.fromString("6e483f02-30db-4454-b612-3a167614b576"), "VanillaQuarry Quarry"));
                             // Block Drops Looping with Inventory-Space Checking and Block Breaking
                             List<ItemStack> drops = level.getBlockState(currentBlock).getDrops(getBuilder(level, currentBlock, isSilktouch));
                             if (drops.isEmpty()) {
@@ -184,7 +185,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 burnTime -= fuelModifier;
                                 return;
                             }
-                            System.out.println(drops);
                             boolean broken = false;
                             for (ItemStack drop : drops) {
                                 if (isVoid) {
@@ -198,7 +198,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 int index = hasOutputSpace(drop);
                                 if (index != 0) {
                                     if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
-                                        System.out.println("runned 4");
                                         setItem(index, new ItemStack(drop.getItem(), (getItem(index).getCount() + drop.getCount())));
                                         burnTime -= fuelModifier;
                                         broken = true;
@@ -252,7 +251,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     }
 
     public void refreshPositions(ItemStack itemStack) {
-        System.out.println("Called!");
         CompoundTag pos1 = (CompoundTag) itemStack.getOrCreateTag().get("pos1");
         CompoundTag pos2 = (CompoundTag) itemStack.getOrCreateTag().get("pos2");
         if (pos1 == null || pos2 == null) return;
@@ -311,6 +309,22 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         super.setLevel(pLevel);
     }
 
+    public String getOwner() {
+        return owner == null ? "undefined" : owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public boolean getLocked() {
+        return this.locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
     @NotNull
     @Override
     public CompoundTag getUpdateTag() {
@@ -320,6 +334,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         nbt.putInt("TotalBurnTime", getTotalBurnTime());
         nbt.putInt("Speed", getSpeed());
         nbt.putInt("Mode", getMode());
+        nbt.putString("Owner", getOwner());
+        nbt.putBoolean("Locked", getLocked());
         return nbt;
     }
 
@@ -329,6 +345,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         setTotalBurnTime(tag.getInt("TotalBurnTime"));
         setSpeed(tag.getInt("Speed"));
         setMode(tag.getInt("Mode"));
+        setOwner(tag.getString("Owner"));
+        setLocked(tag.getBoolean("Locked"));
     }
 
     @Override
@@ -351,6 +369,9 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         nbt.putInt("Speed", this.speed);
         nbt.putInt("Mode", this.mode);
         nbt.putInt("BurnTime", this.burnTime);
+        nbt.putInt("TotalBurnTime", this.totalBurnTime);
+        nbt.putString("Owner", getOwner());
+        nbt.putBoolean("Locked", getLocked());
         ContainerHelper.saveAllItems(nbt, this.items, true);
     }
 
@@ -362,6 +383,9 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         this.speed = nbt.getInt("Speed");
         this.mode = nbt.getInt("Mode");
         this.burnTime = nbt.getInt("BurnTime");
+        this.totalBurnTime = nbt.getInt("TotalBurnTime");
+        this.owner = nbt.getString("Owner");
+        this.locked = nbt.getBoolean("Locked");
     }
 
     @Override

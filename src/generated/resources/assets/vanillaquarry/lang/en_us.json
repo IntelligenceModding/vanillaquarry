@@ -1,5 +1,12 @@
 {
   "block.vanillaquarry.quarry_block": "Quarry",
+  "gui.vanillaquarry.quarry.lock.owner": "Owner: %s",
+  "gui.vanillaquarry.quarry.lock.private": "Private",
+  "gui.vanillaquarry.quarry.lock.private.description": "players can use and modify everything",
+  "gui.vanillaquarry.quarry.lock.public": "Public",
+  "gui.vanillaquarry.quarry.lock.public.description": "access only for you",
+  "gui.vanillaquarry.quarry.message.is_locked": "is set to private and locked!",
+  "gui.vanillaquarry.quarry.message.quarry_from": "Quarry of",
   "gui.vanillaquarry.quarry.mode.default": "Default",
   "gui.vanillaquarry.quarry.mode.efficient": "Efficient",
   "gui.vanillaquarry.quarry.mode.fortune": "Fortune",

@@ -3,11 +3,11 @@ package de.unhappycodings.vanillaquarry.common.network;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
 import de.unhappycodings.vanillaquarry.common.network.base.IPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryChangedPacket;
-import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryClientDarkModePacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryClientModePacket;
+import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryClientOwnerPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryClientSpeedPacket;
-import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryDarkModePacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryModePacket;
+import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryOwnerPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryPowerPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarrySpeedPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -35,8 +35,8 @@ public class PacketHandler {
         registerClientToServer(QuarryPowerPacket.class, QuarryPowerPacket::decode);
         registerClientToServer(QuarryModePacket.class, QuarryModePacket::decode);
         registerClientToServer(QuarryChangedPacket.class, QuarryChangedPacket::decode);
-        registerClientToServer(QuarryDarkModePacket.class, QuarryDarkModePacket::decode);
-        registerServerToClient(QuarryClientDarkModePacket.class, QuarryClientDarkModePacket::decode);
+        registerClientToServer(QuarryOwnerPacket.class, QuarryOwnerPacket::decode);
+        registerServerToClient(QuarryClientOwnerPacket.class, QuarryClientOwnerPacket::decode);
         registerServerToClient(QuarryClientSpeedPacket.class, QuarryClientSpeedPacket::decode);
         registerServerToClient(QuarryClientModePacket.class, QuarryClientModePacket::decode);
     }

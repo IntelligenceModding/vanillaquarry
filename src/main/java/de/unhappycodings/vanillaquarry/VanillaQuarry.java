@@ -40,6 +40,10 @@ public class VanillaQuarry {
     public static final ResourceLocation MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/mode.png");
     public static final ResourceLocation MODE_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/mode_dark.png");
     public static final ResourceLocation INFO = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/information.png");
+    public static final ResourceLocation LOCK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/lock.png");
+    public static final ResourceLocation LOCK_OPEN = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/lock_open.png");
+    public static final ResourceLocation LOCK_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/lock_dark.png");
+    public static final ResourceLocation LOCK_DARK_OPEN = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/lock_dark_open.png");
 
     public static final ResourceLocation WHITE_MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/dark_mode_switch_off.png");
     public static final ResourceLocation DARK_MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/dark_mode_switch_on.png");

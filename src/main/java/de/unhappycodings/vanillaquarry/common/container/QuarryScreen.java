@@ -13,6 +13,7 @@ import de.unhappycodings.vanillaquarry.common.item.AreaCardItem;
 import de.unhappycodings.vanillaquarry.common.network.PacketHandler;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryChangedPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryModePacket;
+import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryOwnerPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryPowerPacket;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarrySpeedPacket;
 import de.unhappycodings.vanillaquarry.common.util.CalcUtil;
@@ -30,18 +31,25 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.UsernameCache;
+import net.minecraftforge.event.world.BlockEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public class QuarryScreen extends BaseScreen<QuarryContainer> {
     public static ModButton MODE_MOUSE_BUTTON;
     public static ModButton INFO_MOUSE_BUTTON;
+    public static ModButton LOCK_MOUSE_BUTTON;
     QuarryContainer container;
     boolean modeButtonIsHovered;
     boolean infoButtonIsHovered;
+    boolean lockButtonIsHovered;
 
     public QuarryScreen(QuarryContainer screenContainer, Inventory inv, Component titleIn) {
         super(screenContainer, inv, titleIn);
@@ -109,6 +117,22 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
+        if (lockButtonIsHovered) {
+            List<Component> list = new ArrayList<>();
+            String owner = "undefined";
+            if (!Objects.equals(getMenu().getTile().getOwner(), "undefined")) owner = UsernameCache.getLastKnownUsername(UUID.fromString(getMenu().getTile().getOwner()));
+
+            if (getMenu().getTile().getLocked()) {
+                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.private"));
+                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.private.description").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.owner", owner) .withStyle(ChatFormatting.YELLOW));
+            } else {
+                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.public"));
+                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.public.description").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.owner", owner) .withStyle(ChatFormatting.YELLOW));
+            }
+            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+        }
     }
 
     @Override
@@ -152,18 +176,21 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     protected void addElements() {
         QuarryBlockEntity tile = this.getMenu().getTile();
         boolean darkmode = getDarkModeConfigValue();
-        MODE_MOUSE_BUTTON = new ModButton(56, 74, 64, 14, darkmode ? VanillaQuarry.MODE_DARK : VanillaQuarry.MODE, this::changeMode, tile, this, 64, 28, true);
-        INFO_MOUSE_BUTTON = new ModButton(161, 6, 9, 9, VanillaQuarry.INFO, null, tile, this, 9, 18, false);
+        boolean locked = tile.getLocked();
+        MODE_MOUSE_BUTTON = new ModButton(56, 74, 64, 14, darkmode ? VanillaQuarry.MODE_DARK : VanillaQuarry.MODE, () -> changeMode(false), () -> changeMode(true), tile, this, 64, 28, true);
+        INFO_MOUSE_BUTTON = new ModButton(161, 6, 9, 9, VanillaQuarry.INFO, null, null, tile, this, 9, 18, false);
+        LOCK_MOUSE_BUTTON = new ModButton(10, 5, 8, 10, darkmode ? (locked ? VanillaQuarry.LOCK_DARK : VanillaQuarry.LOCK_DARK_OPEN) : (locked ? VanillaQuarry.LOCK : VanillaQuarry.LOCK_OPEN), this::cycleLocked, null, tile, this, 8, 20, true);
 
         if (ClientConfig.enableEnableQuarryDarkmodeButton.get())
-            addRenderableWidget(new ModButton(146, 7, 12, 8, darkmode ? VanillaQuarry.DARK_MODE : VanillaQuarry.WHITE_MODE, () -> {refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, tile, this, 12, 16, true));
-        addRenderableWidget(new ModButton(69, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_DOWN_DARK : VanillaQuarry.COUNTER_DOWN, () -> changeSpeed((byte) -1, tile), tile, this, 10, 28, true));
-        addRenderableWidget(new ModButton(95, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_UP_DARK : VanillaQuarry.COUNTER_UP, () -> changeSpeed((byte) 1, tile), tile, this, 10, 28, true));
-        addRenderableWidget(new ModButton(61, 56, 25, 14, darkmode ? VanillaQuarry.POWER_DARK : VanillaQuarry.POWER, () -> changePower(true, tile), tile, this, 25, 28, true));
-        addRenderableWidget(new ModButton(90, 56, 25, 14, darkmode ? VanillaQuarry.POWER_DARK : VanillaQuarry.POWER, () -> changePower(false, tile), tile, this, 25, 28, true));
+            addRenderableWidget(new ModButton(146, 7, 12, 8, darkmode ? VanillaQuarry.DARK_MODE : VanillaQuarry.WHITE_MODE, () -> {refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, null, tile, this, 12, 16, true));
+        addRenderableWidget(new ModButton(69, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_DOWN_DARK : VanillaQuarry.COUNTER_DOWN, () -> changeSpeed((byte) -1, tile), null, tile, this, 10, 28, true));
+        addRenderableWidget(new ModButton(95, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_UP_DARK : VanillaQuarry.COUNTER_UP, () -> changeSpeed((byte) 1, tile), null, tile, this, 10, 28, true));
+        addRenderableWidget(new ModButton(61, 56, 25, 14, darkmode ? VanillaQuarry.POWER_DARK : VanillaQuarry.POWER, () -> changePower(true, tile), null, tile, this, 25, 28, true));
+        addRenderableWidget(new ModButton(90, 56, 25, 14, darkmode ? VanillaQuarry.POWER_DARK : VanillaQuarry.POWER, () -> changePower(false, tile), null, tile, this, 25, 28, true));
 
         addRenderableWidget(MODE_MOUSE_BUTTON);
         addRenderableWidget(INFO_MOUSE_BUTTON);
+        addRenderableWidget(LOCK_MOUSE_BUTTON);
     }
 
     @Override
@@ -186,6 +213,11 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             infoButtonIsHovered = true;
         } else {
             if (infoButtonIsHovered) infoButtonIsHovered = false;
+        }
+        if (LOCK_MOUSE_BUTTON != null && LOCK_MOUSE_BUTTON.isMouseOver(pMouseX, pMouseY)) {
+            lockButtonIsHovered = true;
+        } else {
+            if (lockButtonIsHovered) lockButtonIsHovered = false;
         }
         return super.isHovering(pX, pY, pWidth, pHeight, pMouseX, pMouseY);
     }
@@ -212,8 +244,15 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         PacketHandler.sendToServer(new QuarryChangedPacket(null, 0, this.getMenu().getTile().getBlockPos()));
     }
 
-    private void changeMode() {
-        PacketHandler.sendToServer(new QuarryModePacket(this.getMenu().getTile().getBlockPos(), 1));
+    public void cycleLocked() {
+        QuarryBlockEntity entity = this.getMenu().getTile();
+        if (Objects.equals(((QuarryBlockEntity) entity.getLevel().getBlockEntity(entity.getBlockPos())).getOwner(), this.getMinecraft().player.getStringUUID()))
+            PacketHandler.sendToServer(new QuarryOwnerPacket(this.getMenu().getTile().getBlockPos(), false));
+        sendChangedPacket();
+    }
+
+    private void changeMode(boolean reverse) {
+        PacketHandler.sendToServer(new QuarryModePacket(this.getMenu().getTile().getBlockPos(), reverse ? 10 : 1));
         sendChangedPacket();
     }
 
