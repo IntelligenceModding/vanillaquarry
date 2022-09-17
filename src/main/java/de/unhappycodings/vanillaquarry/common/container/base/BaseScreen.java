@@ -25,6 +25,7 @@ public abstract class BaseScreen<T extends BaseContainer> extends AbstractContai
         renderTooltip(matrixStack, x, y);
     }
 
+
     @Override
     protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int x, int y) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

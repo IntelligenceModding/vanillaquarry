@@ -25,6 +25,7 @@ public class SlotCondition {
      * @param neededTags the tags which the item should have
      * @return the current instance
      */
+
     public SlotCondition setNeededPreds(List<Predicate<ItemStack>> neededPreds) {
         this.neededPreds = neededPreds;
         return this;

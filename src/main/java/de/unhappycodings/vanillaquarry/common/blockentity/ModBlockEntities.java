@@ -15,6 +15,7 @@ public final class ModBlockEntities {
     public static final RegistryObject<BlockEntityType<QuarryBlockEntity>> QUARRY_BLOCK = BLOCK_ENTITIES.register("quarry_block", () -> BlockEntityType.Builder.of(QuarryBlockEntity::new, ModBlocks.QUARRY.get()).build(null));
 
     private ModBlockEntities() {
+
     }
 
 }

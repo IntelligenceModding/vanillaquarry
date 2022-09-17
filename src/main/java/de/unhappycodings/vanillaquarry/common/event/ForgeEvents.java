@@ -152,6 +152,7 @@ public class ForgeEvents {
                 float a = 0.5f;
 
                 // Down
+
                 buffer.vertex(matrix, x + 0, y + 0, z + 0).color(r, g, b, a).endVertex();
                 buffer.vertex(matrix, x + 1, y + 0, z + 0).color(r, g, b, a).endVertex();
                 buffer.vertex(matrix, x + 1, y + 0, z + 1).color(r, g, b, a).endVertex();

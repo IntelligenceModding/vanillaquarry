@@ -176,7 +176,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         QuarryBlockEntity tile = this.getMenu().getTile();
         boolean darkmode = getDarkModeConfigValue();
         boolean locked = tile.getLocked();
-        MODE_MOUSE_BUTTON = new ModButton(56, 74, 64, 14, darkmode ? VanillaQuarry.MODE_DARK : VanillaQuarry.MODE, () -> changeMode(false), () -> changeMode(true), tile, this, 64, 28, true);
+        MODE_MOUSE_BUTTON = new  ModButton(56, 74, 64, 14, darkmode ? VanillaQuarry.MODE_DARK : VanillaQuarry.MODE, () -> changeMode(false), () -> changeMode(true), tile, this, 64, 28, true);
         INFO_MOUSE_BUTTON = new ModButton(161, 6, 9, 9, VanillaQuarry.INFO, null, null, tile, this, 9, 18, false);
         LOCK_MOUSE_BUTTON = new ModButton(10, 5, 8, 10, darkmode ? (locked ? VanillaQuarry.LOCK_DARK : VanillaQuarry.LOCK_DARK_OPEN) : (locked ? VanillaQuarry.LOCK : VanillaQuarry.LOCK_OPEN), this::cycleLocked, null, tile, this, 8, 20, true);
 

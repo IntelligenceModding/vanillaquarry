@@ -130,4 +130,5 @@ public class QuarryBlock extends BaseEntityBlock {
         return ModBlockEntities.QUARRY_BLOCK.get().create(pos, state);
     }
 
+
 }

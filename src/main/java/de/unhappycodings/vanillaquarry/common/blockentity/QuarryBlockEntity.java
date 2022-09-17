@@ -269,6 +269,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
             }
         }
         return 0;
+
     }
 
     private boolean allowedToBreak(BlockState state, Level world, BlockPos pos, Player player) {

@@ -29,7 +29,7 @@ public abstract class BaseWidget extends AbstractWidget {
         this.tile = tile;
         this.screen = screen;
         this.leftPos = screen.getGuiLeft();
-        this.topPos = screen.getGuiTop();
+        this. topPos = screen.getGuiTop();
     }
 
     public BaseWidget(int x, int y, int width, int height, int imageWidth, int imageHeight) {

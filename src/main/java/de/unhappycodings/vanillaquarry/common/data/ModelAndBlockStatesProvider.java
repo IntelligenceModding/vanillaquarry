@@ -36,6 +36,7 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
         quarryBlock(block, quarryOff, quarryIdle, quarryOn, quarryWorking);
     }
 
+
     public void quarryBlock(QuarryBlock block, ModelFile off, ModelFile idle, ModelFile on, ModelFile work) {
         getVariantBuilder(block).forAllStates(state -> {
             Direction facing = state.getValue(QuarryBlock.FACING);

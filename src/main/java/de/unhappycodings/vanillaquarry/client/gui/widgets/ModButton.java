@@ -30,7 +30,7 @@ public class ModButton extends BaseWidget {
     int tY = 0;
 
     public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, Runnable onClickReverse, BlockEntity tile, QuarryScreen screen, int tX, int tY, boolean playSound) {
-        super(x, y, width, height, tile, screen);
+         super(x, y, width, height, tile, screen);
         this.onClick = onClick;
         this.onClickReverse = onClickReverse;
         this.isValid = () -> true;
