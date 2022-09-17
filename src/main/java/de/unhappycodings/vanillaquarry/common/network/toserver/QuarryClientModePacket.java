@@ -34,4 +34,5 @@ public class QuarryClientModePacket implements IPacket {
         buffer.writeBlockPos(pos);
         buffer.writeInt(add);
     }
+
 }

@@ -17,7 +17,6 @@ public class ItemModelProvider extends net.minecraftforge.client.model.generator
         super(gen, VanillaQuarry.MOD_ID, exFileHelper);
     }
 
-
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void registerModels() {
