@@ -3,6 +3,7 @@ package de.unhappycodings.vanillaquarry.common.data;
 import de.unhappycodings.vanillaquarry.VanillaQuarry;
 import de.unhappycodings.vanillaquarry.common.blocks.ModBlocks;
 import de.unhappycodings.vanillaquarry.common.blocks.QuarryBlock;
+import de.unhappycodings.vanillaquarry.common.util.ItemUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +11,7 @@ import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModelAndBlockStatesProvider extends BlockStateProvider {
     DataGenerator gen;
@@ -27,10 +29,10 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
 
     @SuppressWarnings("ConstantConditions")
     public void quarryBlock(QuarryBlock block) {
-        ModelFile quarryOff = models().withExistingParent(block.getRegistryName().toString() + "_off", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_off")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
-        ModelFile quarryIdle = models().withExistingParent(block.getRegistryName().toString() + "_idle", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_idle")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
-        ModelFile quarryOn = models().withExistingParent(block.getRegistryName().toString() + "_on", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_on")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
-        ModelFile quarryWorking = models().withExistingParent(block.getRegistryName().toString() + "_work", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_work")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryOff = models().withExistingParent(ItemUtil.getRegString(block) + "_off", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_off")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryIdle = models().withExistingParent(ItemUtil.getRegString(block) + "_idle", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_idle")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryOn = models().withExistingParent(ItemUtil.getRegString(block) + "_on", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_on")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
+        ModelFile quarryWorking = models().withExistingParent(ItemUtil.getRegString(block) + "_work", new ResourceLocation(VanillaQuarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_work")).texture("2", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(VanillaQuarry.MOD_ID, "block/quarry_block_side"));
         quarryBlock(block, quarryOff, quarryIdle, quarryOn, quarryWorking);
     }
 

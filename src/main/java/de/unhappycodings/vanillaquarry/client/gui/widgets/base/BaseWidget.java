@@ -9,7 +9,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +25,7 @@ public abstract class BaseWidget extends AbstractWidget {
     protected int topPos;
 
     public BaseWidget(int x, int y, int width, int height, BlockEntity tile, QuarryScreen screen) {
-        super(screen.getGuiLeft() + x, screen.getGuiTop() + y, width, height, TextComponent.EMPTY);
+        super(screen.getGuiLeft() + x, screen.getGuiTop() + y, width, height, Component.literal(""));
         this.tile = tile;
         this.screen = screen;
         this.leftPos = screen.getGuiLeft();
@@ -34,7 +33,7 @@ public abstract class BaseWidget extends AbstractWidget {
     }
 
     public BaseWidget(int x, int y, int width, int height, int imageWidth, int imageHeight) {
-        super(((width - imageWidth) / 2) + x, ((height - imageHeight) / 2) + y, width, height, TextComponent.EMPTY);
+        super(((width - imageWidth) / 2) + x, ((height - imageHeight) / 2) + y, width, height, Component.literal(""));
         this.screen = null;
         this.leftPos = (width - imageWidth) / 2;
         this.topPos = (height - imageHeight) / 2;

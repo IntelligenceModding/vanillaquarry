@@ -8,13 +8,9 @@ import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryOwnerPacket
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarrySpeedPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.social.PlayerSocialManager;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -25,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -60,8 +55,7 @@ public class QuarryBlock extends BaseEntityBlock {
     @Override
     public void setPlacedBy(Level pLevel, @NotNull BlockPos pPos, @NotNull BlockState pState, @Nullable LivingEntity pPlacer, @NotNull ItemStack pStack) {
         QuarryBlockEntity blockEntity = (QuarryBlockEntity) pLevel.getBlockEntity(pPos);
-        if (Objects.equals(blockEntity.getOwner(), "undefined"))
-            blockEntity.setOwner(pPlacer.getStringUUID());
+        if (Objects.equals(blockEntity.getOwner(), "undefined")) blockEntity.setOwner(pPlacer.getStringUUID());
         blockEntity.setChanged();
         super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
     }
@@ -90,7 +84,7 @@ public class QuarryBlock extends BaseEntityBlock {
             if (levelIn.isClientSide && handIn == InteractionHand.MAIN_HAND) {
                 String owner = ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner();
                 if (owner.isEmpty()) owner = "undefined";
-                player.sendMessage(new TranslatableComponent("gui.vanillaquarry.quarry.message.quarry_from").append(" " + owner + " ").append(new TranslatableComponent("gui.vanillaquarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW), Util.NIL_UUID);
+                player.sendSystemMessage(Component.translatable("gui.vanillaquarry.quarry.message.quarry_from").append(" " + owner + " ").append(Component.translatable("gui.vanillaquarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW));
             }
             return InteractionResult.SUCCESS;
         }
@@ -102,7 +96,7 @@ public class QuarryBlock extends BaseEntityBlock {
                 PacketHandler.sendToServer(new QuarryOwnerPacket(pos, true));
             }
             if (player instanceof ServerPlayer serverPlayerEntity)
-                    NetworkHooks.openGui(serverPlayerEntity, namedContainerProvider, pos);
+                NetworkHooks.openScreen(serverPlayerEntity, namedContainerProvider, pos);
 
         }
         return InteractionResult.SUCCESS;

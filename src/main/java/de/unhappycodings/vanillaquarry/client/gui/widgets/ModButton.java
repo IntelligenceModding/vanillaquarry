@@ -87,7 +87,6 @@ public class ModButton extends BaseWidget {
 
     @Override
     public void playDownSound(@NotNull SoundManager pHandler) {
-        if (playSound)
-            super.playDownSound(pHandler);
+        if (playSound) super.playDownSound(pHandler);
     }
 }

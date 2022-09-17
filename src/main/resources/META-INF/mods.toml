@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[40,)"
+loaderVersion = "[41,)"
 license = "All Rights Reserved"
 [[mods]]
 modId = "vanillaquarry"
@@ -11,13 +11,13 @@ description = ''''''
 [[dependencies.vanillaquarry]]
 modId = "forge"
 mandatory = true
-versionRange = "[40.1,)"
+versionRange = "[41,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.vanillaquarry]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.18.2,1.19)"
+versionRange = "[1.19,1.20)"
 ordering = "NONE"
 side = "BOTH"

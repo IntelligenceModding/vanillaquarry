@@ -24,12 +24,9 @@ public class ClientConfig {
 
     private static void init(ForgeConfigSpec.Builder clientBuilder) {
         clientBuilder.push("General");
-        enableQuarryDarkmode = clientBuilder.comment("Should the quarry gui screen be rendered in Dark Mode.")
-                .define("enable_quarry_darkmode", false);
-        enableEnableQuarryDarkmodeButton = clientBuilder.comment("Enable dark mode button.")
-                .define("enable_quarry_darkmode_button", true);
-        enableAreaCardCornerRendering = clientBuilder.comment("Render the with Area Card selected corners in world.")
-                .define("enable_area_card_corner_rendering", true);
+        enableQuarryDarkmode = clientBuilder.comment("Should the quarry gui screen be rendered in Dark Mode.").define("enable_quarry_darkmode", false);
+        enableEnableQuarryDarkmodeButton = clientBuilder.comment("Enable dark mode button.").define("enable_quarry_darkmode_button", true);
+        enableAreaCardCornerRendering = clientBuilder.comment("Render the with Area Card selected corners in world.").define("enable_area_card_corner_rendering", true);
         clientBuilder.pop();
     }
 

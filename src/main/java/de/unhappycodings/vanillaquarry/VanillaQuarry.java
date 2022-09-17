@@ -17,13 +17,10 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
-
-import java.util.Random;
 
 @Mod("vanillaquarry")
 public class VanillaQuarry {
@@ -34,7 +31,7 @@ public class VanillaQuarry {
     public static final ResourceLocation COUNTER_UP = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_plus.png");
     public static final ResourceLocation COUNTER_UP_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_plus_dark.png");
     public static final ResourceLocation COUNTER_DOWN = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus.png");
-    public static final ResourceLocation COUNTER_DOWN_DARK  = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus_dark.png");
+    public static final ResourceLocation COUNTER_DOWN_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus_dark.png");
     public static final ResourceLocation POWER = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/power.png");
     public static final ResourceLocation POWER_DARK = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/power_dark.png");
     public static final ResourceLocation MODE = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/mode.png");

@@ -10,8 +10,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.Objects;
-
 public class QuarryChangedPacket implements IPacket {
     BlockPos pos;
     ItemStack stack;

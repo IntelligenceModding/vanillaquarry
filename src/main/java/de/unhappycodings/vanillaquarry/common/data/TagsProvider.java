@@ -14,16 +14,17 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 
 public class TagsProvider extends net.minecraft.data.tags.TagsProvider<Block> {
+    private DataGenerator generator;
 
     @SuppressWarnings("deprecation")
     protected TagsProvider(DataGenerator generator, ExistingFileHelper existingFileHelper) {
         super(generator, Registry.BLOCK, VanillaQuarry.MOD_ID, existingFileHelper);
+        this.generator = generator;
     }
 
     @Override
     protected void addTags() {
-
-        // Interate through all Blocks and add them the "Minable with Pickaxe" tag
+        // Interate through all Blocks and add them the "Mineable with Pickaxe" tag
         for (RegistryObject<Block> block : Registration.BLOCKS.getEntries()) {
             tag(BlockTags.MINEABLE_WITH_PICKAXE).add(block.get());
         }

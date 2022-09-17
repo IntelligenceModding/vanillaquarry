@@ -13,7 +13,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -43,7 +42,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
@@ -55,14 +54,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class QuarryBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, MenuProvider {
+    private static final int SPEED_0 = 15;
+    private static final int SPEED_1 = 10;
+    private static final int SPEED_2 = 5; // 5
     private final LazyOptional<? extends IItemHandler>[] itemHandler = SidedInvWrapper.create(this, Direction.values());
     public LootContext.Builder lootcontextBuilder;
     public List<BlockPos> blockStateList;
     public NonNullList<ItemStack> items;
-
-    private static final int SPEED_0 = 15;
-    private static final int SPEED_1 = 10;
-    private static final int SPEED_2 = 5; // 5
     private int speedModifier = 0;
     private boolean isFortune = false;
 
@@ -129,27 +127,60 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                 CompoundTag itemTag = NbtUtil.getNbtTag(areaCardItem);
                 if (itemTag.contains("pos1") && itemTag.contains("pos2")) {
                     // Get Speed and set to variables
-                    if (speed == 0) if (!(ticks + speedModifier >= SPEED_0)) { ticks++; return; }
-                    if (speed == 1) if (!(ticks + speedModifier >= SPEED_1)) { ticks++; return; }
-                    if (speed == 2) if (!(ticks + speedModifier >= SPEED_2)) { ticks++; return; }
+                    if (speed == 0) if (!(ticks + speedModifier >= SPEED_0)) {
+                        ticks++;
+                        return;
+                    }
+                    if (speed == 1) if (!(ticks + speedModifier >= SPEED_1)) {
+                        ticks++;
+                        return;
+                    }
+                    if (speed == 2) if (!(ticks + speedModifier >= SPEED_2)) {
+                        ticks++;
+                        return;
+                    }
 
                     // Get Mode to variables to work with in-code easilier!
                     float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
                     boolean isSilktouch;
                     boolean isVoid;
                     switch (entity.getMode()) {
-                        case 1 -> { speedModifier = -5; isFortune = false; isSilktouch = false; isVoid = false; } // Efficient
-                        case 2 -> { speedModifier = 0; isFortune = true; isSilktouch = false; isVoid = false; } // Fortune
-                        case 3 -> { speedModifier = 0; isFortune = false; isSilktouch = true; isVoid = false; } // Silktouch
-                        case 4 -> { speedModifier = 0; isFortune = false; isSilktouch = false; isVoid = true; } // Void
-                        default -> { speedModifier = 0; isFortune = false; isSilktouch = false; isVoid = false; }      // Default
+                        case 1 -> {
+                            speedModifier = -5;
+                            isFortune = false;
+                            isSilktouch = false;
+                            isVoid = false;
+                        } // Efficient
+                        case 2 -> {
+                            speedModifier = 0;
+                            isFortune = true;
+                            isSilktouch = false;
+                            isVoid = false;
+                        } // Fortune
+                        case 3 -> {
+                            speedModifier = 0;
+                            isFortune = false;
+                            isSilktouch = true;
+                            isVoid = false;
+                        } // Silktouch
+                        case 4 -> {
+                            speedModifier = 0;
+                            isFortune = false;
+                            isSilktouch = false;
+                            isVoid = true;
+                        } // Void
+                        default -> {
+                            speedModifier = 0;
+                            isFortune = false;
+                            isSilktouch = false;
+                            isVoid = false;
+                        }      // Default
                     }
                     if (blockStateList == null || blockStateList.isEmpty()) refreshPositions(areaCardItem);
                     if (blockStateList.size() > 0 && burnTime > fuelModifier) {
                         if (areaCardItem.is(ModItems.AREA_CARD.get()))
                             level.setBlockAndUpdate(getBlockPos(), state.setValue(QuarryBlock.WORKING, true));
-                        if (!itemTag.contains("lastBlock"))
-                            itemTag.putInt("lastBlock", 0);
+                        if (!itemTag.contains("lastBlock")) itemTag.putInt("lastBlock", 0);
 
                         // Item Data Reset And Machine Turn Off
                         int blockIndex = itemTag.getInt("lastBlock");
@@ -176,8 +207,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                             if (drops.isEmpty()) {
                                 if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
                                     setChanged();
-                                    level.playSound(player, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5,
-                                            level.getBlockState(currentBlock).getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                                    level.playSound(player, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, level.getBlockState(currentBlock).getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
                                     level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), 3);
                                 }
                                 itemTag.putInt("lastBlock", blockIndex + 1);
@@ -208,8 +238,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 }
                             }
                             if (broken) {
-                                level.playSound(player, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5,
-                                        level.getBlockState(currentBlock).getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                                level.playSound(player, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, level.getBlockState(currentBlock).getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
                                 level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
                             }
                         }
@@ -261,8 +290,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     public LootContext.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch) {
         ItemStack stack = new ItemStack(Items.STICK);
-        if (isSilktouch) { stack.enchant(Enchantments.SILK_TOUCH, 1); }
-        if (isFortune) { stack.enchant(Enchantments.BLOCK_FORTUNE, 3); }
+        if (isSilktouch) {stack.enchant(Enchantments.SILK_TOUCH, 1);}
+        if (isFortune) {stack.enchant(Enchantments.BLOCK_FORTUNE, 3);}
         lootcontextBuilder = (new LootContext.Builder((ServerLevel) level)).withRandom(level.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.BLOCK_ENTITY, this);
         return lootcontextBuilder;
     }
@@ -351,8 +380,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        if(getLevel().isClientSide && net.getDirection() == PacketFlow.CLIENTBOUND)
-            handleUpdateTag(pkt.getTag());
+        if (getLevel().isClientSide && net.getDirection() == PacketFlow.CLIENTBOUND) handleUpdateTag(pkt.getTag());
     }
 
     @Nullable
@@ -360,7 +388,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-
 
 
     @Override
@@ -408,7 +435,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     @NotNull
     @Override
     protected Component getDefaultName() {
-        return new TranslatableComponent("block.vanillaquarry.quarry_block");
+        return Component.translatable("block.vanillaquarry.quarry_block");
     }
 
     @NotNull

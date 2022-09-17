@@ -8,8 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -37,16 +35,16 @@ public class AreaCardItem extends Item {
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
         if (stack.getOrCreateTag().contains("pos1")) {
             String pos = stack.getOrCreateTag().get("pos1").getAsString().replace("{", "").replace("}", "").replace(",", " ");
-            tooltipComponents.add(new TranslatableComponent("item.vanillaquarry.areacard.text.box").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            tooltipComponents.add(Component.translatable("item.vanillaquarry.areacard.text.box").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             if (stack.getOrCreateTag().contains("lastBlock")) {
                 int blocksMined = stack.getOrCreateTag().getInt("lastBlock");
-                tooltipComponents.add(new TranslatableComponent("item.vanillaquarry.areacard.text.mined").append(" " + blocksMined).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                tooltipComponents.add(Component.translatable("item.vanillaquarry.areacard.text.mined").append(" " + blocksMined).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             }
-            tooltipComponents.add(new TranslatableComponent("item.vanillaquarry.areacard.text.from").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            tooltipComponents.add(Component.translatable("item.vanillaquarry.areacard.text.from").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         }
         if (stack.getOrCreateTag().contains("pos2")) {
             String pos = stack.getOrCreateTag().get("pos2").getAsString().replace("{", "").replace("}", "").replace(",", " ");
-            tooltipComponents.add(new TranslatableComponent("item.vanillaquarry.areacard.text.to").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            tooltipComponents.add(Component.translatable("item.vanillaquarry.areacard.text.to").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         }
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
     }
@@ -69,13 +67,13 @@ public class AreaCardItem extends Item {
             CompoundTag posTag = new CompoundTag();
             writePos(posTag, pos);
             item.getOrCreateTag().put("pos1", posTag);
-            player.sendMessage(new TranslatableComponent("message.vanillaquarry.savedfirst").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)), Util.NIL_UUID);
+            player.sendSystemMessage(Component.translatable("message.vanillaquarry.savedfirst").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         } else {
             if (!item.getOrCreateTag().contains("pos2")) {
                 CompoundTag posTag = new CompoundTag();
                 writePos(posTag, pos);
                 item.getOrCreateTag().put("pos2", posTag);
-                player.sendMessage(new TranslatableComponent("message.vanillaquarry.savedsecond").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)), Util.NIL_UUID);
+                player.sendSystemMessage(Component.translatable("message.vanillaquarry.savedsecond").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             }
         }
         player.setItemSlot(EquipmentSlot.MAINHAND, item);

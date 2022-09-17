@@ -18,22 +18,16 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
@@ -54,7 +48,7 @@ public class ForgeEvents {
             String owner = ((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner();
             event.setCanceled(true);
             if (owner.isEmpty()) owner = "undefined";
-            player.sendMessage(new TranslatableComponent("gui.vanillaquarry.quarry.message.quarry_from").append(" " + owner + " ").append(new TranslatableComponent("gui.vanillaquarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW), Util.NIL_UUID);
+            player.sendSystemMessage(Component.translatable("gui.vanillaquarry.quarry.message.quarry_from").append(" " + owner + " ").append(Component.translatable("gui.vanillaquarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW));
         }
     }
 

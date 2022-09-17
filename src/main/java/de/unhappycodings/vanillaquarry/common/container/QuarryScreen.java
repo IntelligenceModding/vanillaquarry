@@ -23,17 +23,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.UsernameCache;
-import net.minecraftforge.event.world.BlockEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -58,78 +54,81 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
 
     @Override
     protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
-        drawText(new TranslatableComponent("block.vanillaquarry.quarry_block").getString(), pPoseStack, 71, 7);
-        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.inventory").getString(), pPoseStack, 8, 110);
-        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.speed").getString(), pPoseStack, 73, 27);
-        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.fuel").getString(), pPoseStack, 19, 20);
-        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.text.out").getString(), pPoseStack, 138, 20);
-        drawText(new TextComponent(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
-        String yCoord = new TranslatableComponent("gui.vanillaquarry.quarry.text.stop").getString();
+        drawText(Component.translatable("block.vanillaquarry.quarry_block").getString(), pPoseStack, 71, 7);
+        drawText(Component.translatable("gui.vanillaquarry.quarry.text.inventory").getString(), pPoseStack, 8, 110);
+        drawText(Component.translatable("gui.vanillaquarry.quarry.text.speed").getString(), pPoseStack, 73, 27);
+        drawText(Component.translatable("gui.vanillaquarry.quarry.text.fuel").getString(), pPoseStack, 19, 20);
+        drawText(Component.translatable("gui.vanillaquarry.quarry.text.out").getString(), pPoseStack, 138, 20);
+        drawText(Component.literal(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
+        String yCoord = Component.translatable("gui.vanillaquarry.quarry.text.stop").getString();
         ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 1);
         if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY")) {
             yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
         }
 
-        drawText(new TextComponent("Y: " + yCoord).getString(), pPoseStack, 73, 95);
-        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.power.on").getString(), pPoseStack, 68, 59);
-        drawText(new TranslatableComponent("gui.vanillaquarry.quarry.power.off").getString(), pPoseStack, 95, 59);
+        drawText(Component.literal("Y: " + yCoord).getString(), pPoseStack, 73, 95);
+        drawText(Component.translatable("gui.vanillaquarry.quarry.power.on").getString(), pPoseStack, 68, 59);
+        drawText(Component.translatable("gui.vanillaquarry.quarry.power.off").getString(), pPoseStack, 95, 59);
 
         switch (getMenu().getTile().getMode()) {
-            case 0 -> drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.default").getString(), pPoseStack, 87, 77);
-            case 1 -> drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.efficient").getString(), pPoseStack, 87, 77);
-            case 2 -> drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.fortune").getString(), pPoseStack, 87, 77);
-            case 3 -> drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.silktouch").getString(), pPoseStack, 87, 77);
-            case 4 -> drawCenteredText(new TranslatableComponent("gui.vanillaquarry.quarry.mode.void").getString(), pPoseStack, 87, 77);
+            case 0 ->
+                    drawCenteredText(Component.translatable("gui.vanillaquarry.quarry.mode.default").getString(), pPoseStack, 87, 77);
+            case 1 ->
+                    drawCenteredText(Component.translatable("gui.vanillaquarry.quarry.mode.efficient").getString(), pPoseStack, 87, 77);
+            case 2 ->
+                    drawCenteredText(Component.translatable("gui.vanillaquarry.quarry.mode.fortune").getString(), pPoseStack, 87, 77);
+            case 3 ->
+                    drawCenteredText(Component.translatable("gui.vanillaquarry.quarry.mode.silktouch").getString(), pPoseStack, 87, 77);
+            case 4 ->
+                    drawCenteredText(Component.translatable("gui.vanillaquarry.quarry.mode.void").getString(), pPoseStack, 87, 77);
         }
 
         if (modeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             float totalBurnTicks = CalcUtil.getNeededTicks(getMenu().getTile().getMode(), getMenu().getTile().getSpeed());
             switch (getMenu().getTile().getMode()) {
-                case 0 -> list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.default"));
-                case 1 -> list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.efficient"));
-                case 2 -> list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.fortune"));
-                case 3 -> list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.silktouch"));
-                default -> list.add(new TranslatableComponent("gui.vanillaquarry.quarry.mode.void"));
+                case 0 -> list.add(Component.translatable("gui.vanillaquarry.quarry.mode.default"));
+                case 1 -> list.add(Component.translatable("gui.vanillaquarry.quarry.mode.efficient"));
+                case 2 -> list.add(Component.translatable("gui.vanillaquarry.quarry.mode.fortune"));
+                case 3 -> list.add(Component.translatable("gui.vanillaquarry.quarry.mode.silktouch"));
+                default -> list.add(Component.translatable("gui.vanillaquarry.quarry.mode.void"));
             }
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.consumption")
-                    .append(" " + totalBurnTicks + " ")
-                    .append("ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.coal").append(" " + ( new DecimalFormat("##.##").format(1600/totalBurnTicks).replace(",", ".")) + " ")
-                    .append(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.consumption").append(" " + totalBurnTicks + " ").append("ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.coal").append(" " + (new DecimalFormat("##.##").format(1600 / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.vanillaquarry.quarry.tooltip.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             if (getMenu().getTile().getMode() == 1)
-                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.speed.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.speed.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
 
         if (infoButtonIsHovered) {
             List<Component> list = new ArrayList<>();
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.informations"));
-            list.add(new TextComponent(""));
-            list.add(new TextComponent("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TextComponent(""));
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.when_turned_off").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TextComponent(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.will_consume").getString().replace("#", CommonConfig.quarryIdleConsumption.get().toString())).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TextComponent("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.changing_speed").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TextComponent("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(new TranslatableComponent("gui.vanillaquarry.quarry.tooltip.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
+            list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.informations"));
+            list.add(Component.literal(""));
+            list.add(Component.literal("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.literal(""));
+            list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.when_turned_off").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.literal(Component.translatable("gui.vanillaquarry.quarry.tooltip.will_consume").getString().replace("#", CommonConfig.quarryIdleConsumption.get().toString())).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.changing_speed").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.vanillaquarry.quarry.tooltip.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (lockButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             String owner = "undefined";
-            if (!Objects.equals(getMenu().getTile().getOwner(), "undefined")) owner = UsernameCache.getLastKnownUsername(UUID.fromString(getMenu().getTile().getOwner()));
+            if (!Objects.equals(getMenu().getTile().getOwner(), "undefined"))
+                owner = UsernameCache.getLastKnownUsername(UUID.fromString(getMenu().getTile().getOwner()));
 
             if (getMenu().getTile().getLocked()) {
-                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.private"));
-                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.private.description").withStyle(ChatFormatting.YELLOW));
-                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.owner", owner) .withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.vanillaquarry.quarry.lock.private"));
+                list.add(Component.translatable("gui.vanillaquarry.quarry.lock.private.description").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.vanillaquarry.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.public"));
-                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.public.description").withStyle(ChatFormatting.YELLOW));
-                list.add(new TranslatableComponent("gui.vanillaquarry.quarry.lock.owner", owner) .withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.vanillaquarry.quarry.lock.public"));
+                list.add(Component.translatable("gui.vanillaquarry.quarry.lock.public.description").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.vanillaquarry.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
@@ -182,7 +181,10 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         LOCK_MOUSE_BUTTON = new ModButton(10, 5, 8, 10, darkmode ? (locked ? VanillaQuarry.LOCK_DARK : VanillaQuarry.LOCK_DARK_OPEN) : (locked ? VanillaQuarry.LOCK : VanillaQuarry.LOCK_OPEN), this::cycleLocked, null, tile, this, 8, 20, true);
 
         if (ClientConfig.enableEnableQuarryDarkmodeButton.get())
-            addRenderableWidget(new ModButton(146, 7, 12, 8, darkmode ? VanillaQuarry.DARK_MODE : VanillaQuarry.WHITE_MODE, () -> {refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, null, tile, this, 12, 16, true));
+            addRenderableWidget(new ModButton(146, 7, 12, 8, darkmode ? VanillaQuarry.DARK_MODE : VanillaQuarry.WHITE_MODE, () -> {
+                refreshWidgets();
+                setDarkModeConfigValue(!getDarkModeConfigValue());
+            }, null, tile, this, 12, 16, true));
         addRenderableWidget(new ModButton(69, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_DOWN_DARK : VanillaQuarry.COUNTER_DOWN, () -> changeSpeed((byte) -1, tile), null, tile, this, 10, 28, true));
         addRenderableWidget(new ModButton(95, 38, 10, 14, darkmode ? VanillaQuarry.COUNTER_UP_DARK : VanillaQuarry.COUNTER_UP, () -> changeSpeed((byte) 1, tile), null, tile, this, 10, 28, true));
         addRenderableWidget(new ModButton(61, 56, 25, 14, darkmode ? VanillaQuarry.POWER_DARK : VanillaQuarry.POWER, () -> changePower(true, tile), null, tile, this, 25, 28, true));
@@ -228,12 +230,12 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         super.containerTick();
     }
 
-    public void setDarkModeConfigValue(boolean state) {
-        ClientConfig.enableQuarryDarkmode.set(state);
-    }
-
     public boolean getDarkModeConfigValue() {
         return ClientConfig.enableQuarryDarkmode.get();
+    }
+
+    public void setDarkModeConfigValue(boolean state) {
+        ClientConfig.enableQuarryDarkmode.set(state);
     }
 
     public void refreshDarkmode() {

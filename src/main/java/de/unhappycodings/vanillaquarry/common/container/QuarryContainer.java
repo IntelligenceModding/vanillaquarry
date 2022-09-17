@@ -7,6 +7,7 @@ import de.unhappycodings.vanillaquarry.common.container.base.SlotCondition;
 import de.unhappycodings.vanillaquarry.common.container.base.SlotInputHandler;
 import de.unhappycodings.vanillaquarry.common.item.ModItems;
 import de.unhappycodings.vanillaquarry.common.setup.ContainerTypes;
+import de.unhappycodings.vanillaquarry.common.util.ItemUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Inventory;
@@ -35,7 +36,7 @@ public class QuarryContainer extends BaseContainer {
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
                 for (Map.Entry<ResourceKey<Item>, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
                     if (ForgeHooks.getBurnTime(new ItemStack(entry.getValue()), null) > 0) {
-                        if (!entry.getValue().getRegistryName().toString().contains("bucket"))
+                        if (!ItemUtil.getRegString(entry.getValue()).contains("bucket"))
                             burnables.add(entry.getValue());
                     }
                 }

@@ -1,7 +1,6 @@
 package de.unhappycodings.vanillaquarry.common.container.base;
 
 import de.unhappycodings.vanillaquarry.common.blockentity.QuarryBlockEntity;
-import de.unhappycodings.vanillaquarry.common.item.AreaCardItem;
 import de.unhappycodings.vanillaquarry.common.item.ModItems;
 import de.unhappycodings.vanillaquarry.common.network.PacketHandler;
 import de.unhappycodings.vanillaquarry.common.network.toserver.QuarryChangedPacket;
@@ -16,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 // CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
@@ -41,8 +41,9 @@ public abstract class BaseContainer extends AbstractContainerMenu {
 
     private static final int TE_INVENTORY_SLOT_COUNT = 13;
 
+    @NotNull
     @Override
-    public ItemStack quickMoveStack(Player playerIn, int index) {
+    public ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem();
