@@ -1,6 +1,5 @@
 {
-  "replace": false,
   "values": [
-    "vanillaquarry:quarry_block"
+    "quarry:quarry_block"
   ]
 }

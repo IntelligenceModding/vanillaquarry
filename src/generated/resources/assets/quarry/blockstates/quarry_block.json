@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "active=false,facing=east,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_off",
+      "y": 90
+    },
+    "active=false,facing=east,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 90
+    },
+    "active=false,facing=east,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_idle",
+      "y": 90
+    },
+    "active=false,facing=east,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_idle",
+      "y": 90
+    },
+    "active=false,facing=north,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_off"
+    },
+    "active=false,facing=north,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work"
+    },
+    "active=false,facing=north,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_idle"
+    },
+    "active=false,facing=north,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_idle"
+    },
+    "active=false,facing=south,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_off",
+      "y": 180
+    },
+    "active=false,facing=south,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 180
+    },
+    "active=false,facing=south,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_idle",
+      "y": 180
+    },
+    "active=false,facing=south,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_idle",
+      "y": 180
+    },
+    "active=false,facing=west,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_off",
+      "y": 270
+    },
+    "active=false,facing=west,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 270
+    },
+    "active=false,facing=west,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_idle",
+      "y": 270
+    },
+    "active=false,facing=west,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_idle",
+      "y": 270
+    },
+    "active=true,facing=east,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_on",
+      "y": 90
+    },
+    "active=true,facing=east,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 90
+    },
+    "active=true,facing=east,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_on",
+      "y": 90
+    },
+    "active=true,facing=east,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 90
+    },
+    "active=true,facing=north,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_on"
+    },
+    "active=true,facing=north,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work"
+    },
+    "active=true,facing=north,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_on"
+    },
+    "active=true,facing=north,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_work"
+    },
+    "active=true,facing=south,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_on",
+      "y": 180
+    },
+    "active=true,facing=south,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 180
+    },
+    "active=true,facing=south,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_on",
+      "y": 180
+    },
+    "active=true,facing=south,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 180
+    },
+    "active=true,facing=west,powered=false,working=false": {
+      "model": "quarry:block/quarry_block_on",
+      "y": 270
+    },
+    "active=true,facing=west,powered=false,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 270
+    },
+    "active=true,facing=west,powered=true,working=false": {
+      "model": "quarry:block/quarry_block_on",
+      "y": 270
+    },
+    "active=true,facing=west,powered=true,working=true": {
+      "model": "quarry:block/quarry_block_work",
+      "y": 270
+    }
+  }
+}

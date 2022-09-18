@@ -2,20 +2,20 @@ modLoader = "javafml"
 loaderVersion = "[41,)"
 license = "All Rights Reserved"
 [[mods]]
-modId = "vanillaquarry"
+modId = "quarry"
 version = "1.0r"
-displayName = "VanillaQuarry"
+displayName = "Quarry"
 authors = "UnhappyWithoutU"
 description = ''''''
 
-[[dependencies.vanillaquarry]]
+[[dependencies.quarry]]
 modId = "forge"
 mandatory = true
 versionRange = "[41,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.vanillaquarry]]
+[[dependencies.quarry]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.19,1.20)"
