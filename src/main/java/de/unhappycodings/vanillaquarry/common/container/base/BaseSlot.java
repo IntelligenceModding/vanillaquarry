@@ -108,7 +108,6 @@ public class BaseSlot extends SlotItemHandler {
     @OnlyIn(Dist.CLIENT)
     public void renderGhostOverlay(PoseStack stack, int x, int y) {
         if (getGhostOverlayItem() != null && getGhostOverlayItem().length > 0) {
-
             nextGhostItemTick++;
 
             if (!getItem().isEmpty()) return;

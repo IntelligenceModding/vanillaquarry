@@ -52,6 +52,7 @@ public class ForgeEvents {
         }
     }
 
+
     @SuppressWarnings({"ConstantConditions", "removal"})
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)

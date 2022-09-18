@@ -19,7 +19,6 @@ public class ModBlocks {
     }
 
     public static void register() {
-
     }
 
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<T> block) {

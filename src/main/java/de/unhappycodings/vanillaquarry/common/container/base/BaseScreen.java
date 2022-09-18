@@ -30,7 +30,6 @@ public abstract class BaseScreen<T extends BaseContainer> extends AbstractContai
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, getTexture());
-
         int xPos = (width - imageWidth) / 2;
         int yPos = (height - imageHeight) / 2;
 

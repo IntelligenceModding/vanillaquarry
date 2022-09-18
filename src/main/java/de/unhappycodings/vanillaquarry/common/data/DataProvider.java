@@ -19,6 +19,5 @@ public class DataProvider {
         generator.addProvider(true, new ItemModelProvider(generator, existingFileHelper));
         generator.addProvider(true, new TagsProvider(generator, existingFileHelper));
         generator.addProvider(true, new LanguageProvider(generator, "en_us"));
-
     }
 }

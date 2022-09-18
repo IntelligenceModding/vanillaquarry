@@ -97,7 +97,6 @@ public class QuarryBlock extends BaseEntityBlock {
             }
             if (player instanceof ServerPlayer serverPlayerEntity)
                 NetworkHooks.openScreen(serverPlayerEntity, namedContainerProvider, pos);
-
         }
         return InteractionResult.SUCCESS;
     }

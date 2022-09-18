@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 public class QuarryContainer extends BaseContainer {
-
     public List<Item> burnables = new ArrayList<>();
 
     public QuarryContainer(int id, Inventory inventory, BlockPos pos, Level level) {

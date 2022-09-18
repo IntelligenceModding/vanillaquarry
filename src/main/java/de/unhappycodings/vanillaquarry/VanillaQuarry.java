@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 
 @Mod("vanillaquarry")
 public class VanillaQuarry {
-
     public static final String MOD_ID = "vanillaquarry";
     public static final Logger LOGGER = LogUtils.getLogger();
 

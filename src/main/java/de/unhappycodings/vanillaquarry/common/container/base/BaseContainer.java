@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 // CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public abstract class BaseContainer extends AbstractContainerMenu {
-
     private final IItemHandler inventory;
     protected QuarryBlockEntity tileEntity;
 

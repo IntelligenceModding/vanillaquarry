@@ -246,7 +246,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                         // Machine turns off after use
                         level.setBlock(getBlockPos(), state.setValue(QuarryBlock.ACTIVE, false).setValue(QuarryBlock.WORKING, false), 3);
                     }
-
                     ticks = 0;
                 }
             }

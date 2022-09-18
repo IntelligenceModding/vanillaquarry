@@ -49,7 +49,6 @@ public class AreaCardItem extends Item {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
     }
 
-
     @SuppressWarnings("ConstantConditions")
     @NotNull
     @Override

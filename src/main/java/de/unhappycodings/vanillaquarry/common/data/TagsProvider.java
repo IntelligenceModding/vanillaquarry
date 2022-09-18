@@ -28,7 +28,6 @@ public class TagsProvider extends net.minecraft.data.tags.TagsProvider<Block> {
         for (RegistryObject<Block> block : Registration.BLOCKS.getEntries()) {
             tag(BlockTags.MINEABLE_WITH_PICKAXE).add(block.get());
         }
-
     }
 
     @NotNull

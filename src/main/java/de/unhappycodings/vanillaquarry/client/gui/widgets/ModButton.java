@@ -18,7 +18,6 @@ import java.util.function.Supplier;
 public class ModButton extends BaseWidget {
     public static final ResourceLocation COUNTER_UP = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_plus.png");
     public static final ResourceLocation COUNTER_DOWN = new ResourceLocation(VanillaQuarry.MOD_ID, "textures/gui/button/counter_minus.png");
-
     private final Runnable onClick;
     private final Runnable onClickReverse;
     private final Supplier<Boolean> isValid;

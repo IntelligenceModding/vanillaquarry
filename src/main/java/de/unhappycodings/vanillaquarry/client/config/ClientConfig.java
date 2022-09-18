@@ -17,7 +17,6 @@ public class ClientConfig {
 
     static {
         ForgeConfigSpec.Builder clientBuilder = new ForgeConfigSpec.Builder();
-
         init(clientBuilder);
         clientConfig = clientBuilder.build();
     }

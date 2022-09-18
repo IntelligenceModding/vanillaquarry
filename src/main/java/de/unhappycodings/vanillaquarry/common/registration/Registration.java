@@ -20,6 +20,7 @@ public class Registration {
         BLOCKS.register(eventBus);
         ITEMS.register(eventBus);
         CONTAINER_TYPES.register(eventBus);
+
     }
 
 }

@@ -104,7 +104,6 @@ public abstract class BaseWidget extends AbstractWidget {
 
     @Override
     public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
-
     }
 
 }
