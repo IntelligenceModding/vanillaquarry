@@ -17,7 +17,7 @@ group = 'de.unhappycodings'
 version = "${mod_version}"
 
 java {
-    archivesBaseName = 'vanillaquarry'
+    archivesBaseName = 'quarry'
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
@@ -32,13 +32,13 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'vanillaquarry'
+            property 'forge.enabledGameTestNamespaces', 'quarry'
 
             args "--username", "deadmau5"
             args "--uuid", "1e18d5ff-643d-45c8-b509-43b8461d8614"
 
             mods {
-                vanillaquarry {
+                quarry {
                     source sourceSets.main
                 }
             }
@@ -49,10 +49,10 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'vanillaquarry'
+            property 'forge.enabledGameTestNamespaces', 'quarry'
 
             mods {
-                vanillaquarry {
+                quarry {
                     source sourceSets.main
                 }
             }
@@ -66,10 +66,10 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'vanillaquarry'
+            property 'forge.enabledGameTestNamespaces', 'quarry'
 
             mods {
-                vanillaquarry {
+                quarry {
                     source sourceSets.main
                 }
             }
@@ -81,10 +81,10 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
-            args '--mod', 'vanillaquarry', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'quarry', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
-                vanillaquarry {
+                quarry {
                     source sourceSets.main
                 }
             }
@@ -110,7 +110,7 @@ dependencies {
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "vanillaquarry",
+                "Specification-Title"     : "quarry",
                 "Specification-Vendor"    : "UnhappyWithoutU",
                 "Specification-Version"   : "${mod_version}",
                 "Implementation-Title"    : project.name,

@@ -1,0 +1,9 @@
+{
+  "parent": "quarry:generation/quarry_block",
+  "textures": {
+    "1": "quarry:block/quarry_block_work",
+    "2": "quarry:block/quarry_block_side",
+    "3": "quarry:block/quarry_block_top",
+    "particle": "quarry:block/quarry_block_side"
+  }
+}
