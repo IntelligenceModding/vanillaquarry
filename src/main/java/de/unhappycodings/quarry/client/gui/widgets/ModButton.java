@@ -25,7 +25,6 @@ public class ModButton extends BaseWidget {
     private final ResourceLocation texture;
     private Supplier<Component> hoverText;
     boolean playSound;
-
     int tX = 0;
     int tY = 0;
 

@@ -175,12 +175,11 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         QuarryBlockEntity tile = this.getMenu().getTile();
         boolean darkmode = getDarkModeConfigValue();
         boolean locked = tile.getLocked();
-        MODE_MOUSE_BUTTON = new ModButton(56, 74, 64, 14, darkmode ? Quarry.MODE_DARK : Quarry.MODE, () -> changeMode(false), () -> changeMode(true), tile, this, 64, 28, true);
         INFO_MOUSE_BUTTON = new ModButton(161, 6, 9, 9, Quarry.INFO, null, null, tile, this, 9, 18, false);
-        LOCK_MOUSE_BUTTON = new ModButton(10, 5, 8, 10, darkmode ? (locked ? Quarry.LOCK_DARK : Quarry.LOCK_DARK_OPEN) : (locked ? Quarry.LOCK : Quarry.LOCK_OPEN), this::cycleLocked, null, tile, this, 8, 20, true);
+        LOCK_MOUSE_BUTTON = new ModButton(6, 6, 9, 9, locked ? Quarry.LOCK : Quarry.LOCK_OPEN, this::cycleLocked, null, tile, this, 9, 18, true);
+        addRenderableWidget(new ModButton(150, 6, 9, 9, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> {refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, null, tile, this, 9, 18, true));
 
-        if (ClientConfig.enableEnableQuarryDarkmodeButton.get())
-            addRenderableWidget(new ModButton(146, 7, 12, 8, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> {refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, null, tile, this, 12, 16, true));
+        MODE_MOUSE_BUTTON = new ModButton(56, 74, 64, 14, darkmode ? Quarry.MODE_DARK : Quarry.MODE, () -> changeMode(false), () -> changeMode(true), tile, this, 64, 28, true);
         addRenderableWidget(new ModButton(69, 38, 10, 14, darkmode ? Quarry.COUNTER_DOWN_DARK : Quarry.COUNTER_DOWN, () -> changeSpeed((byte) -1, tile), null, tile, this, 10, 28, true));
         addRenderableWidget(new ModButton(95, 38, 10, 14, darkmode ? Quarry.COUNTER_UP_DARK : Quarry.COUNTER_UP, () -> changeSpeed((byte) 1, tile), null, tile, this, 10, 28, true));
         addRenderableWidget(new ModButton(61, 56, 25, 14, darkmode ? Quarry.POWER_DARK : Quarry.POWER, () -> changePower(true, tile), null, tile, this, 25, 28, true));
