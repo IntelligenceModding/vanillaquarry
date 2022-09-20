@@ -116,7 +116,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 ItemStack stack = handler.getStackInSlot(i);
                                 if (ForgeHooks.getBurnTime(stack, null) > 0) {
                                     int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
-                                    if (slot != 0) {
+                                    if (slot != -1) {
                                         System.out.println(slot);
                                         System.out.println(stack);
                                         if (slot != 99) {
@@ -286,7 +286,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                 if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
             }
         }
-        return 0;
+        return -1;
     }
 
     public int hasOutputSpace(ItemStack itemStack) {
