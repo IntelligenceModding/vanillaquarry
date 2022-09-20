@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -79,6 +80,14 @@ public class AreaCardItem extends Item {
         }
         player.setItemSlot(EquipmentSlot.MAINHAND, item);
         return InteractionResult.SUCCESS;
+    }
+
+    @NotNull
+    @Override
+    public InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player pPlayer, @NotNull InteractionHand pUsedHand) {
+        System.out.println("used");
+        
+        return super.use(pLevel, pPlayer, pUsedHand);
     }
 
     public static void writePos(CompoundTag nbt, BlockPos pos) {

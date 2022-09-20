@@ -33,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -95,11 +96,42 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     @SuppressWarnings("ConstantConditions")
     public void tick() {
         if (level.isClientSide) return;
-        if (level.getGameTime() % 5 == 0)
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
         QuarryBlockEntity entity = this;
         Level level = getLevel();
         BlockState state = getBlockState();
+        BlockState above = level.getBlockState(getBlockPos().above());
+        if (level.getGameTime() % 5 == 0) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+            // 1 Pull - 2 Eject - 3 All
+            switch (getEject()) {
+                case 1: {
+                    if (above.hasBlockEntity()) {
+                        BlockEntity tile = level.getBlockEntity(getBlockPos().above());
+                        LazyOptional<IItemHandler> capability = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                        LazyOptional<IItemHandler> quarryCapability = this.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                        if (capability.isPresent() && quarryCapability.isPresent()) {
+                            IItemHandler handler = capability.orElseThrow(() -> new IllegalStateException("Item handler is not present"));
+                            IItemHandler quarryHandler = quarryCapability.orElseThrow(() -> new IllegalStateException("Quarry Item handler is not present"));
+                            for (int i = 0; i < handler.getSlots(); i++) {
+                                ItemStack stack = handler.getStackInSlot(i);
+                                if (ForgeHooks.getBurnTime(stack, null) > 0) {
+                                    int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
+                                    if (slot != 0) {
+                                        System.out.println(slot);
+                                        System.out.println(stack);
+                                        if (slot != 99) {
+                                            quarryHandler.insertItem(slot, new ItemStack(stack.getItem(), 1), false);
+                                            handler.extractItem(i, 1, false);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         List<ItemStack> input = new ArrayList<>();
         for (int i = 0; i <= 5; i++)
             input.add(getItem(i));
@@ -231,6 +263,30 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         BlockPos pos1 = origin.offset(-1, -1, -1);
         BlockPos pos2 = origin.offset(1, 1, 1);
         return CalcUtil.getBlockStates(pos1, pos2, level).contains(target);
+    }
+
+    public int hasExternalOutputSpace(ItemStack itemStack, int slotCount) {
+        for (int i = 0; i <= slotCount; i++) {
+            ItemStack current = getItem(i);
+            if (itemStack.is(Items.AIR)) return 99;
+            if (current.isEmpty()) return i;
+            if (current.getItem() == itemStack.getItem()) {
+                if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
+            }
+        }
+        return 0;
+    }
+
+    public int hasInputSpace(ItemStack itemStack) {
+        for (int i = 0; i <= 5; i++) {
+            ItemStack current = getItem(i);
+            if (itemStack.is(Items.AIR)) return 99;
+            if (current.isEmpty()) return i;
+            if (current.getItem() == itemStack.getItem()) {
+                if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
+            }
+        }
+        return 0;
     }
 
     public int hasOutputSpace(ItemStack itemStack) {

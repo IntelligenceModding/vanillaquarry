@@ -185,10 +185,10 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             List<Component> list = new ArrayList<>();
             if (getDarkModeConfigValue()) {
                 list.add(new TextComponent("Darkmode"));
-                list.add(new TextComponent("click to switch to Whitemode.").withStyle(ChatFormatting.YELLOW));
+                list.add(new TextComponent("click to switch to whitemode.").withStyle(ChatFormatting.YELLOW));
             } else {
                 list.add(new TextComponent("Whitemode"));
-                list.add(new TextComponent("click to switch to Darkmode.").withStyle(ChatFormatting.YELLOW));
+                list.add(new TextComponent("click to switch to darkmode.").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
