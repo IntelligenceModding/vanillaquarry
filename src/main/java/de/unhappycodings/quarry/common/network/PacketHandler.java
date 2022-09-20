@@ -4,12 +4,12 @@ import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.network.base.IPacket;
 import de.unhappycodings.quarry.common.network.toserver.QuarryChangedPacket;
 import de.unhappycodings.quarry.common.network.toserver.QuarryClientModePacket;
-import de.unhappycodings.quarry.common.network.toserver.QuarryClientOwnerPacket;
-import de.unhappycodings.quarry.common.network.toserver.QuarryClientSpeedPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryClientBooleanPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryClientIntPacket;
 import de.unhappycodings.quarry.common.network.toserver.QuarryModePacket;
-import de.unhappycodings.quarry.common.network.toserver.QuarryOwnerPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryBooleanPacket;
 import de.unhappycodings.quarry.common.network.toserver.QuarryPowerPacket;
-import de.unhappycodings.quarry.common.network.toserver.QuarrySpeedPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryIntPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,13 +31,13 @@ public class PacketHandler {
     private static int index = 0;
 
     public static void init() {
-        registerClientToServer(QuarrySpeedPacket.class, QuarrySpeedPacket::decode);
+        registerClientToServer(QuarryIntPacket.class, QuarryIntPacket::decode);
         registerClientToServer(QuarryPowerPacket.class, QuarryPowerPacket::decode);
         registerClientToServer(QuarryModePacket.class, QuarryModePacket::decode);
         registerClientToServer(QuarryChangedPacket.class, QuarryChangedPacket::decode);
-        registerClientToServer(QuarryOwnerPacket.class, QuarryOwnerPacket::decode);
-        registerServerToClient(QuarryClientOwnerPacket.class, QuarryClientOwnerPacket::decode);
-        registerServerToClient(QuarryClientSpeedPacket.class, QuarryClientSpeedPacket::decode);
+        registerClientToServer(QuarryBooleanPacket.class, QuarryBooleanPacket::decode);
+        registerServerToClient(QuarryClientBooleanPacket.class, QuarryClientBooleanPacket::decode);
+        registerServerToClient(QuarryClientIntPacket.class, QuarryClientIntPacket::decode);
         registerServerToClient(QuarryClientModePacket.class, QuarryClientModePacket::decode);
     }
 

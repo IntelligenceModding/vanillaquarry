@@ -73,6 +73,9 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     private int mode;
     private int burnTime;
     private int totalBurnTime;
+    private int eject;
+    private boolean filter;
+    private boolean loop;
     private boolean locked;
 
     public QuarryBlockEntity(BlockPos pPos, BlockState pBlockState) {
@@ -325,6 +328,30 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         this.locked = locked;
     }
 
+    public int getEject() {
+        return eject;
+    }
+
+    public void setEject(int eject) {
+        this.eject = eject;
+    }
+
+    public boolean getFilter() {
+        return filter;
+    }
+
+    public void setFilter(boolean filter) {
+        this.filter = filter;
+    }
+
+    public boolean getLoop() {
+        return loop;
+    }
+
+    public void setLoop(boolean loop) {
+        this.loop = loop;
+    }
+
     @NotNull
     @Override
     public CompoundTag getUpdateTag() {
@@ -334,8 +361,11 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         nbt.putInt("TotalBurnTime", getTotalBurnTime());
         nbt.putInt("Speed", getSpeed());
         nbt.putInt("Mode", getMode());
+        nbt.putInt("Eject", getEject());
         nbt.putString("Owner", getOwner());
         nbt.putBoolean("Locked", getLocked());
+        nbt.putBoolean("Filter", getFilter());
+        nbt.putBoolean("Loop", getLoop());
         return nbt;
     }
 
@@ -345,8 +375,11 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         setTotalBurnTime(tag.getInt("TotalBurnTime"));
         setSpeed(tag.getInt("Speed"));
         setMode(tag.getInt("Mode"));
+        setEject(tag.getInt("Eject"));
         setOwner(tag.getString("Owner"));
         setLocked(tag.getBoolean("Locked"));
+        setFilter(tag.getBoolean("Filter"));
+        setLoop(tag.getBoolean("Loop"));
     }
 
     @Override
@@ -368,10 +401,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         super.saveAdditional(nbt);
         nbt.putInt("Speed", this.speed);
         nbt.putInt("Mode", this.mode);
+        nbt.putInt("Eject", this.eject);
         nbt.putInt("BurnTime", this.burnTime);
         nbt.putInt("TotalBurnTime", this.totalBurnTime);
         nbt.putString("Owner", getOwner());
         nbt.putBoolean("Locked", getLocked());
+        nbt.putBoolean("Filter", getFilter());
+        nbt.putBoolean("Loop", getLoop());
         ContainerHelper.saveAllItems(nbt, this.items, true);
     }
 
@@ -382,10 +418,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         ContainerHelper.loadAllItems(nbt, this.items);
         this.speed = nbt.getInt("Speed");
         this.mode = nbt.getInt("Mode");
+        this.eject = nbt.getInt("Eject");
         this.burnTime = nbt.getInt("BurnTime");
         this.totalBurnTime = nbt.getInt("TotalBurnTime");
         this.owner = nbt.getString("Owner");
         this.locked = nbt.getBoolean("Locked");
+        this.filter = nbt.getBoolean("Filter");
+        this.loop = nbt.getBoolean("Loop");
     }
 
     @Override

@@ -4,8 +4,8 @@ import de.unhappycodings.quarry.common.blockentity.ModBlockEntities;
 import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.network.toserver.QuarryModePacket;
-import de.unhappycodings.quarry.common.network.toserver.QuarryOwnerPacket;
-import de.unhappycodings.quarry.common.network.toserver.QuarrySpeedPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryBooleanPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryIntPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -92,9 +92,9 @@ public class QuarryBlock extends BaseEntityBlock {
         MenuProvider namedContainerProvider = this.getMenuProvider(state, levelIn, pos);
         if (namedContainerProvider != null) {
             if (levelIn.isClientSide) {
-                PacketHandler.sendToServer(new QuarrySpeedPacket(pos, (byte) 0));
+                PacketHandler.sendToServer(new QuarryIntPacket(pos, (byte) 0, "speed"));
                 PacketHandler.sendToServer(new QuarryModePacket(pos, (byte) -1));
-                PacketHandler.sendToServer(new QuarryOwnerPacket(pos, true));
+                PacketHandler.sendToServer(new QuarryBooleanPacket(pos, true, "locked"));
             }
             if (player instanceof ServerPlayer serverPlayerEntity)
                     NetworkHooks.openGui(serverPlayerEntity, namedContainerProvider, pos);

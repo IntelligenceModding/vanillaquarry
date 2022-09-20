@@ -9,18 +9,20 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
-public class QuarryClientSpeedPacket implements IPacket {
+public class QuarryClientIntPacket implements IPacket {
 
     private final BlockPos pos;
     private final int add;
+    private final String type;
 
-    public QuarryClientSpeedPacket(BlockPos pos, int add) {
+    public QuarryClientIntPacket(BlockPos pos, int add, String type) {
         this.pos = pos;
         this.add = add;
+        this.type = type;
     }
 
-    public static QuarryClientSpeedPacket decode(FriendlyByteBuf buffer) {
-        return new QuarryClientSpeedPacket(buffer.readBlockPos(), buffer.readInt());
+    public static QuarryClientIntPacket decode(FriendlyByteBuf buffer) {
+        return new QuarryClientIntPacket(buffer.readBlockPos(), buffer.readInt(), buffer.readUtf());
     }
 
 
@@ -29,11 +31,15 @@ public class QuarryClientSpeedPacket implements IPacket {
         LocalPlayer player = Minecraft.getInstance().player;
         BlockEntity machine = player.level.getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
-        blockEntity.setSpeed(add);
+        if (type.contains("speed"))
+            blockEntity.setSpeed(add);
+        if (type.contains("eject"))
+            blockEntity.setEject(add);
     }
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos);
         buffer.writeInt(add);
+        buffer.writeUtf(type);
     }
 }
