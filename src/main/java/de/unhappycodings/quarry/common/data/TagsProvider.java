@@ -22,12 +22,10 @@ public class TagsProvider extends net.minecraft.data.tags.TagsProvider<Block> {
 
     @Override
     protected void addTags() {
-
         // Interate through all Blocks and add them the "Minable with Pickaxe" tag
         for (RegistryObject<Block> block : Registration.BLOCKS.getEntries()) {
             tag(BlockTags.MINEABLE_WITH_PICKAXE).add(block.get());
         }
-
     }
 
     @NotNull

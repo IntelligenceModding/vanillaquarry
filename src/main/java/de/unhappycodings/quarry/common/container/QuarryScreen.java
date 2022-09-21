@@ -142,53 +142,55 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         if (loopButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getMenu().getTile().getLoop()) {
-                list.add(new TextComponent("Always loop"));
-                list.add(new TextComponent("restarts after finished.").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.loop.always"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.loop.restart").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(new TextComponent("Don't loop"));
-                list.add(new TextComponent("stop after area is mined!").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.loop.never"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.loop.stop").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (filterButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getMenu().getTile().getFilter()) {
-                list.add(new TextComponent("Filter everything"));
-                list.add(new TextComponent("uses the area cards item filter.").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.always"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.filters").withStyle(ChatFormatting.YELLOW));
+                list.add(new TextComponent("In Development").withStyle(ChatFormatting.DARK_RED));
             } else {
-                list.add(new TextComponent("Don't Filter"));
-                list.add(new TextComponent("outputs default items!").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.never"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.all").withStyle(ChatFormatting.YELLOW));
+                list.add(new TextComponent("In Development").withStyle(ChatFormatting.DARK_RED));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (ejectButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getMenu().getTile().getEject() == 0) {
-                list.add(new TextComponent("Don't Eject/Pull"));
-                list.add(new TextComponent("output and input possible with hoppers.").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.dont"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.in_out_hoppers").withStyle(ChatFormatting.YELLOW));
             } else if (getMenu().getTile().getEject() == 1) {
-                list.add(new TextComponent("Only Pull"));
-                list.add(new TextComponent("pulls items from above!").withStyle(ChatFormatting.YELLOW));
-                list.add(new TextComponent("output possible with hoppers").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.pull"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.pulls_above").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.out_hoppers").withStyle(ChatFormatting.YELLOW));
             } else if (getMenu().getTile().getEject() == 2) {
-                list.add(new TextComponent("Only Eject"));
-                list.add(new TextComponent("ejects items to bottom!").withStyle(ChatFormatting.YELLOW));
-                list.add(new TextComponent("input possible with hoppers").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.eject"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.eject_below").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.in_hoppers").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(new TextComponent("Eject and Pull"));
-                list.add(new TextComponent("ejects items at bottom!").withStyle(ChatFormatting.YELLOW));
-                list.add(new TextComponent("pulls items from above!").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.both"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.pulls_above").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.output.eject_below").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (darkmodeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getDarkModeConfigValue()) {
-                list.add(new TextComponent("Darkmode"));
-                list.add(new TextComponent("click to switch to whitemode.").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.dark"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(new TextComponent("Whitemode"));
-                list.add(new TextComponent("click to switch to darkmode.").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.white"));
+                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }

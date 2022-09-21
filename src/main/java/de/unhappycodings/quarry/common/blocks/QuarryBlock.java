@@ -10,8 +10,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -39,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Random;
 
 public class QuarryBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -47,7 +51,7 @@ public class QuarryBlock extends BaseEntityBlock {
     public static BooleanProperty WORKING = BooleanProperty.create("working");
 
     public QuarryBlock() {
-        super(Properties.copy(Blocks.STONE).strength(3.0F, 6.0F));
+        super(Properties.copy(Blocks.STONE).strength(3.0F, 6.0F).lightLevel((x) -> x.getValue(QuarryBlock.POWERED) ? 10 : 0));
         this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false).setValue(WORKING, false).setValue(ACTIVE, false).setValue(FACING, Direction.NORTH));
     }
 
@@ -62,19 +66,24 @@ public class QuarryBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void playerWillDestroy(@NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull BlockState pState, Player pPlayer) {
-        BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-        if (blockentity instanceof QuarryBlockEntity machine) {
-            if (!pLevel.isClientSide) {
-                ItemStack machineStack = new ItemStack(this, 1);
-                machine.saveToItem(machineStack);
-                if (machine.hasCustomName()) machineStack.setHoverName(machine.getCustomName());
-                ItemEntity itementity = new ItemEntity(pLevel, (double) pPos.getX() + 0.5D, (double) pPos.getY() + 0.5D, (double) pPos.getZ() + 0.5D, machineStack);
-                itementity.setDefaultPickUpDelay();
-                pLevel.addFreshEntity(itementity);
+    public void animateTick(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull Random pRandom) {
+        if (pState.getValue(POWERED)) {
+            double d0 = (double) pPos.getX() + 0.5D;
+            double d1 = (double) pPos.getY();
+            double d2 = (double) pPos.getZ() + 0.5D;
+            if (pRandom.nextDouble() < 0.1D) {
+                pLevel.playLocalSound(d0, d1, d2, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
             }
+            Direction direction = pState.getValue(FACING);
+            Direction.Axis direction$axis = direction.getAxis();
+            double d3 = 0.52D;
+            double d4 = pRandom.nextDouble() * 0.6D - 0.3D;
+            double d5 = direction$axis == Direction.Axis.X ? (double) direction.getStepX() * 0.52D : d4;
+            double d6 = pRandom.nextDouble() * 6.0D / 16.0D;
+            double d7 = direction$axis == Direction.Axis.Z ? (double) direction.getStepZ() * 0.52D : d4;
+            pLevel.addParticle(ParticleTypes.SMOKE, d0 + d5, d1 + d6, d2 + d7, 0.0D, 0.0D, 0.0D);
+            pLevel.addParticle(ParticleTypes.FLAME, d0 + d5, d1 + d6, d2 + d7, 0.0D, 0.0D, 0.0D);
         }
-        super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
     }
 
     @SuppressWarnings("deprecation")

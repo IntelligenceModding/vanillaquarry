@@ -32,8 +32,8 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.quarry.mode.void", "Void");
         add("gui.quarry.quarry.lock.private", "Private");
         add("gui.quarry.quarry.lock.public", "Public");
-        add("gui.quarry.quarry.lock.private.description", "players can use and modify everything");
-        add("gui.quarry.quarry.lock.public.description", "access only for you");
+        add("gui.quarry.quarry.lock.public.description", "players can use and modify everything");
+        add("gui.quarry.quarry.lock.private.description", "access only for you");
         add("gui.quarry.quarry.lock.owner", "Owner: %s");
 
         add("gui.quarry.quarry.message.quarry_from", "Quarry of");
@@ -49,6 +49,31 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.quarry.tooltip.affect_fuel", "affect the fuel consumption!");
         add("gui.quarry.quarry.tooltip.use_config", "Change values in the config.");
         add("gui.quarry.quarry.tooltip.speed.80", "at 80% speed");
+
+        add("gui.quarry.quarry.tooltip.loop.always", "Always loop");
+        add("gui.quarry.quarry.tooltip.loop.restart", "restarts after finished.");
+        add("gui.quarry.quarry.tooltip.loop.never", "Don't loop");
+        add("gui.quarry.quarry.tooltip.loop.stop", "stop after area is mined.");
+
+        add("gui.quarry.quarry.tooltip.filter.always", "Filter everything");
+        add("gui.quarry.quarry.tooltip.filter.filters", "uses the area cards item filter.");
+        add("gui.quarry.quarry.tooltip.filter.never", "Don't Filter");
+        add("gui.quarry.quarry.tooltip.filter.all", "mines all blocks!");
+
+        add("gui.quarry.quarry.tooltip.output.dont", "Don't Eject/Pull");
+        add("gui.quarry.quarry.tooltip.output.in_out_hoppers", "output and input possible with hoppers.");
+        add("gui.quarry.quarry.tooltip.output.pull", "Only Pull");
+        add("gui.quarry.quarry.tooltip.output.pulls_above", "pulls item from above!");
+        add("gui.quarry.quarry.tooltip.output.out_hoppers", "output possible with hoppers.");
+        add("gui.quarry.quarry.tooltip.output.eject", "Only Eject");
+        add("gui.quarry.quarry.tooltip.output.eject_below", "ejects item to bottom!");
+        add("gui.quarry.quarry.tooltip.output.in_hoppers", "input possible with hoppers.");
+        add("gui.quarry.quarry.tooltip.output.both", "Eject and Pull");
+
+        add("gui.quarry.quarry.tooltip.darkmode.dark", "Darkmode");
+        add("gui.quarry.quarry.tooltip.darkmode.dark.switch", "click to switch to whitemode.");
+        add("gui.quarry.quarry.tooltip.darkmode.white", "Whitemode");
+        add("gui.quarry.quarry.tooltip.darkmode.white.switch", "click to switch to darkmode.");
 
         add("item.quarry.areacard.text.box", "Box (Solid)");
         add("item.quarry.areacard.text.mined", "#Mined");

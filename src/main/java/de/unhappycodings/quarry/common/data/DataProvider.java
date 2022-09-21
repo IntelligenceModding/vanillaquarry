@@ -18,7 +18,9 @@ public class DataProvider {
         generator.addProvider(new ModelAndBlockStatesProvider(generator, existingFileHelper));
         generator.addProvider(new ItemModelProvider(generator, existingFileHelper));
         generator.addProvider(new TagsProvider(generator, existingFileHelper));
+        generator.addProvider(new RecipeProvider(generator));
         generator.addProvider(new LanguageProvider(generator, "en_us"));
+        generator.addProvider(new LootTableProvider(generator));
 
     }
 }
