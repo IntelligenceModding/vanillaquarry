@@ -3,7 +3,7 @@ loaderVersion = "[40,)"
 license = "All Rights Reserved"
 [[mods]]
 modId = "quarry"
-version = "1.0.1r"
+version = "1.1r"
 displayName = "Quarry"
 authors = "UnhappyWithoutU"
 description = ''''''

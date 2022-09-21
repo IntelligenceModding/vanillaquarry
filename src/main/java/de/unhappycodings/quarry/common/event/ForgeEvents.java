@@ -13,7 +13,6 @@ import de.unhappycodings.quarry.common.blocks.ModBlocks;
 import de.unhappycodings.quarry.common.blocks.QuarryBlock;
 import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
-import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -36,7 +35,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Quarry.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -62,7 +60,6 @@ public class ForgeEvents {
             itementity.setDefaultPickUpDelay();
             level.addFreshEntity(itementity);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-            System.out.println(event.getResult());
         }
     }
 
@@ -97,10 +94,10 @@ public class ForgeEvents {
                 float y = (float) (-cameraPos.y + posToRenderSquareAt.getY());
                 float z = (float) (-cameraPos.z + posToRenderSquareAt.getZ());
 
-                Color color = Color.decode(CommonConfig.areaCardOverlayColorFirstCorner.get());
-                float r = color.getRed() / 255f;
-                float g = color.getGreen() / 255f;
-                float b = color.getBlue() / 255f;
+                int color = CommonConfig.areaCardOverlayColorFirstCorner.get();
+                float r = ((color >> 16) & 0xFF) / 255f;
+                float g = ((color >> 8) & 0xFF) / 255f;
+                float b = (color & 0xFF) / 255f;
                 float a = 0.5f;
 
                 // Down
@@ -159,10 +156,10 @@ public class ForgeEvents {
                 float y = (float) (-cameraPos.y + posToRenderSquareAt.getY());
                 float z = (float) (-cameraPos.z + posToRenderSquareAt.getZ());
 
-                Color color = Color.decode(CommonConfig.areaCardOverlayColorSecondCorner.get());
-                float r = color.getRed() / 255f;
-                float g = color.getGreen() / 255f;
-                float b = color.getBlue() / 255f;
+                int color = CommonConfig.areaCardOverlayColorSecondCorner.get();
+                float r = ((color >> 16) & 0xFF) / 255f;
+                float g = ((color >> 8) & 0xFF) / 255f;
+                float b = (color & 0xFF) / 255f;
                 float a = 0.5f;
 
                 // Down

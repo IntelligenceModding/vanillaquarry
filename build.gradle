@@ -10,6 +10,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'checkstyle'
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
@@ -23,30 +27,25 @@ java {
 
 minecraft {
     mappings channel: "${mappings_channel}", version: "${mappings_version}"
-
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         client {
             workingDirectory project.file('run')
-
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'quarry'
 
             args "--username", "deadmau5"
             args "--uuid", "1e18d5ff-643d-45c8-b509-43b8461d8614"
-
             mods {
                 quarry {
                     source sourceSets.main
                 }
             }
         }
-
         server {
             workingDirectory project.file('run')
-
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'quarry'
@@ -57,13 +56,8 @@ minecraft {
                 }
             }
         }
-
-        // This run config launches GameTestServer and runs all registered gametests, then exits.
-        // By default, the server will crash when no gametests are provided.
-        // The gametest system is also enabled by default for other run configs under the /test command.
         gameTestServer {
             workingDirectory project.file('run')
-
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'quarry'
@@ -74,13 +68,10 @@ minecraft {
                 }
             }
         }
-
         data {
             workingDirectory project.file('run')
-
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-
             args '--mod', 'quarry', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
@@ -106,7 +97,6 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"}
 
-// Example for how to get properties into the manifest for reading at runtime.
 jar {
     manifest {
         attributes([
@@ -124,5 +114,5 @@ jar {
 jar.finalizedBy('reobfJar')
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.encoding = 'UTF-8'
 }

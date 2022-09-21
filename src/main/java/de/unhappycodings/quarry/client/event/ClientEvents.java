@@ -1,8 +1,8 @@
 package de.unhappycodings.quarry.client.event;
 
 import de.unhappycodings.quarry.Quarry;
+import de.unhappycodings.quarry.common.container.ContainerTypes;
 import de.unhappycodings.quarry.common.container.QuarryScreen;
-import de.unhappycodings.quarry.common.setup.ContainerTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

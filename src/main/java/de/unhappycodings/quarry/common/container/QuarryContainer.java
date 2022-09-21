@@ -6,7 +6,6 @@ import de.unhappycodings.quarry.common.container.base.BaseSlot;
 import de.unhappycodings.quarry.common.container.base.SlotCondition;
 import de.unhappycodings.quarry.common.container.base.SlotInputHandler;
 import de.unhappycodings.quarry.common.item.ModItems;
-import de.unhappycodings.quarry.common.setup.ContainerTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Inventory;

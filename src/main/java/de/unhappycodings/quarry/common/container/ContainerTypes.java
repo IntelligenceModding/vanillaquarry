@@ -1,6 +1,5 @@
-package de.unhappycodings.quarry.common.setup;
+package de.unhappycodings.quarry.common.container;
 
-import de.unhappycodings.quarry.common.container.QuarryContainer;
 import de.unhappycodings.quarry.common.registration.Registration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.MenuType;
@@ -17,7 +16,6 @@ public class ContainerTypes {
     }));
 
     public static void register() {
-
     }
 
 }

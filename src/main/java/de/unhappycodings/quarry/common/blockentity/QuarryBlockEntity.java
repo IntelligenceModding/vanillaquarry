@@ -58,7 +58,7 @@ import java.util.UUID;
 public class QuarryBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, MenuProvider {
     private static final int SPEED_0 = 15;
     private static final int SPEED_1 = 10;
-    private static final int SPEED_2 = 0; // 5
+    private static final int SPEED_2 = 5; // 5
     private final LazyOptional<? extends IItemHandler>[] itemHandler = SidedInvWrapper.create(this, Direction.values());
     public LootContext.Builder lootcontextBuilder;
     public List<BlockPos> blockStateList;
@@ -109,52 +109,57 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
             switch (getEject()) {
                 case 1 -> in = true;
                 case 2 -> out = true;
-                case 3 -> { in = true; out = true; }
+                case 3 -> {
+                    in = true;
+                    out = true;
+                }
             }
-            BlockEntity tileAbove = level.getBlockEntity(getBlockPos().above());
-            BlockEntity tileBelow = level.getBlockEntity(getBlockPos().below());
             LazyOptional<IItemHandler> quarryCapability = this.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-            IItemHandler quarryHandler = quarryCapability.orElseThrow(() -> new IllegalStateException("Item handler (Quarry) is not present"));
-            if (above.hasBlockEntity()) {
-                LazyOptional<IItemHandler> capabilityAbove = tileAbove.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-                IItemHandler handlerAbove = capabilityAbove.orElseThrow(() -> new IllegalStateException("Item handler (Above) is not present"));
-                if (in && above.hasBlockEntity()) {
-                    for (int i = 0; i < handlerAbove.getSlots(); i++) {
-                        ItemStack stack = handlerAbove.getStackInSlot(i);
-                        if (ForgeHooks.getBurnTime(stack, null) > 0) {
-                            int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
-                            if (slot != -1) {
-                                if (slot != 99) {
-                                    quarryHandler.insertItem(slot, new ItemStack(stack.getItem(), 1), false);
-                                    handlerAbove.extractItem(i, 1, false);
+            if (quarryCapability.isPresent()) {
+                IItemHandler quarryHandler = quarryCapability.resolve().get();
+                if (above.hasBlockEntity()) {
+                    BlockEntity tileAbove = level.getBlockEntity(getBlockPos().above());
+                    LazyOptional<IItemHandler> capabilityAbove = tileAbove.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                    if (in && capabilityAbove.isPresent()) {
+                        IItemHandler handlerAbove = capabilityAbove.resolve().get();
+                        for (int i = 0; i < handlerAbove.getSlots(); i++) {
+                            ItemStack stack = handlerAbove.getStackInSlot(i);
+                            if (ForgeHooks.getBurnTime(stack, null) > 0) {
+                                int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
+                                if (slot != -1) {
+                                    if (slot != 99) {
+                                        quarryHandler.insertItem(slot, new ItemStack(stack.getItem(), 1), false);
+                                        handlerAbove.extractItem(i, 1, false);
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
                 }
-            }
-            if (below.hasBlockEntity()) {
-                LazyOptional<IItemHandler> capabilityBelow = tileBelow.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-                IItemHandler handlerBelow = capabilityBelow.orElseThrow(() -> new IllegalStateException("Item handler (Below) is not present"));
-                if (out && below.hasBlockEntity()) {
-                    boolean doBreak = false;
-                    for (int i = 6; i <= 11; i++) {
-                        ItemStack stack = quarryHandler.getStackInSlot(i);
-                        for (int e = 0; e < handlerBelow.getSlots(); e++) {
-                            ItemStack slotStack = handlerBelow.getStackInSlot(e);
-                            if (!stack.is(Items.AIR)) {
-                                if (new ItemStack(stack.getItem(), 1).is(slotStack.getItem()) || slotStack.isEmpty()) {
-                                    if ((slotStack.getCount() + 1) <= stack.getMaxStackSize()) {
-                                        handlerBelow.insertItem(e, new ItemStack(stack.getItem(), 1), false);
-                                        quarryHandler.extractItem(i, 1, false);
-                                        doBreak = true;
-                                        break;
+                if (below.hasBlockEntity()) {
+                    BlockEntity tileBelow = level.getBlockEntity(getBlockPos().below());
+                    LazyOptional<IItemHandler> capabilityBelow = tileBelow.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                    if (out && capabilityBelow.isPresent()) {
+                        IItemHandler handlerBelow = capabilityBelow.resolve().get();
+                        boolean doBreak = false;
+                        for (int i = 6; i <= 11; i++) {
+                            ItemStack stack = quarryHandler.getStackInSlot(i);
+                            for (int e = 0; e < handlerBelow.getSlots(); e++) {
+                                ItemStack slotStack = handlerBelow.getStackInSlot(e);
+                                if (!stack.is(Items.AIR)) {
+                                    if (slotStack.isEmpty() || new ItemStack(stack.getItem(), 1).is(slotStack.getItem())) {
+                                        if ((slotStack.getCount() + 1) <= stack.getMaxStackSize()) {
+                                            handlerBelow.insertItem(e, new ItemStack(stack.getItem(), 1), false);
+                                            quarryHandler.extractItem(i, 1, false);
+                                            doBreak = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
+                            if (doBreak) break;
                         }
-                        if (doBreak) break;
                     }
                 }
             }
@@ -163,7 +168,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         List<ItemStack> input = new ArrayList<>();
         for (int i = 0; i <= 5; i++)
             input.add(getItem(i));
-        if (burnTime <= 301) {
+        if (burnTime <= 1001) {
             for (int i = 0; i < input.size(); i++) {
                 if (ForgeHooks.getBurnTime(input.get(i), null) > 0) {
                     totalBurnTime = burnTime + ForgeHooks.getBurnTime(input.get(i), null);
@@ -193,11 +198,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                 CompoundTag itemTag = NbtUtil.getNbtTag(areaCardItem);
                 if (itemTag.contains("pos1") && itemTag.contains("pos2")) {
                     // Get Speed and set to variables
-                    boolean speedy = false;
-                    if (speed == 0 && !(ticks + speedModifier >= SPEED_0)) speedy = true;
+                    boolean speedy = speed == 0 && !(ticks + speedModifier >= SPEED_0);
                     if (speed == 1 && !(ticks + speedModifier >= SPEED_1)) speedy = true;
                     if (speed == 2 && !(ticks + speedModifier >= SPEED_2)) speedy = true;
-                    if (speedy) {ticks++; return;}
+                    if (speedy) {
+                        ticks++;
+                        return;
+                    }
                     // Get Mode to variables to work with in-code easilier!
                     float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
                     boolean isSilktouch;
@@ -288,7 +295,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 int index = hasOutputSpace(drop);
                                 if (index != 0) {
                                     if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
-                                        setItem(index, new ItemStack(drop.getItem(), (getItem(index).getCount() + drop.getCount())));
+                                        setItem(index, new ItemStack(drop.getItem(), getItem(index).getCount() + drop.getCount()));
                                         burnTime -= fuelModifier;
                                         broken = true;
                                     }
@@ -317,18 +324,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         BlockPos pos1 = origin.offset(-1, -1, -1);
         BlockPos pos2 = origin.offset(1, 1, 1);
         return CalcUtil.getBlockStates(pos1, pos2, level).contains(target);
-    }
-
-    public int hasExternalOutputSpace(ItemStack itemStack, int slotCount) {
-        for (int i = 0; i <= slotCount; i++) {
-            ItemStack current = getItem(i);
-            if (itemStack.is(Items.AIR)) return 99;
-            if (current.isEmpty()) return i;
-            if (current.getItem() == itemStack.getItem()) {
-                if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
-            }
-        }
-        return 0;
     }
 
     public int hasInputSpace(ItemStack itemStack) {
@@ -374,8 +369,10 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     public LootContext.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch) {
         ItemStack stack = new ItemStack(Items.STICK);
-        if (isSilktouch) {stack.enchant(Enchantments.SILK_TOUCH, 1);}
-        if (isFortune) {stack.enchant(Enchantments.BLOCK_FORTUNE, 3);}
+        if (isSilktouch)
+            stack.enchant(Enchantments.SILK_TOUCH, 1);
+        if (isFortune)
+            stack.enchant(Enchantments.BLOCK_FORTUNE, 3);
         lootcontextBuilder = (new LootContext.Builder((ServerLevel) level)).withRandom(level.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.BLOCK_ENTITY, this);
         return lootcontextBuilder;
     }

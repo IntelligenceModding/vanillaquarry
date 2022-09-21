@@ -48,7 +48,7 @@ public class ModButton extends BaseWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        if (QuarryScreen.MODE_MOUSE_BUTTON.isMouseOver(pMouseX, pMouseY) && pButton == 1) {
+        if (QuarryScreen.modeMouseButton.isMouseOver(pMouseX, pMouseY) && pButton == 1) {
             if (isValid != null && isValid.get() && onClickReverse != null) {
                 onClickReverse.run();
                 playDownSound(minecraft.getSoundManager());

@@ -85,8 +85,6 @@ public class AreaCardItem extends Item {
     @NotNull
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player pPlayer, @NotNull InteractionHand pUsedHand) {
-        System.out.println("used");
-        
         return super.use(pLevel, pPlayer, pUsedHand);
     }
 

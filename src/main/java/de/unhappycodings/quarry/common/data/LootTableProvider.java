@@ -19,16 +19,14 @@ import java.util.function.Supplier;
 
 public class LootTableProvider extends net.minecraft.data.loot.LootTableProvider {
 
-    public LootTableProvider(DataGenerator p_124437_) {
-        super(p_124437_);
+    public LootTableProvider(DataGenerator generator) {
+        super(generator);
     }
 
     @NotNull
     @Override
     protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
-        return ImmutableList.of(
-                Pair.of(LootTableBlocks::new, LootContextParamSets.BLOCK)
-        );
+        return ImmutableList.of(Pair.of(LootTableBlocks::new, LootContextParamSets.BLOCK));
     }
 
     @Override
