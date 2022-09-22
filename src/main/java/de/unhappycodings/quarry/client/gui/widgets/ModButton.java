@@ -17,9 +17,6 @@ import java.util.Collections;
 import java.util.function.Supplier;
 
 public class ModButton extends BaseWidget {
-    public static final ResourceLocation COUNTER_UP = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/counter_plus.png");
-    public static final ResourceLocation COUNTER_DOWN = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/counter_minus.png");
-
     private final Runnable onClick;
     private final Runnable onClickReverse;
     private final Supplier<Boolean> isValid;
@@ -49,6 +46,7 @@ public class ModButton extends BaseWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        System.out.println("triggered");
         if (QuarryScreen.modeMouseButton.isMouseOver(pMouseX, pMouseY) && pButton == 1) {
             if (isValid != null && isValid.get() && onClickReverse != null) {
                 onClickReverse.run();
@@ -60,6 +58,7 @@ public class ModButton extends BaseWidget {
 
     @Override
     public void onClick(double pMouseX, double pMouseY) {
+        System.out.println("also triggered");
         if (isMouseOver(pMouseX, pMouseY)) {
             if (isValid != null && isValid.get() && onClick != null) {
                 onClick.run();

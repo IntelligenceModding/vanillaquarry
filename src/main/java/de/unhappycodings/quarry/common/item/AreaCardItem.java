@@ -40,7 +40,6 @@ public class AreaCardItem extends Item implements MenuProvider {
         super(new Item.Properties().stacksTo(1).tab(Quarry.creativeTab));
     }
 
-
     @SuppressWarnings("ConstantConditions")
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {

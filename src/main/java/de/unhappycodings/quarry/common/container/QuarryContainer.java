@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class QuarryContainer extends BaseContainer {
 
-    public List<Item> burnables = new ArrayList<>();
+    public static List<Item> burnables = new ArrayList<>();
 
     public QuarryContainer(int id, Inventory inventory, BlockPos pos, Level level) {
         super(ContainerTypes.QUARRY_CONTAINER.get(), id, inventory, pos, level);
@@ -34,7 +34,7 @@ public class QuarryContainer extends BaseContainer {
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
                 for (Map.Entry<ResourceKey<Item>, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
                     if (ForgeHooks.getBurnTime(new ItemStack(entry.getValue()), null) > 0) {
-                        if (!entry.getValue().getRegistryName().toString().contains("bucket"))
+                        if (!entry.getValue().hasCraftingRemainingItem())
                             burnables.add(entry.getValue());
                     }
                 }

@@ -16,12 +16,15 @@ import de.unhappycodings.quarry.common.util.CalcUtil;
 import de.unhappycodings.quarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -67,6 +70,20 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+        }
+        LocalPlayer player = Minecraft.getInstance().player;
+        ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
+        if (stack.getOrCreateTag().contains("pos1")) {
+            BlockPos pos = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos1"));
+            drawCenteredText(new TextComponent(String.valueOf(pos.getX())).getText(), pPoseStack, 55, 19);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getY())).getText(), pPoseStack, 55, 36);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getZ())).getText(), pPoseStack, 55, 53);
+        }
+        if (stack.getOrCreateTag().contains("pos2")) {
+            BlockPos pos = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos2"));
+            drawCenteredText(new TextComponent(String.valueOf(pos.getX())).getText(), pPoseStack, 142, 19);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getY())).getText(), pPoseStack, 142, 36);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getZ())).getText(), pPoseStack, 142, 53);
         }
     }
 

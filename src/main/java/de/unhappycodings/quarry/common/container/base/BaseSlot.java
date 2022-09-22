@@ -105,6 +105,10 @@ public class BaseSlot extends SlotItemHandler {
         return ghostOverlays;
     }
 
+    public void setGhostOverlays(ItemStack[] ghostOverlays) {
+        this.ghostOverlays = ghostOverlays;
+    }
+
     @OnlyIn(Dist.CLIENT)
     public void renderGhostOverlay(PoseStack stack, int x, int y) {
         if (getGhostOverlayItem() != null && getGhostOverlayItem().length > 0) {

@@ -124,7 +124,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                         IItemHandler handlerAbove = capabilityAbove.resolve().get();
                         for (int i = 0; i < handlerAbove.getSlots(); i++) {
                             ItemStack stack = handlerAbove.getStackInSlot(i);
-                            if (ForgeHooks.getBurnTime(stack, null) > 0) {
+                            if (QuarryContainer.burnables.contains(stack.getItem())) {
                                 int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
                                 if (slot != -1) {
                                     if (slot != 99) {
