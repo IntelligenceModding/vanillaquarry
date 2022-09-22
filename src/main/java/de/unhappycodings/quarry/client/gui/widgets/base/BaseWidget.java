@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
 import de.unhappycodings.quarry.common.container.QuarryScreen;
+import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -18,14 +19,14 @@ import java.util.List;
 
 public abstract class BaseWidget extends AbstractWidget {
 
-    public final QuarryScreen screen;
+    public final BaseScreen<?> screen;
     protected final List<BaseWidget> children = new ArrayList<>();
     protected BlockEntity tile;
     protected Minecraft minecraft = Minecraft.getInstance();
     protected int leftPos;
     protected int topPos;
 
-    public BaseWidget(int x, int y, int width, int height, BlockEntity tile, QuarryScreen screen) {
+    public BaseWidget(int x, int y, int width, int height, BlockEntity tile, BaseScreen<?> screen) {
         super(screen.getGuiLeft() + x, screen.getGuiTop() + y, width, height, TextComponent.EMPTY);
         this.tile = tile;
         this.screen = screen;

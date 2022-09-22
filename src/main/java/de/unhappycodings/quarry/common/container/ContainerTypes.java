@@ -15,6 +15,12 @@ public class ContainerTypes {
         return new QuarryContainer(windowId, inv, pos, level);
     }));
 
+    public static final RegistryObject<MenuType<AreaCardContainer>> AREA_CARD_CONTAINER = Registration.CONTAINER_TYPES.register("area_card_container", () -> IForgeMenuType.create((windowId, inv, data) -> {
+        BlockPos pos = inv.player.getOnPos();
+        Level level = inv.player.getCommandSenderWorld();
+        return new AreaCardContainer(windowId, inv, pos, level);
+    }));
+
     public static void register() {
     }
 

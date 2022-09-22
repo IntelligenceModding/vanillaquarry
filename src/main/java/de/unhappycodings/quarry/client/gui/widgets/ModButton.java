@@ -5,6 +5,7 @@ import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.base.BaseWidget;
 import de.unhappycodings.quarry.common.container.QuarryScreen;
+import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
@@ -28,7 +29,7 @@ public class ModButton extends BaseWidget {
     int tX = 0;
     int tY = 0;
 
-    public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, Runnable onClickReverse, BlockEntity tile, QuarryScreen screen, int tX, int tY, boolean playSound) {
+    public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, Runnable onClickReverse, BlockEntity tile, BaseScreen<?> screen, int tX, int tY, boolean playSound) {
         super(x, y, width, height, tile, screen);
         this.onClick = onClick;
         this.onClickReverse = onClickReverse;

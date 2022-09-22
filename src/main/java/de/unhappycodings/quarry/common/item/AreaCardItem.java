@@ -2,30 +2,39 @@ package de.unhappycodings.quarry.common.item;
 
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.blocks.QuarryBlock;
+import de.unhappycodings.quarry.common.container.AreaCardContainer;
+import de.unhappycodings.quarry.common.container.QuarryContainer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class AreaCardItem extends Item {
+public class AreaCardItem extends Item implements MenuProvider {
 
     public AreaCardItem() {
         super(new Item.Properties().stacksTo(1).tab(Quarry.creativeTab));
@@ -85,6 +94,8 @@ public class AreaCardItem extends Item {
     @NotNull
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player pPlayer, @NotNull InteractionHand pUsedHand) {
+        if (!pLevel.isClientSide)
+            NetworkHooks.openGui((ServerPlayer) pPlayer, this);
         return super.use(pLevel, pPlayer, pUsedHand);
     }
 
@@ -94,4 +105,15 @@ public class AreaCardItem extends Item {
         nbt.putInt("z", pos.getZ());
     }
 
+    @NotNull
+    @Override
+    public Component getDisplayName() {
+        return new TextComponent("Area Card");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int pContainerId, @NotNull Inventory pInventory, Player pPlayer) {
+        return new AreaCardContainer(pContainerId, pInventory, pPlayer.getOnPos(), pPlayer.getLevel());
+    }
 }
