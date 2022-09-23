@@ -26,7 +26,7 @@ public abstract class BaseContainer extends AbstractContainerMenu {
     protected BaseContainer(@Nullable MenuType<?> type, int id, Inventory inventory, BlockPos pos, Level world) {
         super(type, id);
         this.inventory = new InvWrapper(inventory);
-        if (world != null) this.tileEntity = (QuarryBlockEntity) world.getBlockEntity(pos);
+        if (world != null) this.tileEntity = world.getBlockEntity(pos) instanceof QuarryBlockEntity ? (QuarryBlockEntity) world.getBlockEntity(pos) : null;
     }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons

@@ -1,4 +1,4 @@
-package de.unhappycodings.quarry.common.network.toserver;
+package de.unhappycodings.quarry.common.network.toclient;
 
 import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.quarry.common.network.base.IPacket;

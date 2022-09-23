@@ -51,6 +51,8 @@ public class Quarry {
     public static final ResourceLocation WHITE_MODE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/dark_mode_switch_off.png");
     public static final ResourceLocation DARK_MODE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/dark_mode_switch_on.png");
 
+    public static final ResourceLocation BLANK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/blank.png");
+
     public static final CreativeModeTab creativeTab = new ItemCreativeTab();
 
     public Quarry() {

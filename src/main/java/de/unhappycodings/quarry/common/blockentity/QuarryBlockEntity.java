@@ -26,6 +26,7 @@ import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -294,8 +295,19 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 setChanged();
                                 int index = hasOutputSpace(drop);
                                 if (index != 0) {
+                                    CompoundTag filtersTag = itemTag.getCompound("Filters");
+                                    boolean filtered = false;
+                                    Item[] stacks = {Items.COBBLESTONE, Items.STONE, Items.GRAVEL, Items.DIRT, Items.SAND, Items.RED_SAND, Items.NETHERRACK};
+                                    for (int i = 0; i <= 6; i++) {
+                                        if (filtersTag.getBoolean(String.valueOf(i))) {
+                                            if (drop.is(stacks[i])) {
+                                                filtered = true;
+                                            }
+                                        }
+                                    }
                                     if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
-                                        setItem(index, new ItemStack(drop.getItem(), getItem(index).getCount() + drop.getCount()));
+                                        if (!filtered)
+                                            setItem(index, new ItemStack(drop.getItem(), getItem(index).getCount() + drop.getCount()));
                                         burnTime -= fuelModifier;
                                         broken = true;
                                     }

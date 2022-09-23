@@ -72,7 +72,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         drawText(new TextComponent(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
         String yCoord = new TranslatableComponent("gui.quarry.quarry.text.stop").getString();
         ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 1);
-        if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY")) {
+        if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY") && getMenu().getTile().getLevel().getBlockState(getMenu().getTile().getBlockPos()).getValue(QuarryBlock.ACTIVE)) {
             yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
         }
 
@@ -158,11 +158,9 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             if (getMenu().getTile().getFilter()) {
                 list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.always"));
                 list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.filters").withStyle(ChatFormatting.YELLOW));
-                list.add(new TextComponent("In Development").withStyle(ChatFormatting.DARK_RED));
             } else {
                 list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.never"));
                 list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.filter.all").withStyle(ChatFormatting.YELLOW));
-                list.add(new TextComponent("In Development").withStyle(ChatFormatting.DARK_RED));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }

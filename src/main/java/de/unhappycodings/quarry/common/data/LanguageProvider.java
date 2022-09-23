@@ -79,6 +79,11 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("item.quarry.areacard.text.mined", "#Mined");
         add("item.quarry.areacard.text.from", "From");
         add("item.quarry.areacard.text.to", "To");
+        add("item.quarry.areacard.text.filters_active", "Filters are active!");
+
+        add("item.quarry.areacard.text.pos_1", "Position 1");
+        add("item.quarry.areacard.text.pos_2", "Position 2");
+        add("item.quarry.areacard.text.filter", "Filter");
 
         add("message.quarry.savedfirst", "First position saved! Now select the second corner.");
         add("message.quarry.savedsecond", "New settings copied to the area card!");

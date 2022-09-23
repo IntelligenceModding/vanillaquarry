@@ -23,9 +23,12 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .define('b', Items.REDSTONE)
                 .define('c', Items.REPEATER)
                 .define('d', Items.COMPARATOR)
-                .define('e', Items.ANDESITE)
-                .define('f', Items.FURNACE)
-                .pattern("bea").pattern("efe").pattern("ced")
+                .define('e', Items.FURNACE)
+                .define('f', Items.HOPPER)
+                .define('g', Items.DIAMOND_SHOVEL)
+                .define('h', Items.DIAMOND_PICKAXE)
+                .define('i', Items.DIAMOND_AXE)
+                .pattern("bfa").pattern("geh").pattern("cid")
                 .unlockedBy("has_item", has(Items.OBSERVER)).save(consumer,
                         ModBlocks.QUARRY.get().getRegistryName().getPath() + "_crafted");
         ShapedRecipeBuilder.shaped(ModItems.AREA_CARD.get(), 1)

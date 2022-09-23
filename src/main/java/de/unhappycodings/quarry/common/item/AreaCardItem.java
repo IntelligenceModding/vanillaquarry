@@ -56,6 +56,12 @@ public class AreaCardItem extends Item implements MenuProvider {
             String pos = stack.getOrCreateTag().get("pos2").getAsString().replace("{", "").replace("}", "").replace(",", " ");
             tooltipComponents.add(new TranslatableComponent("item.quarry.areacard.text.to").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         }
+        for (int i = 0; i <= 6; i++) {
+            if (stack.getOrCreateTag().getCompound("Filters").getBoolean(String.valueOf(i))) {
+                tooltipComponents.add(new TranslatableComponent("item.quarry.areacard.text.filters_active").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+                break;
+            }
+        }
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
     }
 
@@ -93,7 +99,7 @@ public class AreaCardItem extends Item implements MenuProvider {
     @NotNull
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player pPlayer, @NotNull InteractionHand pUsedHand) {
-        if (!pLevel.isClientSide)
+        if (!pLevel.isClientSide && pUsedHand == InteractionHand.MAIN_HAND)
             NetworkHooks.openGui((ServerPlayer) pPlayer, this);
         return super.use(pLevel, pPlayer, pUsedHand);
     }

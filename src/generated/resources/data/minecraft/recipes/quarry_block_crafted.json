@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "bea",
-    "efe",
-    "ced"
+    "bfa",
+    "geh",
+    "cid"
   ],
   "key": {
     "a": {
@@ -19,10 +19,19 @@
       "item": "minecraft:comparator"
     },
     "e": {
-      "item": "minecraft:andesite"
+      "item": "minecraft:furnace"
     },
     "f": {
-      "item": "minecraft:furnace"
+      "item": "minecraft:hopper"
+    },
+    "g": {
+      "item": "minecraft:diamond_shovel"
+    },
+    "h": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "i": {
+      "item": "minecraft:diamond_axe"
     }
   },
   "result": {

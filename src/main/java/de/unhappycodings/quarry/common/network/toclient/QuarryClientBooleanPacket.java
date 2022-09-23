@@ -1,4 +1,4 @@
-package de.unhappycodings.quarry.common.network.toserver;
+package de.unhappycodings.quarry.common.network.toclient;
 
 import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.quarry.common.network.base.IPacket;
@@ -9,29 +9,37 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
-public class QuarryClientModePacket implements IPacket {
+public class QuarryClientBooleanPacket implements IPacket {
 
     private final BlockPos pos;
-    private final int add;
+    private final boolean locked;
+    private final String type;
 
-    public QuarryClientModePacket(BlockPos pos, int add) {
+    public QuarryClientBooleanPacket(BlockPos pos, boolean uuid, String type) {
         this.pos = pos;
-        this.add = add;
+        this.locked = uuid;
+        this.type = type;
     }
 
-    public static QuarryClientModePacket decode(FriendlyByteBuf buffer) {
-        return new QuarryClientModePacket(buffer.readBlockPos(), buffer.readInt());
+    public static QuarryClientBooleanPacket decode(FriendlyByteBuf buffer) {
+        return new QuarryClientBooleanPacket(buffer.readBlockPos(), buffer.readBoolean(), buffer.readUtf());
     }
 
     public void handle(NetworkEvent.Context context) {
         LocalPlayer player = Minecraft.getInstance().player;
         BlockEntity machine = player.level.getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
-        blockEntity.setMode(add);
+        if (type.contains("locked"))
+            blockEntity.setLocked(locked);
+        if (type.contains("loop"))
+            blockEntity.setLoop(locked);
+        if (type.contains("filter"))
+            blockEntity.setFilter(locked);
     }
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos);
-        buffer.writeInt(add);
+        buffer.writeBoolean(locked);
+        buffer.writeUtf(type);
     }
 }

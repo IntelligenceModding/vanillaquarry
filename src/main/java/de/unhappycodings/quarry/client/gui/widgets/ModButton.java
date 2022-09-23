@@ -46,8 +46,7 @@ public class ModButton extends BaseWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        System.out.println("triggered");
-        if (QuarryScreen.modeMouseButton.isMouseOver(pMouseX, pMouseY) && pButton == 1) {
+        if (QuarryScreen.modeMouseButton != null && QuarryScreen.modeMouseButton.isMouseOver(pMouseX, pMouseY) && pButton == 1) {
             if (isValid != null && isValid.get() && onClickReverse != null) {
                 onClickReverse.run();
                 playDownSound(minecraft.getSoundManager());
@@ -58,7 +57,6 @@ public class ModButton extends BaseWidget {
 
     @Override
     public void onClick(double pMouseX, double pMouseY) {
-        System.out.println("also triggered");
         if (isMouseOver(pMouseX, pMouseY)) {
             if (isValid != null && isValid.get() && onClick != null) {
                 onClick.run();

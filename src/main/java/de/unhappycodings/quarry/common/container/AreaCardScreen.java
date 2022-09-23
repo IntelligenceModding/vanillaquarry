@@ -1,45 +1,57 @@
 package de.unhappycodings.quarry.common.container;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
+import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
 import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
+import de.unhappycodings.quarry.common.blocks.ModBlocks;
 import de.unhappycodings.quarry.common.blocks.QuarryBlock;
 import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import de.unhappycodings.quarry.common.container.base.BaseSlot;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
+import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.network.toserver.*;
 import de.unhappycodings.quarry.common.util.CalcUtil;
 import de.unhappycodings.quarry.common.util.NbtUtil;
+import de.unhappycodings.quarry.common.util.RenderUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.UsernameCache;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
+    public static final ResourceLocation GHOST_OVERLAY = new ResourceLocation(Quarry.MOD_ID, "textures/gui/slot/filter_overlay.png");
+    public static final ResourceLocation GHOST_OVERLAY_DARK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/slot/filter_overlay_dark.png");
+
     public static ModButton darkmodeMouseButton;
     AreaCardContainer container;
     boolean darkmodeButtonIsHovered;
@@ -51,15 +63,15 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     @Override
     protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
-        drawText(new TextComponent("Position 1").getString(), pPoseStack, 34, 6);
-        drawText(new TextComponent("Position 2").getString(), pPoseStack, 118, 6);
-        drawText(new TextComponent("X").getString(), pPoseStack, 9, 19);
-        drawText(new TextComponent("Y").getString(), pPoseStack, 9, 36);
-        drawText(new TextComponent("Z").getString(), pPoseStack, 9, 53);
-        drawText(new TextComponent("X").getString(), pPoseStack, 184, 19);
-        drawText(new TextComponent("Y").getString(), pPoseStack, 184, 36);
-        drawText(new TextComponent("Z").getString(), pPoseStack, 184, 53);
-        drawText(new TextComponent("Filter").getString(), pPoseStack, 87, 72);
+        drawText(new TranslatableComponent("item.quarry.areacard.text.pos_1").getString(), pPoseStack, 34, 7);
+        drawText(new TranslatableComponent("item.quarry.areacard.text.pos_2").getString(), pPoseStack, 118, 7);
+        drawText(new TextComponent("X").getString(), pPoseStack, 9, 22);
+        drawText(new TextComponent("Y").getString(), pPoseStack, 9, 39);
+        drawText(new TextComponent("Z").getString(), pPoseStack, 9, 56);
+        drawText(new TextComponent("X").getString(), pPoseStack, 184, 22);
+        drawText(new TextComponent("Y").getString(), pPoseStack, 184, 39);
+        drawText(new TextComponent("Z").getString(), pPoseStack, 184, 56);
+        drawText(new TranslatableComponent("item.quarry.areacard.text.filter").getString(), pPoseStack, 87, 72);
         if (darkmodeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getDarkModeConfigValue()) {
@@ -75,16 +87,39 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
         if (stack.getOrCreateTag().contains("pos1")) {
             BlockPos pos = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos1"));
-            drawCenteredText(new TextComponent(String.valueOf(pos.getX())).getText(), pPoseStack, 55, 19);
-            drawCenteredText(new TextComponent(String.valueOf(pos.getY())).getText(), pPoseStack, 55, 36);
-            drawCenteredText(new TextComponent(String.valueOf(pos.getZ())).getText(), pPoseStack, 55, 53);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getX())).getText(), pPoseStack, 55, 22);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getY())).getText(), pPoseStack, 55, 39);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getZ())).getText(), pPoseStack, 55, 56);
         }
         if (stack.getOrCreateTag().contains("pos2")) {
             BlockPos pos = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos2"));
-            drawCenteredText(new TextComponent(String.valueOf(pos.getX())).getText(), pPoseStack, 142, 19);
-            drawCenteredText(new TextComponent(String.valueOf(pos.getY())).getText(), pPoseStack, 142, 36);
-            drawCenteredText(new TextComponent(String.valueOf(pos.getZ())).getText(), pPoseStack, 142, 53);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getX())).getText(), pPoseStack, 142, 22);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getY())).getText(), pPoseStack, 142, 39);
+            drawCenteredText(new TextComponent(String.valueOf(pos.getZ())).getText(), pPoseStack, 142, 56);
         }
+        CompoundTag tag = stack.getOrCreateTag().getCompound("Filters");
+        renderGhostOverlay(pPoseStack, new ItemStack(Blocks.COBBLESTONE), 40, 84, tag.getBoolean("0"));
+        renderGhostOverlay(pPoseStack, new ItemStack(Blocks.STONE), 58, 84, tag.getBoolean("1"));
+        renderGhostOverlay(pPoseStack, new ItemStack(Blocks.GRAVEL), 76, 84, tag.getBoolean("2"));
+        renderGhostOverlay(pPoseStack, new ItemStack(Blocks.DIRT), 94, 84, tag.getBoolean("3"));
+        renderGhostOverlay(pPoseStack, new ItemStack(Blocks.SAND), 112, 84, tag.getBoolean("4"));
+        renderGhostOverlay(pPoseStack, new ItemStack(Blocks.RED_SAND), 130, 84, tag.getBoolean("5"));
+        renderGhostOverlay(pPoseStack, new ItemStack(Blocks.NETHERRACK), 148, 84, tag.getBoolean("6"));
+    }
+
+    public void renderGhostOverlay(PoseStack stack, ItemStack item, int x, int y, boolean normal) {
+        stack.pushPose();
+        RenderUtil.renderGuiItem(item, x, y);
+        RenderSystem.setShaderTexture(0, normal ? Quarry.BLANK : (ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY));
+        RenderSystem.setShaderColor(1, 1, 1, 0.65f);
+        RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
+        //stack.translate(0,0,10);
+        GuiComponent.blit(stack, x, y, 0, 0, 16, 16, 16, 16);
+        RenderSystem.disableBlend();
+        RenderSystem.enableDepthTest();
+        GuiUtil.reset();
+        stack.popPose();
     }
 
     @Override
@@ -108,20 +143,38 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         return super.isHovering(pX, pY, pWidth, pHeight, pMouseX, pMouseY);
     }
 
-    @Override
-    protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int x, int y) {
-        super.renderBg(matrixStack, partialTicks, x, y);
-        Level level = this.getMenu().getLevel();
-        BlockPos pos = this.getMenu().getPos();
-    }
-
     protected void addElements() {
         boolean darkmode = getDarkModeConfigValue();
         darkmodeMouseButton = new ModButton(182, 5, 9, 9, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> {
             refreshWidgets();
             setDarkModeConfigValue(!getDarkModeConfigValue());
         }, null, null, this, 9, 18, true);
-        addRenderableOnly(darkmodeMouseButton);
+        addRenderableWidget(darkmodeMouseButton);
+        addRenderableWidget(new ModButton(40, 84, 16, 16, Quarry.BLANK, () -> changeFilter(0), null, null, this, 16, 16, true));
+        addRenderableWidget(new ModButton(58, 84, 16, 16, Quarry.BLANK, () -> changeFilter(1), null, null, this, 16, 16, true));
+        addRenderableWidget(new ModButton(76, 84, 16, 16, Quarry.BLANK, () -> changeFilter(2), null, null, this, 16, 16, true));
+        addRenderableWidget(new ModButton(94, 84, 16, 16, Quarry.BLANK, () -> changeFilter(3), null, null, this, 16, 16, true));
+        addRenderableWidget(new ModButton(112, 84, 16, 16, Quarry.BLANK, () -> changeFilter(4), null, null, this, 16, 16, true));
+        addRenderableWidget(new ModButton(130, 84, 16, 16, Quarry.BLANK, () -> changeFilter(5), null, null, this, 16, 16, true));
+        addRenderableWidget(new ModButton(148, 84, 16, 16, Quarry.BLANK, () -> changeFilter(6), null, null, this, 16, 16, true));
+    }
+
+    public void changeFilter(int index) {
+        ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
+        if (stack.getItem() instanceof AreaCardItem) {
+            CompoundTag tag = new CompoundTag();
+            CompoundTag currentTag = stack.getOrCreateTag().getCompound("Filters");
+            for (int i = 0; i < 9; i++) {
+                if (currentTag.contains(String.valueOf(i)) && i != index) {
+                    if (currentTag.getBoolean(String.valueOf(i)))
+                        tag.putBoolean(String.valueOf(i), true);
+                }
+            }
+            if (!currentTag.getBoolean(String.valueOf(index)))
+                tag.putBoolean(String.valueOf(index), true);
+            stack.getOrCreateTag().put("Filters", tag);
+            PacketHandler.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+        }
     }
 
     @Override

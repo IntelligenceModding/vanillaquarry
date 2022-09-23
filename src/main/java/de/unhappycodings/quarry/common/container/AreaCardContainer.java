@@ -1,10 +1,14 @@
 package de.unhappycodings.quarry.common.container;
 
 import de.unhappycodings.quarry.common.container.base.BaseContainer;
+import de.unhappycodings.quarry.common.container.base.BaseSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.items.CapabilityItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class AreaCardContainer extends BaseContainer {
