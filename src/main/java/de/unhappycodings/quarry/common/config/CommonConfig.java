@@ -37,9 +37,9 @@ public class CommonConfig {
     private static void init(ForgeConfigSpec.Builder commonBuilder) {
         commonBuilder.push("General");
         areaCardOverlayColorFirstCorner = commonBuilder.comment("What Color should the overlay at the first corner be [Format: #RRGGBB]")
-                .defineInRange("first_corner_overlay_color",0x116300, 0, Integer.MAX_VALUE);
+                .defineInRange("first_corner_overlay_color", 0x116300, 0, Integer.MAX_VALUE);
         areaCardOverlayColorSecondCorner = commonBuilder.comment("What Color should the overlay at the second corner be [Format: #RRGGBB]")
-                .defineInRange("second_corner_overlay_color",0x630000, 0, Integer.MAX_VALUE);
+                .defineInRange("second_corner_overlay_color", 0x630000, 0, Integer.MAX_VALUE);
 
         quarryIdleConsumption = commonBuilder.comment("BurnTick consumption of the quarry in idle mode per second")
                 .defineInRange("quarry_idle_consumption", 1, 0, 1000);

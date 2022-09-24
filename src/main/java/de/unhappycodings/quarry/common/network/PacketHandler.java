@@ -2,10 +2,15 @@ package de.unhappycodings.quarry.common.network;
 
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.network.base.IPacket;
-import de.unhappycodings.quarry.common.network.toserver.*;
 import de.unhappycodings.quarry.common.network.toclient.QuarryClientBooleanPacket;
 import de.unhappycodings.quarry.common.network.toclient.QuarryClientIntPacket;
 import de.unhappycodings.quarry.common.network.toclient.QuarryClientModePacket;
+import de.unhappycodings.quarry.common.network.toserver.AreaCardItemPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryBooleanPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryChangedPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryIntPacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryModePacket;
+import de.unhappycodings.quarry.common.network.toserver.QuarryPowerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

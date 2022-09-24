@@ -1,18 +1,12 @@
 package de.unhappycodings.quarry.common.network.toserver;
 
-import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
-import de.unhappycodings.quarry.common.container.AreaCardContainer;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
-import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.network.base.IPacket;
-import de.unhappycodings.quarry.common.network.toclient.QuarryClientIntPacket;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;

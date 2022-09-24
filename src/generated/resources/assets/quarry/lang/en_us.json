@@ -47,7 +47,7 @@
   "gui.quarry.quarry.tooltip.output.pull": "Only Pull",
   "gui.quarry.quarry.tooltip.output.pulls_above": "pulls item from above!",
   "gui.quarry.quarry.tooltip.speed.80": "at 80% speed",
-  "gui.quarry.quarry.tooltip.use_config": "Change values in the config.",
+  "gui.quarry.quarry.tooltip.use_config": "values changable in config",
   "gui.quarry.quarry.tooltip.when_turned_off": "When turned off, the quarry",
   "gui.quarry.quarry.tooltip.will_consume": "will consume # BurnTick(s) per second.",
   "item.quarry.area_card": "Area Card",

@@ -29,7 +29,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .define('h', Items.DIAMOND_PICKAXE)
                 .define('i', Items.DIAMOND_AXE)
                 .pattern("bfa").pattern("geh").pattern("cid")
-                .unlockedBy("has_item", has(Items.OBSERVER)).save(consumer,
+                .unlockedBy("has_item", has(Items.FURNACE)).save(consumer,
                         ModBlocks.QUARRY.get().getRegistryName().getPath() + "_crafted");
         ShapedRecipeBuilder.shaped(ModItems.AREA_CARD.get(), 1)
                 .define('a', Items.REDSTONE_TORCH)

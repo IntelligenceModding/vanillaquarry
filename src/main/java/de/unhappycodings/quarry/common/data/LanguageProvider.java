@@ -47,7 +47,7 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.quarry.tooltip.will_consume", "will consume # BurnTick(s) per second.");
         add("gui.quarry.quarry.tooltip.changing_speed", "Changing the speed does also");
         add("gui.quarry.quarry.tooltip.affect_fuel", "affect the fuel consumption!");
-        add("gui.quarry.quarry.tooltip.use_config", "Change values in the config.");
+        add("gui.quarry.quarry.tooltip.use_config", "values changable in config");
         add("gui.quarry.quarry.tooltip.speed.80", "at 80% speed");
 
         add("gui.quarry.quarry.tooltip.loop.always", "Always loop");

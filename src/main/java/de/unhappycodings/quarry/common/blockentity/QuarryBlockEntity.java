@@ -298,10 +298,12 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                     CompoundTag filtersTag = itemTag.getCompound("Filters");
                                     boolean filtered = false;
                                     Item[] stacks = {Items.COBBLESTONE, Items.STONE, Items.GRAVEL, Items.DIRT, Items.SAND, Items.RED_SAND, Items.NETHERRACK};
-                                    for (int i = 0; i <= 6; i++) {
-                                        if (filtersTag.getBoolean(String.valueOf(i))) {
-                                            if (drop.is(stacks[i])) {
-                                                filtered = true;
+                                    if (getFilter()) {
+                                        for (int i = 0; i <= 6; i++) {
+                                            if (filtersTag.getBoolean(String.valueOf(i))) {
+                                                if (drop.is(stacks[i])) {
+                                                    filtered = true;
+                                                }
                                             }
                                         }
                                     }

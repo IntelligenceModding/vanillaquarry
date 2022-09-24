@@ -1,7 +1,6 @@
 package de.unhappycodings.quarry.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.base.BaseWidget;
 import de.unhappycodings.quarry.common.container.QuarryScreen;
