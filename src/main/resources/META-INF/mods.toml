@@ -5,6 +5,8 @@ license = "All Rights Reserved"
 modId = "quarry"
 version = "1.1r"
 displayName = "Quarry"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/quarry"
+logoFile = "quarry-logo.png"
 authors = "UnhappyWithoutU"
 description = ''''''
 
