@@ -37,7 +37,6 @@ public class BaseSlot extends SlotItemHandler {
     private int nextGhostItemTick = 0;
     private ItemStack currentGhostItem;
 
-    //TODO: This system does not work on servers. allowedWindow will crash the server due to invalid dist for AbstractWidget.
     public BaseSlot(IItemHandler itemHandler, Inventory inventory, int index, int xPosition, int yPosition, ResourceLocation texture, Predicate<ItemStack> canPlace, ItemStack... ghostOverlays) {
         super(itemHandler, index, xPosition, yPosition);
         this.inventory = inventory;

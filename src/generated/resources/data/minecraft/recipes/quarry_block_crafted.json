@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "a": {
+      "item": "minecraft:redstone_torch"
+    },
+    "b": {
+      "item": "minecraft:redstone"
+    },
+    "c": {
+      "item": "minecraft:repeater"
+    },
+    "d": {
+      "item": "minecraft:comparator"
+    },
+    "e": {
+      "item": "minecraft:furnace"
+    },
+    "f": {
+      "item": "minecraft:hopper"
+    },
+    "g": {
+      "item": "minecraft:diamond_shovel"
+    },
+    "h": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "i": {
+      "item": "minecraft:diamond_axe"
+    }
+  },
+  "pattern": [
+    "bfa",
+    "geh",
+    "cid"
+  ],
+  "result": {
+    "item": "quarry:quarry_block"
+  }
+}

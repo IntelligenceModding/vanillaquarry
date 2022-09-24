@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 // CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
 public class SlotInputHandler extends SlotItemHandler {
-
     SlotCondition condition;
 
     public SlotInputHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition, SlotCondition condition) {

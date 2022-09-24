@@ -3,7 +3,7 @@ package de.unhappycodings.quarry.client.gui.widgets.base;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
-import de.unhappycodings.quarry.common.container.QuarryScreen;
+import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -17,23 +17,23 @@ import java.util.List;
 
 public abstract class BaseWidget extends AbstractWidget {
 
-    public final QuarryScreen screen;
+    public final BaseScreen<?> screen;
     protected final List<BaseWidget> children = new ArrayList<>();
     protected BlockEntity tile;
     protected Minecraft minecraft = Minecraft.getInstance();
     protected int leftPos;
     protected int topPos;
 
-    public BaseWidget(int x, int y, int width, int height, BlockEntity tile, QuarryScreen screen) {
-        super(screen.getGuiLeft() + x, screen.getGuiTop() + y, width, height, Component.literal(""));
+    public BaseWidget(int x, int y, int width, int height, BlockEntity tile, BaseScreen<?> screen) {
+        super(screen.getGuiLeft() + x, screen.getGuiTop() + y, width, height, Component.empty());
         this.tile = tile;
         this.screen = screen;
         this.leftPos = screen.getGuiLeft();
-        this. topPos = screen.getGuiTop();
+        this.topPos = screen.getGuiTop();
     }
 
     public BaseWidget(int x, int y, int width, int height, int imageWidth, int imageHeight) {
-        super(((width - imageWidth) / 2) + x, ((height - imageHeight) / 2) + y, width, height, Component.literal(""));
+        super(((width - imageWidth) / 2) + x, ((height - imageHeight) / 2) + y, width, height, Component.empty());
         this.screen = null;
         this.leftPos = (width - imageWidth) / 2;
         this.topPos = (height - imageHeight) / 2;

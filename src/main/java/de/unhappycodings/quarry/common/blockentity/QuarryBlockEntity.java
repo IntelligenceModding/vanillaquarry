@@ -25,6 +25,7 @@ import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -69,9 +71,12 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     private int ticks;
     private int speed;
     private int mode;
+    private int eject;
+    private boolean filter;
+    private boolean loop;
+    private boolean locked;
     private int burnTime;
     private int totalBurnTime;
-    private boolean locked;
 
     public QuarryBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.QUARRY_BLOCK.get(), pPos, pBlockState);
@@ -90,22 +95,88 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     @SuppressWarnings("ConstantConditions")
     public void tick() {
         if (level.isClientSide) return;
-        if (level.getGameTime() % 5 == 0)
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
         QuarryBlockEntity entity = this;
         Level level = getLevel();
         BlockState state = getBlockState();
+        BlockState above = level.getBlockState(getBlockPos().above());
+        BlockState below = level.getBlockState(getBlockPos().below());
+        // Eject / Pull functionality
+        if (level.getGameTime() % 2 == 0) {
+            boolean in = false;
+            boolean out = false;
+            if (level.getGameTime() % 4 == 0)
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+            switch (getEject()) {
+                case 1 -> in = true;
+                case 2 -> out = true;
+                case 3 -> {
+                    in = true;
+                    out = true;
+                }
+            }
+            LazyOptional<IItemHandler> quarryCapability = this.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+            if (quarryCapability.isPresent()) {
+                IItemHandler quarryHandler = quarryCapability.resolve().get();
+                if (above.hasBlockEntity()) {
+                    BlockEntity tileAbove = level.getBlockEntity(getBlockPos().above());
+                    LazyOptional<IItemHandler> capabilityAbove = tileAbove.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                    if (in && capabilityAbove.isPresent()) {
+                        IItemHandler handlerAbove = capabilityAbove.resolve().get();
+                        for (int i = 0; i < handlerAbove.getSlots(); i++) {
+                            ItemStack stack = handlerAbove.getStackInSlot(i);
+                            if (QuarryContainer.burnables.contains(stack.getItem())) {
+                                int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
+                                if (slot != -1) {
+                                    if (slot != 99) {
+                                        quarryHandler.insertItem(slot, new ItemStack(stack.getItem(), 1), false);
+                                        handlerAbove.extractItem(i, 1, false);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (below.hasBlockEntity()) {
+                    BlockEntity tileBelow = level.getBlockEntity(getBlockPos().below());
+                    LazyOptional<IItemHandler> capabilityBelow = tileBelow.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                    if (out && capabilityBelow.isPresent()) {
+                        IItemHandler handlerBelow = capabilityBelow.resolve().get();
+                        boolean doBreak = false;
+                        for (int i = 6; i <= 11; i++) {
+                            ItemStack stack = quarryHandler.getStackInSlot(i);
+                            for (int e = 0; e < handlerBelow.getSlots(); e++) {
+                                ItemStack slotStack = handlerBelow.getStackInSlot(e);
+                                if (!stack.is(Items.AIR)) {
+                                    if (slotStack.isEmpty() || new ItemStack(stack.getItem(), 1).is(slotStack.getItem())) {
+                                        if ((slotStack.getCount() + 1) <= stack.getMaxStackSize()) {
+                                            handlerBelow.insertItem(e, new ItemStack(stack.getItem(), 1), false);
+                                            quarryHandler.extractItem(i, 1, false);
+                                            doBreak = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (doBreak) break;
+                        }
+                    }
+                }
+            }
+        }
+        // Refueling stuff
         List<ItemStack> input = new ArrayList<>();
         for (int i = 0; i <= 5; i++)
             input.add(getItem(i));
-        if (burnTime <= 301) {
+        if (burnTime <= 1001) {
             for (int i = 0; i < input.size(); i++) {
                 if (ForgeHooks.getBurnTime(input.get(i), null) > 0) {
-                    totalBurnTime = ForgeHooks.getBurnTime(input.get(i), null);
+                    totalBurnTime = burnTime + ForgeHooks.getBurnTime(input.get(i), null);
                     burnTime += totalBurnTime;
                     removeItem(i, 1);
                     break;
                 }
+
             }
         }
 
@@ -127,19 +198,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                 CompoundTag itemTag = NbtUtil.getNbtTag(areaCardItem);
                 if (itemTag.contains("pos1") && itemTag.contains("pos2")) {
                     // Get Speed and set to variables
-                    if (speed == 0) if (!(ticks + speedModifier >= SPEED_0)) {
+                    boolean speedy = speed == 0 && !(ticks + speedModifier >= SPEED_0);
+                    if (speed == 1 && !(ticks + speedModifier >= SPEED_1)) speedy = true;
+                    if (speed == 2 && !(ticks + speedModifier >= SPEED_2)) speedy = true;
+                    if (speedy) {
                         ticks++;
                         return;
                     }
-                    if (speed == 1) if (!(ticks + speedModifier >= SPEED_1)) {
-                        ticks++;
-                        return;
-                    }
-                    if (speed == 2) if (!(ticks + speedModifier >= SPEED_2)) {
-                        ticks++;
-                        return;
-                    }
-
                     // Get Mode to variables to work with in-code easilier!
                     float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
                     boolean isSilktouch;
@@ -174,7 +239,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                             isFortune = false;
                             isSilktouch = false;
                             isVoid = false;
-                        }      // Default
+                        }
                     }
                     if (blockStateList == null || blockStateList.isEmpty()) refreshPositions(areaCardItem);
                     if (blockStateList.size() > 0 && burnTime > fuelModifier) {
@@ -187,6 +252,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                         if (blockIndex > blockStateList.size() - 1) {
                             level.setBlockAndUpdate(getBlockPos(), state.setValue(QuarryBlock.WORKING, false).setValue(QuarryBlock.ACTIVE, false));
                             itemTag.putInt("lastBlock", 0);
+                            if (getLoop())
+                                level.setBlockAndUpdate(getBlockPos(), state.setValue(QuarryBlock.ACTIVE, true));
                             return;
                         }
 
@@ -227,8 +294,21 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 setChanged();
                                 int index = hasOutputSpace(drop);
                                 if (index != 0) {
+                                    CompoundTag filtersTag = itemTag.getCompound("Filters");
+                                    boolean filtered = false;
+                                    Item[] stacks = {Items.COBBLESTONE, Items.STONE, Items.GRAVEL, Items.DIRT, Items.SAND, Items.RED_SAND, Items.NETHERRACK};
+                                    if (getFilter()) {
+                                        for (int i = 0; i <= 6; i++) {
+                                            if (filtersTag.getBoolean(String.valueOf(i))) {
+                                                if (drop.is(stacks[i])) {
+                                                    filtered = true;
+                                                }
+                                            }
+                                        }
+                                    }
                                     if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
-                                        setItem(index, new ItemStack(drop.getItem(), (getItem(index).getCount() + drop.getCount())));
+                                        if (!filtered)
+                                            setItem(index, new ItemStack(drop.getItem(), getItem(index).getCount() + drop.getCount()));
                                         burnTime -= fuelModifier;
                                         broken = true;
                                     }
@@ -246,6 +326,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                         // Machine turns off after use
                         level.setBlock(getBlockPos(), state.setValue(QuarryBlock.ACTIVE, false).setValue(QuarryBlock.WORKING, false), 3);
                     }
+
                     ticks = 0;
                 }
             }
@@ -256,6 +337,18 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         BlockPos pos1 = origin.offset(-1, -1, -1);
         BlockPos pos2 = origin.offset(1, 1, 1);
         return CalcUtil.getBlockStates(pos1, pos2, level).contains(target);
+    }
+
+    public int hasInputSpace(ItemStack itemStack) {
+        for (int i = 0; i <= 5; i++) {
+            ItemStack current = getItem(i);
+            if (itemStack.is(Items.AIR)) return 99;
+            if (current.isEmpty()) return i;
+            if (current.getItem() == itemStack.getItem()) {
+                if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
+            }
+        }
+        return -1;
     }
 
     public int hasOutputSpace(ItemStack itemStack) {
@@ -353,6 +446,30 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         this.locked = locked;
     }
 
+    public int getEject() {
+        return eject;
+    }
+
+    public void setEject(int eject) {
+        this.eject = eject;
+    }
+
+    public boolean getFilter() {
+        return filter;
+    }
+
+    public void setFilter(boolean filter) {
+        this.filter = filter;
+    }
+
+    public boolean getLoop() {
+        return loop;
+    }
+
+    public void setLoop(boolean loop) {
+        this.loop = loop;
+    }
+
     @NotNull
     @Override
     public CompoundTag getUpdateTag() {
@@ -362,8 +479,11 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         nbt.putInt("TotalBurnTime", getTotalBurnTime());
         nbt.putInt("Speed", getSpeed());
         nbt.putInt("Mode", getMode());
+        nbt.putInt("Eject", getEject());
         nbt.putString("Owner", getOwner());
         nbt.putBoolean("Locked", getLocked());
+        nbt.putBoolean("Filter", getFilter());
+        nbt.putBoolean("Loop", getLoop());
         return nbt;
     }
 
@@ -373,8 +493,11 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         setTotalBurnTime(tag.getInt("TotalBurnTime"));
         setSpeed(tag.getInt("Speed"));
         setMode(tag.getInt("Mode"));
+        setEject(tag.getInt("Eject"));
         setOwner(tag.getString("Owner"));
         setLocked(tag.getBoolean("Locked"));
+        setFilter(tag.getBoolean("Filter"));
+        setLoop(tag.getBoolean("Loop"));
     }
 
     @Override
@@ -394,10 +517,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         super.saveAdditional(nbt);
         nbt.putInt("Speed", this.speed);
         nbt.putInt("Mode", this.mode);
+        nbt.putInt("Eject", this.eject);
         nbt.putInt("BurnTime", this.burnTime);
         nbt.putInt("TotalBurnTime", this.totalBurnTime);
         nbt.putString("Owner", getOwner());
         nbt.putBoolean("Locked", getLocked());
+        nbt.putBoolean("Filter", getFilter());
+        nbt.putBoolean("Loop", getLoop());
         ContainerHelper.saveAllItems(nbt, this.items, true);
     }
 
@@ -408,10 +534,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         ContainerHelper.loadAllItems(nbt, this.items);
         this.speed = nbt.getInt("Speed");
         this.mode = nbt.getInt("Mode");
+        this.eject = nbt.getInt("Eject");
         this.burnTime = nbt.getInt("BurnTime");
         this.totalBurnTime = nbt.getInt("TotalBurnTime");
         this.owner = nbt.getString("Owner");
         this.locked = nbt.getBoolean("Locked");
+        this.filter = nbt.getBoolean("Filter");
+        this.loop = nbt.getBoolean("Loop");
     }
 
     @Override

@@ -6,10 +6,10 @@ import de.unhappycodings.quarry.common.ItemCreativeTab;
 import de.unhappycodings.quarry.common.blockentity.ModBlockEntities;
 import de.unhappycodings.quarry.common.blocks.ModBlocks;
 import de.unhappycodings.quarry.common.config.CommonConfig;
+import de.unhappycodings.quarry.common.container.ContainerTypes;
 import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.registration.Registration;
-import de.unhappycodings.quarry.common.setup.ContainerTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.common.MinecraftForge;
@@ -38,11 +38,19 @@ public class Quarry {
     public static final ResourceLocation INFO = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/information.png");
     public static final ResourceLocation LOCK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/lock.png");
     public static final ResourceLocation LOCK_OPEN = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/lock_open.png");
-    public static final ResourceLocation LOCK_DARK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/lock_dark.png");
-    public static final ResourceLocation LOCK_DARK_OPEN = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/lock_dark_open.png");
+    public static final ResourceLocation LOOP = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/loop_on.png");
+    public static final ResourceLocation LOOP_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/loop_off.png");
+    public static final ResourceLocation FILTER = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/filter_on.png");
+    public static final ResourceLocation FILTER_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/filter_off.png");
+    public static final ResourceLocation EJECT_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/eject_off.png");
+    public static final ResourceLocation EJECT_ALL = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/eject_all.png");
+    public static final ResourceLocation EJECT_IN = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/eject_in.png");
+    public static final ResourceLocation EJECT_OUT = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/eject_out.png");
 
     public static final ResourceLocation WHITE_MODE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/dark_mode_switch_off.png");
     public static final ResourceLocation DARK_MODE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/dark_mode_switch_on.png");
+
+    public static final ResourceLocation BLANK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/blank.png");
 
     public static final CreativeModeTab creativeTab = new ItemCreativeTab();
 

@@ -3,6 +3,7 @@ package de.unhappycodings.quarry.common.network.toserver;
 import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.network.base.IPacket;
+import de.unhappycodings.quarry.common.network.toclient.QuarryClientModePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

@@ -6,8 +6,6 @@ import de.unhappycodings.quarry.common.container.base.BaseSlot;
 import de.unhappycodings.quarry.common.container.base.SlotCondition;
 import de.unhappycodings.quarry.common.container.base.SlotInputHandler;
 import de.unhappycodings.quarry.common.item.ModItems;
-import de.unhappycodings.quarry.common.setup.ContainerTypes;
-import de.unhappycodings.quarry.common.util.ItemUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Inventory;
@@ -26,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 public class QuarryContainer extends BaseContainer {
-    public List<Item> burnables = new ArrayList<>();
+
+    public static List<Item> burnables = new ArrayList<>();
 
     public QuarryContainer(int id, Inventory inventory, BlockPos pos, Level level) {
         super(ContainerTypes.QUARRY_CONTAINER.get(), id, inventory, pos, level);
@@ -35,7 +34,7 @@ public class QuarryContainer extends BaseContainer {
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
                 for (Map.Entry<ResourceKey<Item>, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
                     if (ForgeHooks.getBurnTime(new ItemStack(entry.getValue()), null) > 0) {
-                        if (!ItemUtil.getRegString(entry.getValue()).contains("bucket"))
+                        if (!entry.getValue().hasCraftingRemainingItem())
                             burnables.add(entry.getValue());
                     }
                 }
@@ -53,8 +52,7 @@ public class QuarryContainer extends BaseContainer {
                 addSlot(new SlotInputHandler(handler, 10, 129, 66, new SlotCondition().setNeededItem(Items.AIR))); //Output
                 addSlot(new SlotInputHandler(handler, 11, 147, 66, new SlotCondition().setNeededItem(Items.AIR))); //Output
 
-                addSlot(new BaseSlot(handler, inventory, 12, 138, 87, BaseSlot.GHOST_OVERLAY, stack -> stack.is(ModItems.AREA_CARD.get())).addGhostOverlays(ModItems.AREA_CARD.get()));
-                ; //Card
+                addSlot(new BaseSlot(handler, inventory, 12, 138, 87, BaseSlot.GHOST_OVERLAY, stack -> stack.is(ModItems.AREA_CARD.get())).addGhostOverlays(ModItems.AREA_CARD.get())); // Card
             });
         }
     }

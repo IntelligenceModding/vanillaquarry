@@ -1,4 +1,4 @@
-package de.unhappycodings.quarry.common.network.toserver;
+package de.unhappycodings.quarry.common.network.toclient;
 
 import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.quarry.common.network.base.IPacket;
@@ -9,27 +9,25 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
-public class QuarryClientSpeedPacket implements IPacket {
+public class QuarryClientModePacket implements IPacket {
 
     private final BlockPos pos;
     private final int add;
 
-    public QuarryClientSpeedPacket(BlockPos pos, int add) {
+    public QuarryClientModePacket(BlockPos pos, int add) {
         this.pos = pos;
         this.add = add;
     }
 
-    public static QuarryClientSpeedPacket decode(FriendlyByteBuf buffer) {
-        return new QuarryClientSpeedPacket(buffer.readBlockPos(), buffer.readInt());
+    public static QuarryClientModePacket decode(FriendlyByteBuf buffer) {
+        return new QuarryClientModePacket(buffer.readBlockPos(), buffer.readInt());
     }
 
-
-    @SuppressWarnings("ConstantConditions")
     public void handle(NetworkEvent.Context context) {
         LocalPlayer player = Minecraft.getInstance().player;
         BlockEntity machine = player.level.getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
-        blockEntity.setSpeed(add);
+        blockEntity.setMode(add);
     }
 
     public void encode(FriendlyByteBuf buffer) {

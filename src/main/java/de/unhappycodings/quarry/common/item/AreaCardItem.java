@@ -2,27 +2,34 @@ package de.unhappycodings.quarry.common.item;
 
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.blocks.QuarryBlock;
+import de.unhappycodings.quarry.common.container.AreaCardContainer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class AreaCardItem extends Item {
+public class AreaCardItem extends Item implements MenuProvider {
 
     public AreaCardItem() {
         super(new Item.Properties().stacksTo(1).tab(Quarry.creativeTab));
@@ -44,6 +51,12 @@ public class AreaCardItem extends Item {
         if (stack.getOrCreateTag().contains("pos2")) {
             String pos = stack.getOrCreateTag().get("pos2").getAsString().replace("{", "").replace("}", "").replace(",", " ");
             tooltipComponents.add(Component.translatable("item.quarry.areacard.text.to").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+        }
+        for (int i = 0; i <= 6; i++) {
+            if (stack.getOrCreateTag().getCompound("Filters").getBoolean(String.valueOf(i))) {
+                tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_active").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+                break;
+            }
         }
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
     }
@@ -78,10 +91,29 @@ public class AreaCardItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
+    @NotNull
+    @Override
+    public InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player pPlayer, @NotNull InteractionHand pUsedHand) {
+        if (!pLevel.isClientSide && pUsedHand == InteractionHand.MAIN_HAND)
+            NetworkHooks.openScreen((ServerPlayer) pPlayer, this);
+        return super.use(pLevel, pPlayer, pUsedHand);
+    }
+
     public static void writePos(CompoundTag nbt, BlockPos pos) {
         nbt.putInt("x", pos.getX());
         nbt.putInt("y", pos.getY());
         nbt.putInt("z", pos.getZ());
     }
 
+    @NotNull
+    @Override
+    public Component getDisplayName() {
+        return Component.literal("Area Card");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        return new AreaCardContainer(pContainerId, pPlayerInventory, pPlayer.getOnPos(), pPlayer.getLevel());
+    }
 }
