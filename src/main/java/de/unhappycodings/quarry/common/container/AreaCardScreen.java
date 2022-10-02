@@ -57,7 +57,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     int blockRadius = 0;
     int chunkRadius = 0;
     long blockCount = 1;
-    Byte[][] posList = {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+    byte[][] posList = {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
             {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},
             {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},
             {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},
