@@ -3,8 +3,11 @@ package de.unhappycodings.quarry.common.item;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.blocks.QuarryBlock;
 import de.unhappycodings.quarry.common.container.AreaCardContainer;
+import de.unhappycodings.quarry.common.network.PacketHandler;
+import de.unhappycodings.quarry.common.network.toserver.AreaCardItemPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -94,11 +97,27 @@ public class AreaCardItem extends Item implements MenuProvider {
         return InteractionResult.SUCCESS;
     }
 
+    @Override
+    public ItemStack getDefaultInstance() {
+        ItemStack stack = new ItemStack(this);
+        for (int i = 1; i < 3; i++) {
+            CompoundTag tag = stack.getOrCreateTag().getCompound("pos" + i);
+            if (!tag.contains("x") && !tag.contains("y") && !tag.contains("z")) {
+                tag.putInt("x", 0);
+                tag.putInt("y", 0);
+                tag.putInt("z", 0);
+                stack.getOrCreateTag().put("pos" + i, tag);
+            }
+        }
+        return stack;
+    }
+
     @NotNull
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player pPlayer, @NotNull InteractionHand pUsedHand) {
-        if (!pLevel.isClientSide && pUsedHand == InteractionHand.MAIN_HAND)
+        if (!pLevel.isClientSide && pUsedHand == InteractionHand.MAIN_HAND) {
             NetworkHooks.openGui((ServerPlayer) pPlayer, this);
+        }
         return super.use(pLevel, pPlayer, pUsedHand);
     }
 
