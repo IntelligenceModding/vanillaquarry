@@ -59,10 +59,10 @@ public class CalcUtil {
         int x2 = pos2.getX();
         int y2 = pos2.getY();
         int z2 = pos2.getZ();
-        if (y1 > 256) y1 = 256;
-        if (y1 < 0) y1 = 0;
-        if (y2 > 256) y2 = 256;
-        if (y2 < 0) y2 = 0;
+        if (y1 > 320) y1 = 320;
+        if (y1 < -64) y1 = -64;
+        if (y2 > 320) y2 = 230;
+        if (y2 < -64) y2 = -64;
         return Math.abs((x1 - x2 + 1) * (y1 - y2 + 1) * (z1 - z2 + 1));
     }
 

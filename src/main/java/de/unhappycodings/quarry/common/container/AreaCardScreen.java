@@ -159,7 +159,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 if (down.getValue().matches("^-?(\\d+$)") || down.getValue().matches("[0-9-]]")) {
                     if (Integer.parseInt(top.getValue()) > Integer.parseInt(down.getValue()))
                         valid = true;
-                    multiplicator = Math.abs(Math.abs(Integer.parseInt(top.getValue())) - Math.abs(Integer.parseInt(down.getValue())));
+                    multiplicator = Math.abs(Math.abs(Integer.parseInt(top.getValue())) + Math.abs(Integer.parseInt(down.getValue())));
                 }
             }
             int count = ((chunkRadius * 2 + 1) * (chunkRadius * 2 + 1)) * (16 * 16 * multiplicator);
