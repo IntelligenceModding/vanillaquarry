@@ -52,6 +52,20 @@ public class CalcUtil {
         return blocks;
     }
 
+    public static int getBlockCount(BlockPos pos1, BlockPos pos2) {
+        int x1 = pos1.getX();
+        int y1 = pos1.getY();
+        int z1 = pos1.getZ();
+        int x2 = pos2.getX();
+        int y2 = pos2.getY();
+        int z2 = pos2.getZ();
+        if (y1 > 320) y1 = 320;
+        if (y1 < -64) y1 = -64;
+        if (y2 > 320) y2 = 230;
+        if (y2 < -64) y2 = -64;
+        return Math.abs((x1 - x2 + 1) * (y1 - y2 + 1) * (z1 - z2 + 1));
+    }
+
     public static float getNeededTicks(int mode, int speed) {
         int fuelModifier = switch (mode) {
             case 1 -> CommonConfig.quarryEfficientModeConsumption.get();  // Efficient

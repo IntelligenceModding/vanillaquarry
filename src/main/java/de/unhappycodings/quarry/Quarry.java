@@ -51,6 +51,12 @@ public class Quarry {
     public static final ResourceLocation DARK_MODE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/dark_mode_switch_on.png");
 
     public static final ResourceLocation BLANK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/blank.png");
+    public static final ResourceLocation SAVE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/save.png");
+    public static final ResourceLocation SAVE_DARK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/save_dark.png");
+    public static final ResourceLocation FIELD = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/field.png");
+    public static final ResourceLocation FIELD_DARK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/field_dark.png");
+    public static final ResourceLocation SELECTOR = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/selector_on.png");
+    public static final ResourceLocation SELECTOR_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/selector_off.png");
 
     public static final CreativeModeTab creativeTab = new ItemCreativeTab();
 
