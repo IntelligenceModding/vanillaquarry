@@ -50,6 +50,12 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.quarry.tooltip.use_config", "values changable in config");
         add("gui.quarry.quarry.tooltip.speed.80", "at 80% speed");
 
+        add("gui.quarry.quarry.tooltip.owner", "Owner:");
+        add("gui.quarry.quarry.tooltip.security", "Safety:");
+        add("gui.quarry.quarry.tooltip.fueled", "Fueled:");
+        add("gui.quarry.quarry.tooltip.yes", "Yes");
+        add("gui.quarry.quarry.tooltip.no", "No");
+
         add("gui.quarry.quarry.tooltip.loop.always", "Always loop");
         add("gui.quarry.quarry.tooltip.loop.restart", "restarts after finished.");
         add("gui.quarry.quarry.tooltip.loop.never", "Don't loop");
