@@ -55,21 +55,24 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     int blockRadius = 0;
     int chunkRadius = 0;
     long blockCount = 1;
-    byte[][] posList = {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
-            {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},
-            {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},
-            {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 1, 10, 1, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},
-            {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},
-            {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},
-            {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}};
+    byte[][] posList = {
+            {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+            {8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8},
+            {8, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 8},
+            {8, 7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 1, 9, 1, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8},
+            {8, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 8},
+            {8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8},
+            {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}};
 
     public AreaCardScreen(AreaCardContainer screenContainer, Inventory inv, Component titleIn) {
         super(screenContainer, inv, titleIn);
@@ -100,13 +103,13 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         }
         if (stack.getOrCreateTag().getInt("Selection") == 2) {
             this.blit(matrixStack, leftPos + 17, topPos + 52, 0, 150, 78, 14); // Count output field
-            this.blit(matrixStack, leftPos + 125, topPos + 28, 198, 0, 50, 50); // Chunk visualisation
+            this.blit(matrixStack, leftPos + 115, topPos + 25, 198, 0, 56, 56); // Chunk visualisation
             this.blit(matrixStack, leftPos + 15, topPos + 70, 0, 165, 81, 15); // Coordinates field
 
-            for (int i = 0; i < 15; i++) {
-                for (int e = 0; e < 15; e++) {
+            for (int i = 0; i < 17; i++) {
+                for (int e = 0; e < 17; e++) {
                     if (posList[i][e] <= chunkRadius) {
-                        blit(matrixStack, (int) (leftPos + 128 + (Math.ceil(e * 3))), (int) (topPos + 31 + (Math.ceil(i * 3))), 198, 51, 2, 2);
+                        blit(matrixStack, (int) (leftPos + 118 + (Math.ceil(e * 3))), (int) (topPos + 28 + (Math.ceil(i * 3))), 198, 57, 2, 2);
                     }
                 }
             }
@@ -325,10 +328,10 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     public void cycleChunkRadius(int add) {
         if (add > 0) {
-            if (chunkRadius == 7) { chunkRadius = 0; return; }
+            if (chunkRadius == 8) { chunkRadius = 0; return; }
             chunkRadius += add;
         } else {
-            if (chunkRadius == 0) { chunkRadius = 7; return; }
+            if (chunkRadius == 0) { chunkRadius = 8; return; }
             chunkRadius += add;
         }
     }
