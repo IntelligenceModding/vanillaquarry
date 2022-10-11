@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public static final ResourceLocation GHOST_OVERLAY = new ResourceLocation(Quarry.MOD_ID, "textures/gui/slot/filter_overlay.png");
@@ -54,6 +55,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     boolean init1 = false;
     boolean init2 = false;
     boolean init3 = false;
+    boolean init4 = false;
     int blockRadius = 0;
     int chunkRadius = 0;
     long blockCount = 1;
@@ -154,6 +156,20 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             drawText(new TranslatableComponent("item.quarry.areacard.text.around").getString(), pPoseStack, 61, 32);
             drawCenteredText(new TextComponent(String.valueOf(blockRadius)).getString(), pPoseStack, 101, 46);
             drawCenteredText(new TextComponent("#").append(String.valueOf(blockCount)).getString(), pPoseStack, 100, 65);
+            if (!init4) {
+                BlockPos pos1 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos1"))
+                    pos1 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos1"));
+                BlockPos pos2 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos2"))
+                    pos2 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos2"));
+                int sizeX = Math.abs(pos1.getX() - pos2.getX()) + 1;
+                int sizeZ = Math.abs(pos1.getZ() - pos2.getZ()) + 1;
+                int blocksWidth = sizeX == sizeZ? sizeX : 0;
+                blockRadius = (blocksWidth -1) / 2;
+                refreshCount();
+                init4 = true;
+            }
         }
         if (stack.getOrCreateTag().getInt("Selection") == 2) {
             int multiplicator = 384;
@@ -170,8 +186,18 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             drawCenteredText(new TextComponent(String.valueOf(chunkRadius)).getString(), pPoseStack, 56, 37);
             drawCenteredTextColored(new TextComponent(valid ? "#" : "").append(String.valueOf(valid ? count : new TranslatableComponent("item.quarry.areacard.text.illegal").getString())).getString(), pPoseStack, 55, 56, valid ? 1315860 : 16670302);
             if (!init3) {
-                top.setValue("320");
-                down.setValue("-64");
+                BlockPos pos1 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos1"))
+                    pos1 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos1"));
+                BlockPos pos2 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos2"))
+                    pos2 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos2"));
+                int sizeX = Math.abs(pos1.getX() - pos2.getX()) + 1;
+                int sizeZ = Math.abs(pos1.getZ() - pos2.getZ()) + 1;
+                int chunkWidth = sizeX / 16 == sizeZ / 16 ? sizeX / 16 : 0;
+                chunkRadius = (chunkWidth - 1) / 2;
+                top.setValue(pos1.getY() + "");
+                down.setValue(pos2.getY() + "");
                 init3 = true;
             }
         }
