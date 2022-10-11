@@ -3,7 +3,7 @@ loaderVersion = "[40,)"
 license = "All Rights Reserved"
 [[mods]]
 modId = "quarry"
-version = "1.2r"
+version = "1.3r"
 displayName = "Quarry"
 displayURL = "https://www.curseforge.com/minecraft/mc-mods/quarry"
 logoFile = "quarry-logo.png"

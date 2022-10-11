@@ -17,7 +17,6 @@ import de.unhappycodings.quarry.common.util.RenderUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public static final ResourceLocation GHOST_OVERLAY = new ResourceLocation(Quarry.MOD_ID, "textures/gui/slot/filter_overlay.png");
@@ -165,8 +163,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                     pos2 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos2"));
                 int sizeX = Math.abs(pos1.getX() - pos2.getX()) + 1;
                 int sizeZ = Math.abs(pos1.getZ() - pos2.getZ()) + 1;
-                int blocksWidth = sizeX == sizeZ? sizeX : 0;
-                blockRadius = (blocksWidth -1) / 2;
+                int blocksWidth = sizeX == sizeZ ? sizeX : 0;
+                blockRadius = (blocksWidth - 1) / 2;
                 refreshCount();
                 init4 = true;
             }
@@ -256,16 +254,16 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     @Override
     protected void init() {
         super.init();
-        pos1x = new ModEditBox(font, leftPos + 20,  topPos + 34, 71, 10, new TextComponent("Input"));
-        pos1y = new ModEditBox(font, leftPos + 20,  topPos + 51, 71, 10, new TextComponent("Input"));
-        pos1z = new ModEditBox(font, leftPos + 20,  topPos + 68, 71, 10, new TextComponent("Input"));
-        pos2x = new ModEditBox(font, leftPos + 107,  topPos + 34, 71, 10, new TextComponent("Input"));
-        pos2y = new ModEditBox(font, leftPos + 107,  topPos + 51, 71, 10, new TextComponent("Input"));
-        pos2z = new ModEditBox(font, leftPos + 107,  topPos + 68, 71, 10, new TextComponent("Input"));
+        pos1x = new ModEditBox(font, leftPos + 20, topPos + 34, 71, 10, new TextComponent("Input"));
+        pos1y = new ModEditBox(font, leftPos + 20, topPos + 51, 71, 10, new TextComponent("Input"));
+        pos1z = new ModEditBox(font, leftPos + 20, topPos + 68, 71, 10, new TextComponent("Input"));
+        pos2x = new ModEditBox(font, leftPos + 107, topPos + 34, 71, 10, new TextComponent("Input"));
+        pos2y = new ModEditBox(font, leftPos + 107, topPos + 51, 71, 10, new TextComponent("Input"));
+        pos2z = new ModEditBox(font, leftPos + 107, topPos + 68, 71, 10, new TextComponent("Input"));
         positionInputs = new ModEditBox[]{pos1x, pos1y, pos1z, pos2x, pos2y, pos2z};
 
-        top = new ModEditBox(font, leftPos + 27,  topPos + 73, 25, 10, new TextComponent("Input"));
-        down = new ModEditBox(font, leftPos + 69,  topPos + 73, 25, 10, new TextComponent("Input"));
+        top = new ModEditBox(font, leftPos + 27, topPos + 73, 25, 10, new TextComponent("Input"));
+        down = new ModEditBox(font, leftPos + 69, topPos + 73, 25, 10, new TextComponent("Input"));
         heightInputs = new ModEditBox[]{top, down};
 
         subInit();
@@ -338,7 +336,10 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             addRenderableWidget(new ModButton(63, 34, 10, 14, darkmode ? Quarry.COUNTER_UP_DARK : Quarry.COUNTER_UP, () -> cycleChunkRadius(1), null, null, this, 10, 28, true));
         }
 
-        darkmodeMouseButton = new ModButton(182, 5, 9, 9, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> { refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, null, null, this, 9, 18, true);
+        darkmodeMouseButton = new ModButton(182, 5, 9, 9, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> {
+            refreshWidgets();
+            setDarkModeConfigValue(!getDarkModeConfigValue());
+        }, null, null, this, 9, 18, true);
         addRenderableWidget(darkmodeMouseButton);
         addRenderableWidget(new ModButton(40, 120, 16, 16, Quarry.BLANK, () -> changeFilter(0), null, null, this, 16, 16, true));
         addRenderableWidget(new ModButton(58, 120, 16, 16, Quarry.BLANK, () -> changeFilter(1), null, null, this, 16, 16, true));
@@ -357,20 +358,34 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     public void cycleChunkRadius(int add) {
         if (add > 0) {
-            if (chunkRadius == 8) { chunkRadius = 0; return; }
+            if (chunkRadius == 8) {
+                chunkRadius = 0;
+                return;
+            }
             chunkRadius += add;
         } else {
-            if (chunkRadius == 0) { chunkRadius = 8; return; }
+            if (chunkRadius == 0) {
+                chunkRadius = 8;
+                return;
+            }
             chunkRadius += add;
         }
     }
 
     public void cycleBlockRadius(int add) {
         if (add > 0) {
-            if (blockRadius == 1024) { blockRadius = 0; refreshCount(); return; }
+            if (blockRadius == 1024) {
+                blockRadius = 0;
+                refreshCount();
+                return;
+            }
             if (!(blockRadius + add > 1024)) blockRadius += add;
         } else {
-            if (blockRadius == 0) { blockRadius = 1024; refreshCount(); return; }
+            if (blockRadius == 0) {
+                blockRadius = 1024;
+                refreshCount();
+                return;
+            }
             if (!(blockRadius + add < 0)) blockRadius += add;
         }
         refreshCount();
@@ -464,7 +479,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         if (stack.getOrCreateTag().getInt("Selection") == 2) {
             CompoundTag tag = new CompoundTag();
             int offset1 = 7 + (chunkRadius * 16);
-            int offset2 = -8 - (chunkRadius * 16);;
+            int offset2 = -8 - (chunkRadius * 16);
+            ;
             BlockPos chunkMiddle = Minecraft.getInstance().player.chunkPosition().getMiddleBlockPosition(0);
             BlockPos pos1 = chunkMiddle.offset(offset1, 0, offset1);
             BlockPos pos2 = chunkMiddle.offset(offset2, 0, offset2);
@@ -514,7 +530,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public boolean isInputValid(String string) {
         if (string.isEmpty()) return true;
         if (string.length() == 1) return string.matches("[0-9-]");
-        else return string.split("")[string.split("").length -1].matches("^-?(\\d+$)");
+        else return string.split("")[string.split("").length - 1].matches("^-?(\\d+$)");
     }
 
     public boolean getDarkModeConfigValue() {
