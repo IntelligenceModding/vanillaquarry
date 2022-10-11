@@ -382,8 +382,12 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     public LootContext.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch) {
         ItemStack stack = new ItemStack(Items.STICK);
-        if (isSilktouch) {stack.enchant(Enchantments.SILK_TOUCH, 1);}
-        if (isFortune) {stack.enchant(Enchantments.BLOCK_FORTUNE, 3);}
+        if (isSilktouch) {
+            stack.enchant(Enchantments.SILK_TOUCH, 1);
+        }
+        if (isFortune) {
+            stack.enchant(Enchantments.BLOCK_FORTUNE, 3);
+        }
         lootcontextBuilder = (new LootContext.Builder((ServerLevel) level)).withRandom(level.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.BLOCK_ENTITY, this);
         return lootcontextBuilder;
     }
