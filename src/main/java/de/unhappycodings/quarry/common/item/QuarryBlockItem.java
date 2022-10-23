@@ -32,11 +32,11 @@ public class QuarryBlockItem extends BlockItem {
             String owner = "undefined";
             if (!Objects.equals(tag.get("Owner"), "undefined"))
                 owner = UsernameCache.getLastKnownUsername(UUID.fromString(tag.get("Owner").getAsString()));
-            tooltipComponents.add(Component.translatable("gui.quarry.quarry.tooltip.owner").withStyle(yellow()).append(" ").append(owner));
-            tooltipComponents.add(Component.translatable("gui.quarry.quarry.tooltip.security").withStyle(yellow()).append(" ").append(tag.getBoolean("Locked") ?
-                    Component.translatable("gui.quarry.quarry.lock.private").withStyle(red()) : Component.translatable("gui.quarry.quarry.lock.public").withStyle(green())));
-            tooltipComponents.add(Component.translatable("gui.quarry.quarry.tooltip.fueled").withStyle(yellow()).append(" ").append(tag.getInt("BurnTime") > 0 ?
-                    Component.translatable("gui.quarry.quarry.tooltip.yes").withStyle(green()) : Component.translatable("gui.quarry.quarry.tooltip.no").withStyle(red())));
+            tooltipComponents.add(Component.translatable("gui.quarry.owner").withStyle(yellow()).append(" ").append(owner));
+            tooltipComponents.add(Component.translatable("gui.quarry.security").withStyle(yellow()).append(" ").append(tag.getBoolean("Locked") ?
+                    Component.translatable("gui.quarry.lock.private").withStyle(red()) : Component.translatable("gui.quarry.lock.public").withStyle(green())));
+            tooltipComponents.add(Component.translatable("gui.quarry.fueled").withStyle(yellow()).append(" ").append(tag.getInt("BurnTime") > 0 ?
+                    Component.translatable("gui.quarry.yes").withStyle(green()) : Component.translatable("gui.quarry.no").withStyle(red())));
 
         }
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);

@@ -173,11 +173,11 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         if (darkmodeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getDarkModeConfigValue()) {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.dark"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.darkmode.dark"));
+                list.add(Component.translatable("gui.quarry.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.white"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.darkmode.white"));
+                list.add(Component.translatable("gui.quarry.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }

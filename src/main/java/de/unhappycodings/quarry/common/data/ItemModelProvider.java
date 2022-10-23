@@ -15,7 +15,6 @@ public class ItemModelProvider extends net.minecraftforge.client.model.generator
         super(gen, Quarry.MOD_ID, exFileHelper);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     protected void registerModels() {
         withExistingParent(ItemUtil.getRegString(ModBlocks.QUARRY.get()), new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_off"));

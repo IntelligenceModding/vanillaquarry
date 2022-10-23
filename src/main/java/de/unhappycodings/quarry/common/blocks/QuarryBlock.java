@@ -83,11 +83,12 @@ public class QuarryBlock extends BaseEntityBlock {
     @NotNull
     @Override
     public InteractionResult use(@NotNull BlockState state, @NotNull Level levelIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
+        System.out.println(((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getLocked());
         if (!Objects.equals(((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner(), player.getStringUUID()) && ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getLocked()) {
             if (levelIn.isClientSide && handIn == InteractionHand.MAIN_HAND) {
                 String owner = ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner();
                 if (owner.isEmpty()) owner = "undefined";
-                player.sendSystemMessage(Component.translatable("gui.quarry.quarry.message.quarry_from").append(" " + owner + " ").append(Component.translatable("gui.quarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW));
+                player.sendSystemMessage(Component.translatable("gui.quarry.message.quarry_from").append(" " + owner + " ").append(Component.translatable("gui.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW));
             }
             return InteractionResult.SUCCESS;
         }

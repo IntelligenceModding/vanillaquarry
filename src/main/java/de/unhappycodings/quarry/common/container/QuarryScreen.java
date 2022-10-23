@@ -9,6 +9,7 @@ import de.unhappycodings.quarry.common.blocks.QuarryBlock;
 import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import de.unhappycodings.quarry.common.container.base.BaseSlot;
+import de.unhappycodings.quarry.common.container.base.SlotInputHandler;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.network.toserver.QuarryBooleanPacket;
@@ -62,64 +63,78 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
 
     @Override
     protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
+        if (getSlotUnderMouse() != null && getSlotUnderMouse() instanceof SlotInputHandler) {
+            if (getSlotUnderMouse().getContainerSlot() == 13 && !getSlotUnderMouse().hasItem()) {
+                List<Component> list = new ArrayList<>();
+                list.add(Component.translatable("gui.quarry.replace"));
+                list.add(Component.translatable("gui.quarry.replace_1").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.replace_2").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.literal(""));
+                list.add(Component.translatable("gui.quarry.replace_3").withStyle(ChatFormatting.YELLOW));
+
+                this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            }
+        }
         drawText(Component.translatable("block.quarry.quarry_block").getString(), pPoseStack, 71, 7);
-        drawText(Component.translatable("gui.quarry.quarry.text.inventory").getString(), pPoseStack, 8, 110);
-        drawText(Component.translatable("gui.quarry.quarry.text.speed").getString(), pPoseStack, 73, 27);
-        drawText(Component.translatable("gui.quarry.quarry.text.fuel").getString(), pPoseStack, 19, 20);
-        drawText(Component.translatable("gui.quarry.quarry.text.out").getString(), pPoseStack, 138, 20);
+        drawText(Component.translatable("gui.quarry.inventory").getString(), pPoseStack, 8, 110);
+        drawText(Component.translatable("gui.quarry.speed").getString(), pPoseStack, 73, 27);
+        drawText(Component.translatable("gui.quarry.fuel").getString(), pPoseStack, 19, 20);
+        drawText(Component.translatable("gui.quarry.out").getString(), pPoseStack, 138, 20);
         drawText(Component.literal(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
-        String yCoord = Component.translatable("gui.quarry.quarry.text.stop").getString();
+        String yCoord = Component.translatable("gui.quarry.stop").getString();
         ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 1);
         if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY") && getMenu().getTile().getLevel().getBlockState(getMenu().getTile().getBlockPos()).getValue(QuarryBlock.ACTIVE)) {
             yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
         }
 
         drawText(Component.literal("Y: " + yCoord).getString(), pPoseStack, 73, 95);
-        drawText(Component.translatable("gui.quarry.quarry.power.on").getString(), pPoseStack, 68, 59);
-        drawText(Component.translatable("gui.quarry.quarry.power.off").getString(), pPoseStack, 95, 59);
+        drawText(Component.translatable("gui.quarry.power.on").getString(), pPoseStack, 68, 59);
+        drawText(Component.translatable("gui.quarry.power.off").getString(), pPoseStack, 95, 59);
 
         switch (getMenu().getTile().getMode()) {
             case 0 ->
-                    drawCenteredText(Component.translatable("gui.quarry.quarry.mode.default").getString(), pPoseStack, 87, 77);
+                    drawCenteredText(Component.translatable("gui.quarry.mode.default").getString(), pPoseStack, 87, 77);
             case 1 ->
-                    drawCenteredText(Component.translatable("gui.quarry.quarry.mode.efficient").getString(), pPoseStack, 87, 77);
+                    drawCenteredText(Component.translatable("gui.quarry.mode.efficient").getString(), pPoseStack, 87, 77);
             case 2 ->
-                    drawCenteredText(Component.translatable("gui.quarry.quarry.mode.fortune").getString(), pPoseStack, 87, 77);
+                    drawCenteredText(Component.translatable("gui.quarry.mode.fortune").getString(), pPoseStack, 87, 77);
             case 3 ->
-                    drawCenteredText(Component.translatable("gui.quarry.quarry.mode.silktouch").getString(), pPoseStack, 87, 77);
+                    drawCenteredText(Component.translatable("gui.quarry.mode.silktouch").getString(), pPoseStack, 87, 77);
             case 4 ->
-                    drawCenteredText(Component.translatable("gui.quarry.quarry.mode.void").getString(), pPoseStack, 87, 77);
+                    drawCenteredText(Component.translatable("gui.quarry.mode.void").getString(), pPoseStack, 87, 77);
         }
         if (modeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             float totalBurnTicks = CalcUtil.getNeededTicks(getMenu().getTile().getMode(), getMenu().getTile().getSpeed());
             switch (getMenu().getTile().getMode()) {
-                case 0 -> list.add(Component.translatable("gui.quarry.quarry.mode.default"));
-                case 1 -> list.add(Component.translatable("gui.quarry.quarry.mode.efficient"));
-                case 2 -> list.add(Component.translatable("gui.quarry.quarry.mode.fortune"));
-                case 3 -> list.add(Component.translatable("gui.quarry.quarry.mode.silktouch"));
-                default -> list.add(Component.translatable("gui.quarry.quarry.mode.void"));
+                case 0 -> list.add(Component.translatable("gui.quarry.mode.default"));
+                case 1 -> list.add(Component.translatable("gui.quarry.mode.efficient"));
+                case 2 -> list.add(Component.translatable("gui.quarry.mode.fortune"));
+                case 3 -> list.add(Component.translatable("gui.quarry.mode.silktouch"));
+                default -> list.add(Component.translatable("gui.quarry.mode.void"));
             }
-            list.add(Component.translatable("gui.quarry.quarry.tooltip.consumption").append(" " + totalBurnTicks + " ").append("ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(Component.translatable("gui.quarry.quarry.tooltip.coal").append(" " + (new DecimalFormat("##.##").format(1600 / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.quarry.quarry.tooltip.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.consumption").append(" " + totalBurnTicks + " ").append("ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.coal").append(" " + (new DecimalFormat("##.##").format(1600 / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.quarry.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             if (getMenu().getTile().getMode() == 1)
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.speed.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                list.add(Component.translatable("gui.quarry.speed.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
 
+
+
         if (infoButtonIsHovered) {
             List<Component> list = new ArrayList<>();
-            list.add(Component.translatable("gui.quarry.quarry.tooltip.informations"));
+            list.add(Component.translatable("gui.quarry.informations"));
             list.add(Component.literal(""));
             list.add(Component.literal("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
-            list.add(Component.translatable("gui.quarry.quarry.tooltip.when_turned_off").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(Component.literal(Component.translatable("gui.quarry.quarry.tooltip.will_consume").getString().replace("#", CommonConfig.quarryIdleConsumption.get().toString())).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.when_turned_off").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.literal(Component.translatable("gui.quarry.will_consume").getString().replace("#", CommonConfig.quarryIdleConsumption.get().toString())).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(Component.translatable("gui.quarry.quarry.tooltip.changing_speed").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(Component.translatable("gui.quarry.quarry.tooltip.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.changing_speed").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(Component.translatable("gui.quarry.quarry.tooltip.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
+            list.add(Component.translatable("gui.quarry.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (lockButtonIsHovered) {
@@ -129,66 +144,66 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 owner = UsernameCache.getLastKnownUsername(UUID.fromString(getMenu().getTile().getOwner()));
 
             if (getMenu().getTile().getLocked()) {
-                list.add(Component.translatable("gui.quarry.quarry.lock.private"));
-                list.add(Component.translatable("gui.quarry.quarry.lock.private.description").withStyle(ChatFormatting.YELLOW));
-                list.add(Component.translatable("gui.quarry.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.lock.private"));
+                list.add(Component.translatable("gui.quarry.lock.private.description").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(Component.translatable("gui.quarry.quarry.lock.public"));
-                list.add(Component.translatable("gui.quarry.quarry.lock.public.description").withStyle(ChatFormatting.YELLOW));
-                list.add(Component.translatable("gui.quarry.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.lock.public"));
+                list.add(Component.translatable("gui.quarry.lock.public.description").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (loopButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getMenu().getTile().getLoop()) {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.loop.always"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.loop.restart").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.loop.always"));
+                list.add(Component.translatable("gui.quarry.loop.restart").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.loop.never"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.loop.stop").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.loop.never"));
+                list.add(Component.translatable("gui.quarry.loop.stop").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (filterButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getMenu().getTile().getFilter()) {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.filter.always"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.filter.filters").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.filter.always"));
+                list.add(Component.translatable("gui.quarry.filter.filters").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.filter.never"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.filter.all").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.filter.never"));
+                list.add(Component.translatable("gui.quarry.filter.all").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (ejectButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getMenu().getTile().getEject() == 0) {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.dont"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.in_out_hoppers").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.output.dont"));
+                list.add(Component.translatable("gui.quarry.output.in_out_hoppers").withStyle(ChatFormatting.YELLOW));
             } else if (getMenu().getTile().getEject() == 1) {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.pull"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.pulls_above").withStyle(ChatFormatting.YELLOW));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.out_hoppers").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.output.pull"));
+                list.add(Component.translatable("gui.quarry.output.pulls_above").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.output.out_hoppers").withStyle(ChatFormatting.YELLOW));
             } else if (getMenu().getTile().getEject() == 2) {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.eject"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.eject_below").withStyle(ChatFormatting.YELLOW));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.in_hoppers").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.output.eject"));
+                list.add(Component.translatable("gui.quarry.output.eject_below").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.output.in_hoppers").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.both"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.pulls_above").withStyle(ChatFormatting.YELLOW));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.output.eject_below").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.output.both"));
+                list.add(Component.translatable("gui.quarry.output.pulls_above").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.output.eject_below").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (darkmodeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getDarkModeConfigValue()) {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.dark"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.darkmode.dark"));
+                list.add(Component.translatable("gui.quarry.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.white"));
-                list.add(Component.translatable("gui.quarry.quarry.tooltip.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.darkmode.white"));
+                list.add(Component.translatable("gui.quarry.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
