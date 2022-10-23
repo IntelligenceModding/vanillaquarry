@@ -3,11 +3,7 @@ package de.unhappycodings.quarry.common.container.base;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -69,19 +65,19 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
     private Consumer<String> responder;
     /** Called to check if the text is valid */
     private Predicate<String> filter = Objects::nonNull;
-    private BiFunction<String, Integer, FormattedCharSequence> formatter = (p_94147_, p_94148_) -> {
-        return FormattedCharSequence.forward(p_94147_, Style.EMPTY);
+    private BiFunction<String, Integer, FormattedCharSequence> formatter = (text, style) -> {
+        return FormattedCharSequence.forward(text, Style.EMPTY);
     };
 
     public ModEditBox(Font pFont, int pX, int pY, int pWidth, int pHeight, Component pMessage) {
         this(pFont, pX, pY, pWidth, pHeight, (net.minecraft.client.gui.components.EditBox)null, pMessage);
     }
 
-    public ModEditBox(Font pFont, int pX, int pY, int pWidth, int pHeight, @Nullable net.minecraft.client.gui.components.EditBox p_94111_, Component pMessage) {
+    public ModEditBox(Font pFont, int pX, int pY, int pWidth, int pHeight, @Nullable net.minecraft.client.gui.components.EditBox editBox, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage);
         this.font = pFont;
-        if (p_94111_ != null) {
-            this.setValue(p_94111_.getValue());
+        if (editBox != null) {
+            this.setValue(editBox.getValue());
         }
 
     }

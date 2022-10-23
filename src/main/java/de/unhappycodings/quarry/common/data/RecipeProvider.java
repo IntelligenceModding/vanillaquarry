@@ -3,7 +3,6 @@ package de.unhappycodings.quarry.common.data;
 import de.unhappycodings.quarry.common.blocks.ModBlocks;
 import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.util.ItemUtil;
-import de.unhappycodings.quarry.common.util.TagUtil;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;

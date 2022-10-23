@@ -17,7 +17,6 @@ import de.unhappycodings.quarry.common.util.RenderUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -52,24 +51,28 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     boolean init1 = false;
     boolean init2 = false;
     boolean init3 = false;
+    boolean init4 = false;
     int blockRadius = 0;
     int chunkRadius = 0;
     long blockCount = 1;
-    byte[][] posList = {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
-            {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},
-            {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},
-            {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 1, 10, 1, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},
-            {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},
-            {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},
-            {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},
-            {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}};
+    byte[][] posList = {
+            {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+            {8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8},
+            {8, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 8},
+            {8, 7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 1, 9, 1, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7, 8},
+            {8, 7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8},
+            {8, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 8},
+            {8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8},
+            {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}};
 
     public AreaCardScreen(AreaCardContainer screenContainer, Inventory inv, Component titleIn) {
         super(screenContainer, inv, titleIn);
@@ -100,13 +103,13 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         }
         if (stack.getOrCreateTag().getInt("Selection") == 2) {
             this.blit(matrixStack, leftPos + 17, topPos + 52, 0, 150, 78, 14); // Count output field
-            this.blit(matrixStack, leftPos + 125, topPos + 28, 198, 0, 50, 50); // Chunk visualisation
+            this.blit(matrixStack, leftPos + 115, topPos + 25, 198, 0, 56, 56); // Chunk visualisation
             this.blit(matrixStack, leftPos + 15, topPos + 70, 0, 165, 81, 15); // Coordinates field
 
-            for (int i = 0; i < 15; i++) {
-                for (int e = 0; e < 15; e++) {
+            for (int i = 0; i < 17; i++) {
+                for (int e = 0; e < 17; e++) {
                     if (posList[i][e] <= chunkRadius) {
-                        blit(matrixStack, (int) (leftPos + 128 + (Math.ceil(e * 3))), (int) (topPos + 31 + (Math.ceil(i * 3))), 198, 51, 2, 2);
+                        blit(matrixStack, (int) (leftPos + 118 + (Math.ceil(e * 3))), (int) (topPos + 28 + (Math.ceil(i * 3))), 198, 57, 2, 2);
                     }
                 }
             }
@@ -148,6 +151,20 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             drawText(Component.translatable("item.quarry.areacard.text.around").getString(), pPoseStack, 61, 32);
             drawCenteredText(Component.literal(String.valueOf(blockRadius)).getString(), pPoseStack, 101, 46);
             drawCenteredText(Component.literal("#").append(String.valueOf(blockCount)).getString(), pPoseStack, 100, 65);
+            if (!init4) {
+                BlockPos pos1 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos1"))
+                    pos1 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos1"));
+                BlockPos pos2 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos2"))
+                    pos2 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos2"));
+                int sizeX = Math.abs(pos1.getX() - pos2.getX()) + 1;
+                int sizeZ = Math.abs(pos1.getZ() - pos2.getZ()) + 1;
+                int blocksWidth = sizeX == sizeZ ? sizeX : 0;
+                blockRadius = (blocksWidth - 1) / 2;
+                refreshCount();
+                init4 = true;
+            }
         }
         if (stack.getOrCreateTag().getInt("Selection") == 2) {
             int multiplicator = 384;
@@ -164,8 +181,18 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             drawCenteredText(Component.literal(String.valueOf(chunkRadius)).getString(), pPoseStack, 56, 37);
             drawCenteredTextColored(Component.literal(valid ? "#" : "").append(String.valueOf(valid ? count : Component.translatable("item.quarry.areacard.text.illegal").getString())).getString(), pPoseStack, 55, 56, valid ? 1315860 : 16670302);
             if (!init3) {
-                top.setValue("320");
-                down.setValue("-64");
+                BlockPos pos1 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos1"))
+                    pos1 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos1"));
+                BlockPos pos2 = BlockPos.ZERO;
+                if (stack.getOrCreateTag().contains("pos2"))
+                    pos2 = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos2"));
+                int sizeX = Math.abs(pos1.getX() - pos2.getX()) + 1;
+                int sizeZ = Math.abs(pos1.getZ() - pos2.getZ()) + 1;
+                int chunkWidth = sizeX / 16 == sizeZ / 16 ? sizeX / 16 : 0;
+                chunkRadius = (chunkWidth - 1) / 2;
+                top.setValue(pos1.getY() + "");
+                down.setValue(pos2.getY() + "");
                 init3 = true;
             }
         }
@@ -224,16 +251,16 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     @Override
     protected void init() {
         super.init();
-        pos1x = new ModEditBox(font, leftPos + 20,  topPos + 34, 71, 10, Component.empty());
-        pos1y = new ModEditBox(font, leftPos + 20,  topPos + 51, 71, 10, Component.empty());
-        pos1z = new ModEditBox(font, leftPos + 20,  topPos + 68, 71, 10, Component.empty());
-        pos2x = new ModEditBox(font, leftPos + 107,  topPos + 34, 71, 10, Component.empty());
-        pos2y = new ModEditBox(font, leftPos + 107,  topPos + 51, 71, 10, Component.empty());
-        pos2z = new ModEditBox(font, leftPos + 107,  topPos + 68, 71, 10, Component.empty());
+        pos1x = new ModEditBox(font, leftPos + 20, topPos + 34, 71, 10, Component.empty());
+        pos1y = new ModEditBox(font, leftPos + 20, topPos + 51, 71, 10, Component.empty());
+        pos1z = new ModEditBox(font, leftPos + 20, topPos + 68, 71, 10, Component.empty());
+        pos2x = new ModEditBox(font, leftPos + 107, topPos + 34, 71, 10, Component.empty());
+        pos2y = new ModEditBox(font, leftPos + 107, topPos + 51, 71, 10, Component.empty());
+        pos2z = new ModEditBox(font, leftPos + 107, topPos + 68, 71, 10, Component.empty());
         positionInputs = new ModEditBox[]{pos1x, pos1y, pos1z, pos2x, pos2y, pos2z};
 
-        top = new ModEditBox(font, leftPos + 27,  topPos + 73, 25, 10, Component.empty());
-        down = new ModEditBox(font, leftPos + 69,  topPos + 73, 25, 10, Component.empty());
+        top = new ModEditBox(font, leftPos + 27, topPos + 73, 25, 10, Component.empty());
+        down = new ModEditBox(font, leftPos + 69, topPos + 73, 25, 10, Component.empty());
         heightInputs = new ModEditBox[]{top, down};
 
         subInit();
@@ -306,7 +333,10 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             addRenderableWidget(new ModButton(63, 34, 10, 14, darkmode ? Quarry.COUNTER_UP_DARK : Quarry.COUNTER_UP, () -> cycleChunkRadius(1), null, null, this, 10, 28, true));
         }
 
-        darkmodeMouseButton = new ModButton(182, 5, 9, 9, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> { refreshWidgets(); setDarkModeConfigValue(!getDarkModeConfigValue());}, null, null, this, 9, 18, true);
+        darkmodeMouseButton = new ModButton(182, 5, 9, 9, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> {
+            refreshWidgets();
+            setDarkModeConfigValue(!getDarkModeConfigValue());
+        }, null, null, this, 9, 18, true);
         addRenderableWidget(darkmodeMouseButton);
         addRenderableWidget(new ModButton(40, 120, 16, 16, Quarry.BLANK, () -> changeFilter(0), null, null, this, 16, 16, true));
         addRenderableWidget(new ModButton(58, 120, 16, 16, Quarry.BLANK, () -> changeFilter(1), null, null, this, 16, 16, true));
@@ -325,20 +355,34 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     public void cycleChunkRadius(int add) {
         if (add > 0) {
-            if (chunkRadius == 7) { chunkRadius = 0; return; }
+            if (chunkRadius == 8) {
+                chunkRadius = 0;
+                return;
+            }
             chunkRadius += add;
         } else {
-            if (chunkRadius == 0) { chunkRadius = 7; return; }
+            if (chunkRadius == 0) {
+                chunkRadius = 8;
+                return;
+            }
             chunkRadius += add;
         }
     }
 
     public void cycleBlockRadius(int add) {
         if (add > 0) {
-            if (blockRadius == 1024) { blockRadius = 0; refreshCount(); return; }
+            if (blockRadius == 1024) {
+                blockRadius = 0;
+                refreshCount();
+                return;
+            }
             if (!(blockRadius + add > 1024)) blockRadius += add;
         } else {
-            if (blockRadius == 0) { blockRadius = 1024; refreshCount(); return; }
+            if (blockRadius == 0) {
+                blockRadius = 1024;
+                refreshCount();
+                return;
+            }
             if (!(blockRadius + add < 0)) blockRadius += add;
         }
         refreshCount();
@@ -432,7 +476,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         if (stack.getOrCreateTag().getInt("Selection") == 2) {
             CompoundTag tag = new CompoundTag();
             int offset1 = 7 + (chunkRadius * 16);
-            int offset2 = -8 - (chunkRadius * 16);;
+            int offset2 = -8 - (chunkRadius * 16);
+            ;
             BlockPos chunkMiddle = Minecraft.getInstance().player.chunkPosition().getMiddleBlockPosition(0);
             BlockPos pos1 = chunkMiddle.offset(offset1, 0, offset1);
             BlockPos pos2 = chunkMiddle.offset(offset2, 0, offset2);
@@ -482,7 +527,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public boolean isInputValid(String string) {
         if (string.isEmpty()) return true;
         if (string.length() == 1) return string.matches("[0-9-]");
-        else return string.split("")[string.split("").length -1].matches("^-?(\\d+$)");
+        else return string.split("")[string.split("").length - 1].matches("^-?(\\d+$)");
     }
 
     public boolean getDarkModeConfigValue() {

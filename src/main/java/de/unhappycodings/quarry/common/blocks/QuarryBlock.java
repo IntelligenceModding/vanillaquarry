@@ -24,11 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -45,9 +41,9 @@ import java.util.Objects;
 
 public class QuarryBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-    public static BooleanProperty POWERED = BooleanProperty.create("powered");
-    public static BooleanProperty ACTIVE = BooleanProperty.create("active");
-    public static BooleanProperty WORKING = BooleanProperty.create("working");
+    public static final BooleanProperty POWERED = BooleanProperty.create("powered");
+    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    public static final BooleanProperty WORKING = BooleanProperty.create("working");
 
     public QuarryBlock() {
         super(Properties.copy(Blocks.STONE).strength(3.0F, 6.0F));
@@ -116,12 +112,12 @@ public class QuarryBlock extends BaseEntityBlock {
             }
 
             Direction direction = pState.getValue(FACING);
-            Direction.Axis direction$axis = direction.getAxis();
+            Direction.Axis directionAxis = direction.getAxis();
             double d3 = 0.52D;
             double d4 = pRandom.nextDouble() * 0.6D - 0.3D;
-            double d5 = direction$axis == Direction.Axis.X ? (double)direction.getStepX() * 0.52D : d4;
+            double d5 = directionAxis == Direction.Axis.X ? (double)direction.getStepX() * 0.52D : d4;
             double d6 = pRandom.nextDouble() * 6.0D / 16.0D;
-            double d7 = direction$axis == Direction.Axis.Z ? (double)direction.getStepZ() * 0.52D : d4;
+            double d7 = directionAxis == Direction.Axis.Z ? (double)direction.getStepZ() * 0.52D : d4;
             pLevel.addParticle(ParticleTypes.SMOKE, d0 + d5, d1 + d6, d2 + d7, 0.0D, 0.0D, 0.0D);
             pLevel.addParticle(ParticleTypes.FLAME, d0 + d5, d1 + d6, d2 + d7, 0.0D, 0.0D, 0.0D);
         }
