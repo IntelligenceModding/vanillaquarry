@@ -1,5 +1,5 @@
 aa6ed6f1bc54f0d46b96ebc66c5820771ddf4092 assets/quarry/blockstates/quarry_block.json
-7c543c13313a9d34aa173894d6ad8509e7feb2fd assets/quarry/lang/en_us.json
+39c2331637cf25826882d9a210ce6849d230f32a assets/quarry/lang/en_us.json
 e82c5f2d34687c18315815b7e29cc04945f1c510 assets/quarry/models/block/quarry_block_idle.json
 fc8d292bc4f9ce3d1a6bd45efa2648a1dba8b5cc assets/quarry/models/block/quarry_block_off.json
 068fc9117a9f4e2f91ba2c70c201a140b26f0dfa assets/quarry/models/block/quarry_block_on.json
@@ -11,4 +11,3 @@ ec21436087319548a6f88f216469b22aa78ee52f data/minecraft/advancements/recipes/qua
 61484a58a43fa75170c3137b9dd20eaeb10a1b56 data/minecraft/recipes/area_card_crafted.json
 3f93b268442018c8e1749343b2c17bb9c5d072f5 data/minecraft/recipes/quarry_block_crafted.json
 aff4ad415fdef8c591c56235da3d21eddc66f53c data/minecraft/tags/blocks/mineable/pickaxe.json
-7d12051bbac473ead9d266cf8cfba188c3b2e479 data/quarry/loot_tables/blocks/quarry_block.json

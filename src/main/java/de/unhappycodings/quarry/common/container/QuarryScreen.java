@@ -9,6 +9,7 @@ import de.unhappycodings.quarry.common.blocks.QuarryBlock;
 import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import de.unhappycodings.quarry.common.container.base.BaseSlot;
+import de.unhappycodings.quarry.common.container.base.SlotInputHandler;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.network.toserver.*;
@@ -60,6 +61,18 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
 
     @Override
     protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
+        if (getSlotUnderMouse() != null && getSlotUnderMouse() instanceof SlotInputHandler) {
+            if (getSlotUnderMouse().getContainerSlot() == 13 && !getSlotUnderMouse().hasItem()) {
+                List<Component> list = new ArrayList<>();
+                list.add(new TranslatableComponent("gui.quarry.replace"));
+                list.add(new TranslatableComponent("gui.quarry.replace_1").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.replace_2").withStyle(ChatFormatting.YELLOW));
+                list.add(new TextComponent(""));
+                list.add(new TranslatableComponent("gui.quarry.replace_3").withStyle(ChatFormatting.YELLOW));
+
+                this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            }
+        }
         drawText(new TranslatableComponent("block.quarry.quarry_block").getString(), pPoseStack, 71, 7);
         drawText(new TranslatableComponent("gui.quarry.quarry.text.inventory").getString(), pPoseStack, 8, 110);
         drawText(new TranslatableComponent("gui.quarry.quarry.text.speed").getString(), pPoseStack, 73, 27);

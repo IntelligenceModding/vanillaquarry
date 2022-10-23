@@ -35,6 +35,10 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.quarry.lock.public.description", "players can use and modify everything");
         add("gui.quarry.quarry.lock.private.description", "access only for you");
         add("gui.quarry.quarry.lock.owner", "Owner: %s");
+        add("gui.quarry.replace", "Block Input / Replacement");
+        add("gui.quarry.replace_1", "when blocks mined by the quarry, here");
+        add("gui.quarry.replace_2", "inserted blocks will be placed as replacement.");
+        add("gui.quarry.replace_3", "Hopper/Pull input via right side! (front view)");
 
         add("gui.quarry.quarry.message.quarry_from", "Quarry of");
         add("gui.quarry.quarry.message.is_locked", "is set to private and locked!");

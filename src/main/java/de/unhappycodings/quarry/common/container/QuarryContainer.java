@@ -52,7 +52,9 @@ public class QuarryContainer extends BaseContainer {
                 addSlot(new SlotInputHandler(handler, 10, 129, 66, new SlotCondition().setNeededItem(Items.AIR))); //Output
                 addSlot(new SlotInputHandler(handler, 11, 147, 66, new SlotCondition().setNeededItem(Items.AIR))); //Output
 
-                addSlot(new BaseSlot(handler, inventory, 12, 138, 87, BaseSlot.GHOST_OVERLAY, stack -> stack.is(ModItems.AREA_CARD.get())).addGhostOverlays(ModItems.AREA_CARD.get())); // Card
+                addSlot(new BaseSlot(handler, inventory, 12, 147, 87, BaseSlot.GHOST_OVERLAY, stack -> stack.is(ModItems.AREA_CARD.get())).addGhostOverlays(ModItems.AREA_CARD.get())); // Card
+
+                addSlot(new SlotInputHandler(handler, 13, 129, 87, new SlotCondition()));
             });
         }
     }
