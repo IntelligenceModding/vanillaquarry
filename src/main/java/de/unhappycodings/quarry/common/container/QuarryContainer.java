@@ -42,6 +42,7 @@ public class QuarryContainer extends BaseContainer {
                             burnables.add(entry.getValue());
                     }
                 }
+
                 addSlot(new BaseSlot(handler, inventory, 0, 13, 30, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
                 addSlot(new BaseSlot(handler, inventory, 1, 31, 30, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
                 addSlot(new BaseSlot(handler, inventory, 2, 13, 48, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));

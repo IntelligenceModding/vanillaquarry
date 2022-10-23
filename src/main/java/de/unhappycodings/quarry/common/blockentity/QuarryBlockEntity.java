@@ -591,7 +591,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public int @NotNull [] getSlotsForFace(@NotNull Direction pSide) {
         if (pSide == Direction.DOWN) return new int[]{6, 7, 8, 9, 10, 11};
         if (pSide == Direction.UP) return new int[]{0, 1, 2, 3, 4, 5};
-        System.out.println(this.getBlockState().getValue(QuarryBlock.FACING));
         switch (this.getBlockState().getValue(QuarryBlock.FACING)) {
             case NORTH -> {
                 if (pSide == Direction.WEST) return new int[]{13};
@@ -611,8 +610,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     @Override
     public boolean canPlaceItemThroughFace(int pIndex, @NotNull ItemStack pItemStack, @Nullable Direction pDirection) {
-        System.out.println(pDirection);
-        System.out.println(pItemStack.getItem() instanceof BlockItem);
         if (pDirection == Direction.DOWN) return false;
         if (pDirection == Direction.UP) return ForgeHooks.getBurnTime(pItemStack, null) > 0;
         return pItemStack.getItem() instanceof BlockItem;

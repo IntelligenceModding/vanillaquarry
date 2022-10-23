@@ -59,27 +59,10 @@ public class QuarryBlock extends BaseEntityBlock {
         super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
     }
 
-    @Override
-    public void playerWillDestroy(@NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull BlockState pState, Player pPlayer) {
-        BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-        if (blockentity instanceof QuarryBlockEntity machine) {
-            if (!pLevel.isClientSide) {
-                ItemStack machineStack = new ItemStack(this, 1);
-                machine.saveToItem(machineStack);
-                if (machine.hasCustomName()) machineStack.setHoverName(machine.getCustomName());
-                ItemEntity itementity = new ItemEntity(pLevel, (double) pPos.getX() + 0.5D, (double) pPos.getY() + 0.5D, (double) pPos.getZ() + 0.5D, machineStack);
-                itementity.setDefaultPickUpDelay();
-                pLevel.addFreshEntity(itementity);
-            }
-        }
-        super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
-    }
-
     @SuppressWarnings("deprecation")
     @NotNull
     @Override
     public InteractionResult use(@NotNull BlockState state, @NotNull Level levelIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
-        System.out.println(((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getLocked());
         if (!Objects.equals(((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner(), player.getStringUUID()) && ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getLocked()) {
             if (levelIn.isClientSide && handIn == InteractionHand.MAIN_HAND) {
                 String owner = ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner();

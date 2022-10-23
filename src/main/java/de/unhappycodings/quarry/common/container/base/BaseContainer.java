@@ -40,6 +40,7 @@ public abstract class BaseContainer extends AbstractContainerMenu {
 
     private static final int TE_INVENTORY_SLOT_COUNT = 14;
 
+
     @NotNull
     @Override
     public ItemStack quickMoveStack(@NotNull Player playerIn, int index) {

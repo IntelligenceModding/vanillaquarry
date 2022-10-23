@@ -17,7 +17,6 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add(ModItems.AREA_CARD.get(), "Area Card");
 
         add("itemGroup.quarry.items", "Quarry");
-
         add("gui.quarry.inventory", "Inventory");
         add("gui.quarry.fuel", "Fuel");
         add("gui.quarry.out", "Out");

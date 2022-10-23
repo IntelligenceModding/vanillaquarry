@@ -71,6 +71,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
             }
         }
+
         drawText(Component.translatable("block.quarry.quarry_block").getString(), pPoseStack, 71, 7);
         drawText(Component.translatable("gui.quarry.inventory").getString(), pPoseStack, 8, 110);
         drawText(Component.translatable("gui.quarry.speed").getString(), pPoseStack, 73, 27);
