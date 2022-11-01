@@ -80,7 +80,6 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
         if (editBox != null) {
             this.setValue(editBox.getValue());
         }
-    
     }
 
     public void setResponder(Consumer<String> pResponder) {
