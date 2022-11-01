@@ -25,8 +25,6 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
         quarryBlock(ModBlocks.QUARRY.get());
     }
 
-
-    @SuppressWarnings("ConstantConditions")
     public void quarryBlock(QuarryBlock block) {
         ModelFile quarryOff = models().withExistingParent(ItemUtil.getRegString(block) + "_off", new ResourceLocation(Quarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_off")).texture("2", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_side"));
         ModelFile quarryIdle = models().withExistingParent(ItemUtil.getRegString(block) + "_idle", new ResourceLocation(Quarry.MOD_ID, "generation/quarry_block")).texture("1", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_idle")).texture("2", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_side")).texture("3", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_top")).texture("particle", new ResourceLocation(Quarry.MOD_ID, "block/quarry_block_side"));

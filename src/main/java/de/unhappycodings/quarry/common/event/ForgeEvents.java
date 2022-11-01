@@ -15,7 +15,6 @@ import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
 import de.unhappycodings.quarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
