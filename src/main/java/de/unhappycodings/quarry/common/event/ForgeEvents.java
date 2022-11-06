@@ -19,6 +19,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -33,9 +34,11 @@ import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.apache.logging.log4j.core.util.UuidUtil;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = Quarry.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvents {
@@ -47,10 +50,10 @@ public class ForgeEvents {
         BlockPos pos = event.getPos();
         if (!(level.getBlockState(pos).getBlock() instanceof QuarryBlock)) return;
         event.setCanceled(true);
-        if (!Objects.equals(((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner(), player.getStringUUID()) && ((QuarryBlockEntity) event.getWorld().getBlockEntity(pos)).getLocked()) {
+        if ((!Objects.equals(((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner(), player.getName().getString() + "@" + player.getStringUUID()) && ((QuarryBlockEntity) level.getBlockEntity(pos)).getLocked()) && !player.hasPermissions(2)) {
             String owner = ((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner();
             if (owner.isEmpty()) owner = "undefined";
-            player.sendMessage(new TranslatableComponent("gui.quarry.quarry.message.quarry_from").append(" " + owner + " ").append(new TranslatableComponent("gui.quarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW), Util.NIL_UUID);
+            player.sendMessage(new TranslatableComponent("gui.quarry.message.quarry_from").append(" " + owner + " ").append(new TranslatableComponent("gui.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW), UUID.randomUUID());
         } else {
             QuarryBlockEntity machine = (QuarryBlockEntity) level.getBlockEntity(pos);
             ItemStack machineStack = new ItemStack(ModBlocks.QUARRY.get(), 1);

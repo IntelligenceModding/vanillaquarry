@@ -54,7 +54,7 @@ public class QuarryBlock extends BaseEntityBlock {
     @Override
     public void setPlacedBy(Level pLevel, @NotNull BlockPos pPos, @NotNull BlockState pState, @Nullable LivingEntity pPlacer, @NotNull ItemStack pStack) {
         QuarryBlockEntity blockEntity = (QuarryBlockEntity) pLevel.getBlockEntity(pPos);
-        if (Objects.equals(blockEntity.getOwner(), "undefined")) blockEntity.setOwner(pPlacer.getStringUUID());
+        if (Objects.equals(blockEntity.getOwner(), "undefined") || !Objects.equals(blockEntity.getOwner(), "@")) blockEntity.setOwner(pPlacer.getName().getString() + "@" + pPlacer.getStringUUID());
         blockEntity.setChanged();
         super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
     }
@@ -84,11 +84,11 @@ public class QuarryBlock extends BaseEntityBlock {
     @NotNull
     @Override
     public InteractionResult use(@NotNull BlockState state, @NotNull Level levelIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
-        if (!Objects.equals(((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner(), player.getStringUUID()) && ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getLocked()) {
+        if ((!Objects.equals(((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner(), player.getName().getString() + "@" + player.getStringUUID()) && ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getLocked()) && !player.hasPermissions(2)) {
             if (levelIn.isClientSide && handIn == InteractionHand.MAIN_HAND) {
                 String owner = ((QuarryBlockEntity) levelIn.getBlockEntity(pos)).getOwner();
                 if (owner.isEmpty()) owner = "undefined";
-                player.sendMessage(new TranslatableComponent("gui.quarry.quarry.message.quarry_from").append(" " + owner + " ").append(new TranslatableComponent("gui.quarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW), Util.NIL_UUID);
+                player.sendMessage(new TranslatableComponent("gui.quarry.message.quarry_from").append(" " + owner.split("@")[0] + " ").append(new TranslatableComponent("gui.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW), Util.NIL_UUID);
             }
             return InteractionResult.SUCCESS;
         }

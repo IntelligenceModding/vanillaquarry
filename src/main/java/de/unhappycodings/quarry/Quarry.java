@@ -58,6 +58,8 @@ public class Quarry {
     public static final ResourceLocation FIELD_DARK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/field_dark.png");
     public static final ResourceLocation SELECTOR = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/selector_on.png");
     public static final ResourceLocation SELECTOR_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/selector_off.png");
+    public static final ResourceLocation SKIP = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/skip_on.png");
+    public static final ResourceLocation SKIP_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/skip_off.png");
 
     public static final CreativeModeTab creativeTab = new ItemCreativeTab();
 

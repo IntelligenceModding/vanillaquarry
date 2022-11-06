@@ -34,8 +34,7 @@ public class QuarryContainer extends BaseContainer {
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
                 for (Map.Entry<ResourceKey<Item>, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
                     if (ForgeHooks.getBurnTime(new ItemStack(entry.getValue()), null) > 0) {
-                        if (!entry.getValue().hasCraftingRemainingItem())
-                            burnables.add(entry.getValue());
+                        burnables.add(entry.getValue());
                     }
                 }
                 addSlot(new BaseSlot(handler, inventory, 0, 13, 30, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));

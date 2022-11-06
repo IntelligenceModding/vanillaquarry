@@ -203,11 +203,11 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         if (darkmodeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
             if (getDarkModeConfigValue()) {
-                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.dark"));
-                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.tooltip.darkmode.dark"));
+                list.add(new TranslatableComponent("gui.quarry.tooltip.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.white"));
-                list.add(new TranslatableComponent("gui.quarry.quarry.tooltip.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
+                list.add(new TranslatableComponent("gui.quarry.tooltip.darkmode.white"));
+                list.add(new TranslatableComponent("gui.quarry.tooltip.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
             this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
         }
@@ -425,6 +425,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public void savePositions() {
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         String[] posString = {"x", "y", "z"};
+        stack.getOrCreateTag().putInt("lastBlock", 0);
         if (stack.getOrCreateTag().getInt("Selection") == 0) {
             for (int e = 1; e <= 2; e++) {
                 for (int i = 1; i < 3; i++) {

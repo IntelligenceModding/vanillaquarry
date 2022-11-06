@@ -52,6 +52,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,8 @@ import java.util.UUID;
 public class QuarryBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, MenuProvider {
     private static final int SPEED_0 = 15;
     private static final int SPEED_1 = 10;
-    private static final int SPEED_2 = 0; // 5
+    private static final int SPEED_2 = 5; // 5
+    private static final int SPEED_3 = 2; // 2
     private final LazyOptional<? extends IItemHandler>[] itemHandler = SidedInvWrapper.create(this, Direction.values());
     public LootContext.Builder lootcontextBuilder;
     public List<BlockPos> blockStateList;
@@ -77,6 +79,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     private boolean filter;
     private boolean loop;
     private boolean locked;
+    private boolean skip;
     private int burnTime;
     private int totalBurnTime;
 
@@ -203,10 +206,21 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         if (burnTime <= 1001) {
             for (int i = 0; i < input.size(); i++) {
                 if (ForgeHooks.getBurnTime(input.get(i), null) > 0) {
-                    totalBurnTime = burnTime + ForgeHooks.getBurnTime(input.get(i), null);
-                    burnTime += totalBurnTime;
-                    removeItem(i, 1);
-                    break;
+                    if (input.get(i).getItem().hasCraftingRemainingItem()) {
+                        int output = hasOutputSpace(new ItemStack(input.get(i).getItem().getCraftingRemainingItem(), 1));
+                        if (output != 99) {
+                            totalBurnTime = burnTime + ForgeHooks.getBurnTime(input.get(i), null);
+                            burnTime += totalBurnTime;
+                            setItem(output, new ItemStack(input.get(i).getItem().getCraftingRemainingItem(), getItem(output).getCount() + 1));
+                            removeItem(i, 1);
+                        }
+                        break;
+                    } else {
+                        totalBurnTime = burnTime + ForgeHooks.getBurnTime(input.get(i), null);
+                        burnTime += totalBurnTime;
+                        removeItem(i, 1);
+                        break;
+                    }
                 }
 
             }
@@ -233,10 +247,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                     boolean speedy = speed == 0 && !(ticks + speedModifier >= SPEED_0);
                     if (speed == 1 && !(ticks + speedModifier >= SPEED_1)) speedy = true;
                     if (speed == 2 && !(ticks + speedModifier >= SPEED_2)) speedy = true;
-                    if (speedy) {
-                        ticks++;
-                        return;
-                    }
+                    if (speed == 3 && !(ticks + speedModifier >= SPEED_3)) speedy = true;
                     // Get Mode to variables to work with in-code easilier!
                     float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
                     boolean isSilktouch;
@@ -296,6 +307,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                             itemTag.putInt("currentY", currentBlock.getY());
                             return;
                         }
+                        // Checking for Speed Delay and Air Skipping
+                        if (speedy) {
+                            if (entity.getSkip() && level.getBlockState(currentBlock).getBlock() == Blocks.AIR)
+                                itemTag.putInt("lastBlock", blockIndex + 1);
+                            ticks++;
+                            return;
+                        }
                         if (level.getBlockState(currentBlock).getBlock() == Blocks.AIR) {
                             itemTag.putInt("lastBlock", blockIndex + 1);
                             burnTime -= fuelModifier;
@@ -351,7 +369,23 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                             }
                             if (broken) {
                                 level.playSound(player, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, level.getBlockState(currentBlock).getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
-                                level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+                                if (getItem(13).getItem() instanceof BlockItem blockItem) {
+                                    ItemStack inputItem = getItem(13);
+                                    inputItem.shrink(1);
+                                    setItem(13, inputItem);
+                                    level.playSound(player, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, blockItem.getBlock().defaultBlockState().getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                                    level.setBlock(currentBlock, blockItem.getBlock().defaultBlockState(), Block.UPDATE_ALL);
+                                } else {
+                                    level.levelEvent(player, 2001, currentBlock, Block.getId(level.getBlockState(currentBlock)));
+                                    level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                                }
+                                BlockPos[] positions = {currentBlock.north(), currentBlock.east(), currentBlock.south(), currentBlock.west(), currentBlock.above(), currentBlock.below()};
+                                for (BlockPos pos : positions) {
+                                    if (level.getBlockState(pos).getFluidState().isSource()) {
+                                        level.setBlock(pos, Blocks.COBBLESTONE.defaultBlockState(), 3);
+                                        level.playSound(player, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, Blocks.COBBLESTONE.defaultBlockState().getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                                    }
+                                }
                             }
                         }
                     } else {
@@ -503,7 +537,13 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public void setLoop(boolean loop) {
         this.loop = loop;
     }
+    public boolean getSkip() {
+        return skip;
+    }
 
+    public void setSkip(boolean skip) {
+        this.skip = skip;
+    }
     @NotNull
     @Override
     public CompoundTag getUpdateTag() {
@@ -518,6 +558,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         nbt.putBoolean("Locked", getLocked());
         nbt.putBoolean("Filter", getFilter());
         nbt.putBoolean("Loop", getLoop());
+        nbt.putBoolean("Skip", getSkip());
         return nbt;
     }
 
@@ -532,6 +573,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         setLocked(tag.getBoolean("Locked"));
         setFilter(tag.getBoolean("Filter"));
         setLoop(tag.getBoolean("Loop"));
+        setSkip(tag.getBoolean("Skip"));
     }
 
     @Override
@@ -558,6 +600,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         nbt.putBoolean("Locked", getLocked());
         nbt.putBoolean("Filter", getFilter());
         nbt.putBoolean("Loop", getLoop());
+        nbt.putBoolean("Skip", getSkip());
         ContainerHelper.saveAllItems(nbt, this.items, true);
     }
 
@@ -575,6 +618,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         this.locked = nbt.getBoolean("Locked");
         this.filter = nbt.getBoolean("Filter");
         this.loop = nbt.getBoolean("Loop");
+        this.skip = nbt.getBoolean("Skip");
     }
 
     @Override
