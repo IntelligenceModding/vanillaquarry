@@ -10,13 +10,10 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.UsernameCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 public class QuarryBlockItem extends BlockItem {
 
@@ -24,14 +21,14 @@ public class QuarryBlockItem extends BlockItem {
         super(ModBlocks.QUARRY.get(), new Properties().stacksTo(1).tab(Quarry.creativeTab));
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
         CompoundTag tag = stack.getOrCreateTag().getCompound("BlockEntityTag");
         if (tag.contains("Owner")) {
             String owner = "undefined";
-            if (!Objects.equals(tag.get("Owner"), "undefined"))
-                owner = UsernameCache.getLastKnownUsername(UUID.fromString(tag.get("Owner").getAsString()));
+            String ownerString = tag.getString("Owner");
+            if (!ownerString.isEmpty())
+                owner = ownerString.replace("@", " (") + (ownerString.equals("undefined") ? "" : ")");
             tooltipComponents.add(Component.translatable("gui.quarry.owner").withStyle(yellow()).append(" ").append(owner));
             tooltipComponents.add(Component.translatable("gui.quarry.security").withStyle(yellow()).append(" ").append(tag.getBoolean("Locked") ?
                     Component.translatable("gui.quarry.lock.private").withStyle(red()) : Component.translatable("gui.quarry.lock.public").withStyle(green())));

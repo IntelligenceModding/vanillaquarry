@@ -422,6 +422,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public void savePositions() {
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         String[] posString = {"x", "y", "z"};
+        stack.getOrCreateTag().putInt("lastBlock", 0);
         if (stack.getOrCreateTag().getInt("Selection") == 0) {
             for (int e = 1; e <= 2; e++) {
                 for (int i = 1; i < 3; i++) {

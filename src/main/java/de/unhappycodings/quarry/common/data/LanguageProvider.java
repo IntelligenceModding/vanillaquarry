@@ -42,6 +42,10 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.message.quarry_from", "Quarry of");
         add("gui.quarry.message.is_locked", "is set to private and locked!");
 
+        add("gui.quarry.admin", "Admin Access!");
+        add("gui.quarry.others", "This is not your Quarry!");
+        add("gui.quarry.replacing", "Quarry will eliminate nearby Fluid Sources!");
+
         add("gui.quarry.consumption", "Consumption:");
         add("gui.quarry.coal", "1 coal:");
         add("gui.quarry.blocks", "blocks");
@@ -64,10 +68,15 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.loop.never", "Don't loop");
         add("gui.quarry.loop.stop", "stop after area is mined.");
 
-        add("gui.quarry.filter.always", "Filter everything");
+        add("gui.quarry.filter.always", "Always Filter");
         add("gui.quarry.filter.filters", "uses the area cards item filter.");
         add("gui.quarry.filter.never", "Don't Filter");
         add("gui.quarry.filter.all", "mines all blocks!");
+
+        add("gui.quarry.skip.always", "Always Skip Air");
+        add("gui.quarry.skip.skipped", "Don't try to break blocks as air.");
+        add("gui.quarry.skip.never", "Don't Skip Air");
+        add("gui.quarry.skip.iterate", "Iterate through all blocks, even air!");
 
         add("gui.quarry.output.dont", "Don't Eject/Pull");
         add("gui.quarry.output.in_out_hoppers", "output and input possible with hoppers.");

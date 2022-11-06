@@ -78,6 +78,7 @@ public class CalcUtil {
             case 0 -> fuelModifier *= CommonConfig.quarrySpeedOneModifier.get();
             case 1 -> fuelModifier *= CommonConfig.quarrySpeedTwoModifier.get();
             case 2 -> fuelModifier *= CommonConfig.quarrySpeedThreeModifier.get();
+            case 3 -> fuelModifier *= CommonConfig.quarrySpeedFourModifier.get();
         }
         return fuelModifier;
     }

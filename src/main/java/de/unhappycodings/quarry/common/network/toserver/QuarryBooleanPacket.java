@@ -52,6 +52,13 @@ public class QuarryBooleanPacket implements IPacket {
             } else {
                 PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getFilter(), "filter"), player);
             }
+        } else if (type.contains("skip")) {
+            if (!refresh) {
+                blockEntity.setSkip(!blockEntity.getSkip());
+                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), !blockEntity.getSkip(), "skip"), player);
+            } else {
+                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getSkip(), "skip"), player);
+            }
         }
     }
 

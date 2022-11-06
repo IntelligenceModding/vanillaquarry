@@ -47,10 +47,10 @@ public class ForgeEvents {
         BlockPos pos = event.getPos();
         if (!(level.getBlockState(pos).getBlock() instanceof QuarryBlock)) return;
         event.setCanceled(true);
-        if (!Objects.equals(((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner(), player.getStringUUID()) && ((QuarryBlockEntity) event.getLevel().getBlockEntity(pos)).getLocked()) {
+        if ((!Objects.equals(((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner(), player.getName().getString() + "@" + player.getStringUUID()) && ((QuarryBlockEntity) event.getLevel().getBlockEntity(pos)).getLocked()) && !player.hasPermissions(2)) {
             String owner = ((QuarryBlockEntity) level.getBlockEntity(pos)).getOwner();
             if (owner.isEmpty()) owner = "undefined";
-            player.sendSystemMessage(Component.translatable("gui.quarry.quarry.message.quarry_from").append(" " + owner + " ").append(Component.translatable("gui.quarry.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("gui.quarry.message.quarry_from").append(" " + owner + " ").append(Component.translatable("gui.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW));
         } else {
             QuarryBlockEntity machine = (QuarryBlockEntity) level.getBlockEntity(pos);
             ItemStack machineStack = new ItemStack(ModBlocks.QUARRY.get(), 1);

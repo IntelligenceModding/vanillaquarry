@@ -34,7 +34,7 @@ public class QuarryIntPacket implements IPacket {
         if (type.contains("speed")) {
             if (add != 0) {
                 int newSpeed = blockEntity.getSpeed() + add;
-                if (newSpeed >= 0 && newSpeed <= 2) {
+                if (newSpeed >= 0 && newSpeed <= 3) {
                     blockEntity.setSpeed(newSpeed);
                     PacketHandler.sendToClient(new QuarryClientIntPacket(machine.getBlockPos(), newSpeed, "speed"), player);
                 }

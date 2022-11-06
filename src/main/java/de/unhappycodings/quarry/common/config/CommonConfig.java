@@ -25,6 +25,7 @@ public class CommonConfig {
     public static ForgeConfigSpec.ConfigValue<Double> quarrySpeedOneModifier;
     public static ForgeConfigSpec.ConfigValue<Double> quarrySpeedTwoModifier;
     public static ForgeConfigSpec.ConfigValue<Double> quarrySpeedThreeModifier;
+    public static ForgeConfigSpec.ConfigValue<Double> quarrySpeedFourModifier;
     //endregion
 
     static {
@@ -49,6 +50,7 @@ public class CommonConfig {
         quarrySpeedOneModifier = commonBuilder.comment("Speed 1 BurnTick consumption multiplier").define("quarry_speed_one_multiplier", 1.0);
         quarrySpeedTwoModifier = commonBuilder.comment("Speed 2 BurnTick consumption multiplier").define("quarry_speed_two_multiplier", 1.25);
         quarrySpeedThreeModifier = commonBuilder.comment("Speed 3 BurnTick consumption multiplier").define("quarry_speed_three_multiplier", 1.5);
+        quarrySpeedFourModifier = commonBuilder.comment("Speed 4 BurnTick consumption multiplier").define("quarry_speed_four_multiplier", 1.75);
         commonBuilder.pop();
     }
 
