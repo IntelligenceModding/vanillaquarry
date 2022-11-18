@@ -20,6 +20,15 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
         this.gen = gen;
     }
 
+    private static int getSensorRotation(Direction facing) {
+        return switch (facing) {
+            case EAST -> 90;
+            case SOUTH -> 180;
+            case WEST -> 270;
+            default -> 0;
+        };
+    }
+
     @Override
     protected void registerStatesAndModels() {
         quarryBlock(ModBlocks.QUARRY.get());
@@ -46,15 +55,6 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
             if (working) return ConfiguredModel.builder().modelFile(work).rotationY(getSensorRotation(facing)).build();
             return ConfiguredModel.builder().modelFile(off).rotationY(getSensorRotation(facing)).build();
         });
-    }
-
-    private static int getSensorRotation(Direction facing) {
-        return switch (facing) {
-            case EAST -> 90;
-            case SOUTH -> 180;
-            case WEST -> 270;
-            default -> 0;
-        };
     }
 
 }

@@ -307,8 +307,11 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                         }
                         // Checking for Speed Delay and Air Skipping
                         if (speedy) {
-                            if (entity.getSkip() && level.getBlockState(currentBlock).getBlock() == Blocks.AIR)
-                                itemTag.putInt("lastBlock", blockIndex + 1);
+                            ticks++;
+                            return;
+                        }
+                        if (entity.getSkip() && level.getBlockState(currentBlock).getBlock() == Blocks.AIR) {
+                            itemTag.putInt("lastBlock", blockIndex + 1);
                             ticks++;
                             return;
                         }
@@ -363,6 +366,14 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                     itemTag.putInt("lastBlock", blockIndex + 1);
                                     itemTag.putInt("currentY", currentBlock.getY());
                                     break;
+                                } else {
+                                    if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
+                                        burnTime -= fuelModifier;
+                                        broken = true;
+                                    }
+                                    itemTag.putInt("lastBlock", blockIndex + 1);
+                                    itemTag.putInt("currentY", currentBlock.getY());
+                                    break;
                                 }
                             }
                             if (broken) {
@@ -406,7 +417,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public int hasInputSpace(ItemStack itemStack) {
         for (int i = 0; i <= 5; i++) {
             ItemStack current = getItem(i);
-            if (itemStack.is(Items.AIR)) return 99;
+            if (itemStack.is(Items.AIR)) return 0;
             if (current.isEmpty()) return i;
             if (current.getItem() == itemStack.getItem()) {
                 if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
@@ -418,7 +429,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public int hasOutputSpace(ItemStack itemStack) {
         for (int i = 6; i <= 11; i++) {
             ItemStack current = getItem(i);
-            if (itemStack.is(Items.AIR)) return 99;
+            if (itemStack.is(Items.AIR)) return 0;
             if (current.isEmpty()) return i;
             if (current.getItem() == itemStack.getItem()) {
                 if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
@@ -574,8 +585,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         setOwner(tag.getString("Owner"));
         setLocked(tag.getBoolean("Locked"));
         setFilter(tag.getBoolean("Filter"));
-            setLoop(tag.getBoolean("Loop"));
-            setSkip(tag.getBoolean("Skip"));
+        setLoop(tag.getBoolean("Loop"));
+        setSkip(tag.getBoolean("Skip"));
     }
 
     @Override

@@ -72,8 +72,8 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
         }
         if (!Objects.equals(getMenu().getTile().getOwner(), this.getMinecraft().player.getName().getString() + "@" + this.getMinecraft().player.getStringUUID()) && this.getMenu().getTile().getLocked()) {
-            drawCenteredText(Component.translatable("gui.quarry.admin").getString(), pPoseStack, getSizeX()/2, -19, 11141120);
-            drawCenteredText(Component.translatable("gui.quarry.others").getString(), pPoseStack, getSizeX()/2, -10, 11141120);
+            drawCenteredText(Component.translatable("gui.quarry.admin").getString(), pPoseStack, getSizeX() / 2, -19, 11141120);
+            drawCenteredText(Component.translatable("gui.quarry.others").getString(), pPoseStack, getSizeX() / 2, -10, 11141120);
         }
         drawText(Component.translatable("block.quarry.quarry_block").getString(), pPoseStack, 71, 7);
         drawText(Component.translatable("gui.quarry.inventory").getString(), pPoseStack, 8, 110);
@@ -100,8 +100,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                     drawCenteredText(Component.translatable("gui.quarry.mode.fortune").getString(), pPoseStack, 87, 77);
             case 3 ->
                     drawCenteredText(Component.translatable("gui.quarry.mode.silktouch").getString(), pPoseStack, 87, 77);
-            case 4 ->
-                    drawCenteredText(Component.translatable("gui.quarry.mode.void").getString(), pPoseStack, 87, 77);
+            case 4 -> drawCenteredText(Component.translatable("gui.quarry.mode.void").getString(), pPoseStack, 87, 77);
         }
         if (modeButtonIsHovered) {
             List<Component> list = new ArrayList<>();

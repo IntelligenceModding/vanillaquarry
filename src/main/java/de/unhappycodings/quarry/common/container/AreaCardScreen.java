@@ -34,6 +34,7 @@ import java.util.Objects;
 public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public static final ResourceLocation GHOST_OVERLAY = new ResourceLocation(Quarry.MOD_ID, "textures/gui/slot/filter_overlay.png");
     public static final ResourceLocation GHOST_OVERLAY_DARK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/slot/filter_overlay_dark.png");
+    public static ModButton darkmodeMouseButton;
     public ModEditBox pos1x;
     public ModEditBox pos1y;
     public ModEditBox pos1z;
@@ -44,7 +45,6 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public ModEditBox down;
     public ModEditBox[] positionInputs;
     public ModEditBox[] heightInputs;
-    public static ModButton darkmodeMouseButton;
     AreaCardContainer container;
     int selectionMode = 0;
     boolean darkmodeButtonIsHovered;

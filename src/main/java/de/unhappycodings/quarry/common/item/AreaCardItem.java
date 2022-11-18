@@ -35,6 +35,12 @@ public class AreaCardItem extends Item implements MenuProvider {
         super(new Item.Properties().stacksTo(1).tab(Quarry.creativeTab));
     }
 
+    public static void writePos(CompoundTag nbt, BlockPos pos) {
+        nbt.putInt("x", pos.getX());
+        nbt.putInt("y", pos.getY());
+        nbt.putInt("z", pos.getZ());
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
@@ -96,12 +102,6 @@ public class AreaCardItem extends Item implements MenuProvider {
         if (!pLevel.isClientSide && pUsedHand == InteractionHand.MAIN_HAND)
             NetworkHooks.openScreen((ServerPlayer) pPlayer, this);
         return super.use(pLevel, pPlayer, pUsedHand);
-    }
-
-    public static void writePos(CompoundTag nbt, BlockPos pos) {
-        nbt.putInt("x", pos.getX());
-        nbt.putInt("y", pos.getY());
-        nbt.putInt("z", pos.getZ());
     }
 
     @NotNull

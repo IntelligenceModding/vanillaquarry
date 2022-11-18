@@ -20,10 +20,10 @@ public class ModButton extends BaseWidget {
     private final Runnable onClickReverse;
     private final Supplier<Boolean> isValid;
     private final ResourceLocation texture;
-    private Supplier<Component> hoverText;
     boolean playSound;
     int tX = 0;
     int tY = 0;
+    private Supplier<Component> hoverText;
 
     public ModButton(int x, int y, int width, int height, ResourceLocation texture, Runnable onClick, Runnable onClickReverse, BlockEntity tile, BaseScreen<?> screen, int tX, int tY, boolean playSound) {
         super(x, y, width, height, tile, screen);
