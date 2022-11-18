@@ -35,28 +35,38 @@ import java.util.function.Predicate;
 public class ModEditBox extends AbstractWidget implements Widget, GuiEventListener {
     public static final int BACKWARDS = -1;
     public static final int FORWARDS = 1;
+    public static final int DEFAULT_TEXT_COLOR = 14737632;
     private static final int CURSOR_INSERT_WIDTH = 1;
     private static final int CURSOR_INSERT_COLOR = -3092272;
     private static final String CURSOR_APPEND_CHARACTER = "_";
-    public static final int DEFAULT_TEXT_COLOR = 14737632;
     private static final int BORDER_COLOR_FOCUSED = -1;
     private static final int BORDER_COLOR = -6250336;
     private static final int BACKGROUND_COLOR = -16777216;
     private final Font font;
-    /** Has the current text being edited on the textbox. */
+    /**
+     * Has the current text being edited on the textbox.
+     */
     private String value = "";
     private int maxLength = 32;
     private int frame;
     private boolean bordered = true;
-    /** if true the textbox can lose focus by clicking elsewhere on the screen */
+    /**
+     * if true the textbox can lose focus by clicking elsewhere on the screen
+     */
     private boolean canLoseFocus = true;
-    /** If this value is true along with isFocused, keyTyped will process the keys. */
+    /**
+     * If this value is true along with isFocused, keyTyped will process the keys.
+     */
     private boolean isEditable = true;
     private boolean shiftPressed;
-    /** The current character index that should be used as start of the rendered text. */
+    /**
+     * The current character index that should be used as start of the rendered text.
+     */
     private int displayPos;
     private int cursorPos;
-    /** other selection position, maybe the same as the cursor */
+    /**
+     * other selection position, maybe the same as the cursor
+     */
     private int highlightPos;
     private int textColor = 14737632;
     private int textColorUneditable = 7368816;
@@ -64,14 +74,16 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
     private String suggestion;
     @Nullable
     private Consumer<String> responder;
-    /** Called to check if the text is valid */
+    /**
+     * Called to check if the text is valid
+     */
     private Predicate<String> filter = Objects::nonNull;
     private BiFunction<String, Integer, FormattedCharSequence> formatter = (text, style) -> {
         return FormattedCharSequence.forward(text, Style.EMPTY);
     };
 
     public ModEditBox(Font pFont, int pX, int pY, int pWidth, int pHeight, Component pMessage) {
-        this(pFont, pX, pY, pWidth, pHeight, (net.minecraft.client.gui.components.EditBox)null, pMessage);
+        this(pFont, pX, pY, pWidth, pHeight, (net.minecraft.client.gui.components.EditBox) null, pMessage);
     }
 
     public ModEditBox(Font pFont, int pX, int pY, int pWidth, int pHeight, @Nullable net.minecraft.client.gui.components.EditBox editBox, Component pMessage) {
@@ -103,6 +115,13 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
     }
 
     /**
+     * Returns the contents of the textbox
+     */
+    public String getValue() {
+        return this.value;
+    }
+
+    /**
      * Sets the text of the textbox, and moves the cursor to the end.
      */
     public void setValue(String pText) {
@@ -117,13 +136,6 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
             this.setHighlightPos(this.cursorPos);
             this.onValueChange(pText);
         }
-    }
-
-    /**
-     * Returns the contents of the textbox
-     */
-    public String getValue() {
-        return this.value;
     }
 
     /**
@@ -237,23 +249,23 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
         boolean flag = pN < 0;
         int j = Math.abs(pN);
 
-        for(int k = 0; k < j; ++k) {
+        for (int k = 0; k < j; ++k) {
             if (!flag) {
                 int l = this.value.length();
                 i = this.value.indexOf(32, i);
                 if (i == -1) {
                     i = l;
                 } else {
-                    while(pSkipWs && i < l && this.value.charAt(i) == ' ') {
+                    while (pSkipWs && i < l && this.value.charAt(i) == ' ') {
                         ++i;
                     }
                 }
             } else {
-                while(pSkipWs && i > 0 && this.value.charAt(i - 1) == ' ') {
+                while (pSkipWs && i > 0 && this.value.charAt(i - 1) == ' ') {
                     --i;
                 }
 
-                while(i > 0 && this.value.charAt(i - 1) != ' ') {
+                while (i > 0 && this.value.charAt(i - 1) != ' ') {
                     --i;
                 }
             }
@@ -283,10 +295,6 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
         }
 
         this.onValueChange(this.value);
-    }
-
-    public void setCursorPosition(int pPos) {
-        this.cursorPos = Mth.clamp(pPos, 0, this.value.length());
     }
 
     /**
@@ -329,7 +337,7 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
 
                 return true;
             } else {
-                switch(pKeyCode) {
+                switch (pKeyCode) {
                     case 259:
                         if (this.isEditable) {
                             this.shiftPressed = false;
@@ -402,7 +410,7 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
         if (!this.isVisible()) {
             return false;
         } else {
-            boolean flag = pMouseX >= (double)this.x && pMouseX < (double)(this.x + this.width) && pMouseY >= (double)this.y && pMouseY < (double)(this.y + this.height);
+            boolean flag = pMouseX >= (double) this.x && pMouseX < (double) (this.x + this.width) && pMouseY >= (double) this.y && pMouseY < (double) (this.y + this.height);
             if (this.canLoseFocus) {
                 this.setFocus(flag);
             }
@@ -452,7 +460,7 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
 
             if (!s.isEmpty()) {
                 String s1 = flag ? s.substring(0, j) : s;
-                j1 = this.font.draw(pPoseStack, this.formatter.apply(s1, this.displayPos), (float)l, (float)i1, i2);
+                j1 = this.font.draw(pPoseStack, this.formatter.apply(s1, this.displayPos), (float) l, (float) i1, i2);
             }
 
             boolean flag2 = this.cursorPos < this.value.length() || this.value.length() >= this.getMaxLength();
@@ -465,18 +473,18 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
             }
 
             if (!s.isEmpty() && flag && j < s.length()) {
-                this.font.draw(pPoseStack, this.formatter.apply(s.substring(j), this.cursorPos), (float)j1, (float)i1, i2);
+                this.font.draw(pPoseStack, this.formatter.apply(s.substring(j), this.cursorPos), (float) j1, (float) i1, i2);
             }
 
             if (!flag2 && this.suggestion != null) {
-                this.font.draw(pPoseStack, this.suggestion, (float)(k1 - 1), (float)i1, -8355712);
+                this.font.draw(pPoseStack, this.suggestion, (float) (k1 - 1), (float) i1, -8355712);
             }
 
             if (flag1) {
                 if (flag2) {
                     GuiComponent.fill(pPoseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
                 } else {
-                    this.font.draw(pPoseStack, "_", (float)k1, (float)i1, i2);
+                    this.font.draw(pPoseStack, "_", (float) k1, (float) i1, i2);
                 }
             }
 
@@ -520,14 +528,21 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex((double)pStartX, (double)pEndY, 0.0D).endVertex();
-        bufferbuilder.vertex((double)pEndX, (double)pEndY, 0.0D).endVertex();
-        bufferbuilder.vertex((double)pEndX, (double)pStartY, 0.0D).endVertex();
-        bufferbuilder.vertex((double)pStartX, (double)pStartY, 0.0D).endVertex();
+        bufferbuilder.vertex((double) pStartX, (double) pEndY, 0.0D).endVertex();
+        bufferbuilder.vertex((double) pEndX, (double) pEndY, 0.0D).endVertex();
+        bufferbuilder.vertex((double) pEndX, (double) pStartY, 0.0D).endVertex();
+        bufferbuilder.vertex((double) pStartX, (double) pStartY, 0.0D).endVertex();
         tesselator.end();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableColorLogicOp();
         RenderSystem.enableTexture();
+    }
+
+    /**
+     * returns the maximum number of character that can be contained in this textbox
+     */
+    private int getMaxLength() {
+        return this.maxLength;
     }
 
     /**
@@ -544,17 +559,14 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
     }
 
     /**
-     * returns the maximum number of character that can be contained in this textbox
-     */
-    private int getMaxLength() {
-        return this.maxLength;
-    }
-
-    /**
      * returns the current position of the cursor
      */
     public int getCursorPosition() {
         return this.cursorPos;
+    }
+
+    public void setCursorPosition(int pPos) {
+        this.cursorPos = Mth.clamp(pPos, 0, this.value.length());
     }
 
     /**
@@ -590,7 +602,7 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
     }
 
     public boolean isMouseOver(double pMouseX, double pMouseY) {
-        return this.visible && pMouseX >= (double)this.x && pMouseX < (double)(this.x + this.width) && pMouseY >= (double)this.y && pMouseY < (double)(this.y + this.height);
+        return this.visible && pMouseX >= (double) this.x && pMouseX < (double) (this.x + this.width) && pMouseY >= (double) this.y && pMouseY < (double) (this.y + this.height);
     }
 
     protected void onFocusedChanged(boolean pFocused) {

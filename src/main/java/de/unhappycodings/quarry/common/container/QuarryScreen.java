@@ -74,8 +74,8 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
         }
         if (!Objects.equals(getMenu().getTile().getOwner(), this.getMinecraft().player.getName().getString() + "@" + this.getMinecraft().player.getStringUUID()) && this.getMenu().getTile().getLocked()) {
-            drawCenteredText(new TranslatableComponent("gui.quarry.admin").getString(), pPoseStack, getSizeX()/2, -19, 11141120);
-            drawCenteredText(new TranslatableComponent("gui.quarry.others").getString(), pPoseStack, getSizeX()/2, -10, 11141120);
+            drawCenteredText(new TranslatableComponent("gui.quarry.admin").getString(), pPoseStack, getSizeX() / 2, -19, 11141120);
+            drawCenteredText(new TranslatableComponent("gui.quarry.others").getString(), pPoseStack, getSizeX() / 2, -10, 11141120);
         }
         drawText(new TranslatableComponent("block.quarry.quarry_block").getString(), pPoseStack, 71, 7);
         drawText(new TranslatableComponent("gui.quarry.text.inventory").getString(), pPoseStack, 8, 110);

@@ -54,7 +54,8 @@ public class QuarryBlock extends BaseEntityBlock {
     @Override
     public void setPlacedBy(Level pLevel, @NotNull BlockPos pPos, @NotNull BlockState pState, @Nullable LivingEntity pPlacer, @NotNull ItemStack pStack) {
         QuarryBlockEntity blockEntity = (QuarryBlockEntity) pLevel.getBlockEntity(pPos);
-        if (Objects.equals(blockEntity.getOwner(), "undefined") || !Objects.equals(blockEntity.getOwner(), "@")) blockEntity.setOwner(pPlacer.getName().getString() + "@" + pPlacer.getStringUUID());
+        if (Objects.equals(blockEntity.getOwner(), "undefined") || !Objects.equals(blockEntity.getOwner(), "@"))
+            blockEntity.setOwner(pPlacer.getName().getString() + "@" + pPlacer.getStringUUID());
         blockEntity.setChanged();
         super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
     }

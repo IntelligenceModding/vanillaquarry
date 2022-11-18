@@ -52,7 +52,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -245,6 +244,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                 if (itemTag.contains("pos1") && itemTag.contains("pos2")) {
                     // Get Speed and set to variables
                     boolean speedy = speed == 0 && !(ticks + speedModifier >= SPEED_0);
+                    System.out.println(speedy);
                     if (speed == 1 && !(ticks + speedModifier >= SPEED_1)) speedy = true;
                     if (speed == 2 && !(ticks + speedModifier >= SPEED_2)) speedy = true;
                     if (speed == 3 && !(ticks + speedModifier >= SPEED_3)) speedy = true;
@@ -309,14 +309,20 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                         }
                         // Checking for Speed Delay and Air Skipping
                         if (speedy) {
-                            if (entity.getSkip() && level.getBlockState(currentBlock).getBlock() == Blocks.AIR)
-                                itemTag.putInt("lastBlock", blockIndex + 1);
                             ticks++;
                             return;
                         }
-                        if (level.getBlockState(currentBlock).getBlock() == Blocks.AIR) {
+                        if (entity.getSkip() && level.getBlockState(currentBlock).getBlock() == Blocks.AIR) {
+                            itemTag.putInt("lastBlock", blockIndex + 1);
+                            ticks++;
+                            return;
+                        }
+
+                        System.out.println(entity.getSkip());
+                        if (level.getBlockState(currentBlock).getBlock() == Blocks.AIR && !entity.getSkip()) {
                             itemTag.putInt("lastBlock", blockIndex + 1);
                             burnTime -= fuelModifier;
+                            System.out.println("ss");
                         } else {
                             FakePlayer player = FakePlayerFactory.get((ServerLevel) level, new GameProfile(UUID.fromString("6e483f02-30db-4454-b612-3a167614b576"), "VanillaQuarry Quarry"));
                             // Block Drops Looping with Inventory-Space Checking and Block Breaking
@@ -333,6 +339,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                 return;
                             }
                             boolean broken = false;
+                            System.out.println(drops);
                             for (ItemStack drop : drops) {
                                 if (isVoid) {
                                     itemTag.putInt("lastBlock", blockIndex + 1);
@@ -359,6 +366,14 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                                     if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
                                         if (!filtered)
                                             setItem(index, new ItemStack(drop.getItem(), getItem(index).getCount() + drop.getCount()));
+                                        burnTime -= fuelModifier;
+                                        broken = true;
+                                    }
+                                    itemTag.putInt("lastBlock", blockIndex + 1);
+                                    itemTag.putInt("currentY", currentBlock.getY());
+                                    break;
+                                } else {
+                                    if (allowedToBreak(level.getBlockState(currentBlock), level, currentBlock, player)) {
                                         burnTime -= fuelModifier;
                                         broken = true;
                                     }
@@ -408,7 +423,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public int hasInputSpace(ItemStack itemStack) {
         for (int i = 0; i <= 5; i++) {
             ItemStack current = getItem(i);
-            if (itemStack.is(Items.AIR)) return 99;
+            if (itemStack.is(Items.AIR)) return 0;
             if (current.isEmpty()) return i;
             if (current.getItem() == itemStack.getItem()) {
                 if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
@@ -420,7 +435,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public int hasOutputSpace(ItemStack itemStack) {
         for (int i = 6; i <= 11; i++) {
             ItemStack current = getItem(i);
-            if (itemStack.is(Items.AIR)) return 99;
+            if (itemStack.is(Items.AIR)) return 0;
             if (current.isEmpty()) return i;
             if (current.getItem() == itemStack.getItem()) {
                 if (current.getCount() + itemStack.getCount() <= current.getMaxStackSize()) return i;
@@ -537,6 +552,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public void setLoop(boolean loop) {
         this.loop = loop;
     }
+
     public boolean getSkip() {
         return skip;
     }
@@ -544,6 +560,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     public void setSkip(boolean skip) {
         this.skip = skip;
     }
+
     @NotNull
     @Override
     public CompoundTag getUpdateTag() {
