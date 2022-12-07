@@ -42,6 +42,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.common.util.LazyOptional;
@@ -89,7 +90,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && !isRemoved() && side != null) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER && !isRemoved() && side != null) {
             return itemHandler[side.get3DDataValue()].cast();
         }
         return super.getCapability(cap, side);
