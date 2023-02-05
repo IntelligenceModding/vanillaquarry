@@ -60,7 +60,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     private static final int SPEED_0 = 15;
     private static final int SPEED_1 = 10;
     private static final int SPEED_2 = 5; // 5
-    private static final int SPEED_3 = 0; // 2
+    private static final int SPEED_3 = 2; // 2
     private final LazyOptional<? extends IItemHandler>[] itemHandler = SidedInvWrapper.create(this, Direction.values());
     public LootContext.Builder lootcontextBuilder;
     public List<BlockPos> blockStateList;
