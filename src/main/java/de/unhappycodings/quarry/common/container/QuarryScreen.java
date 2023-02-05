@@ -82,7 +82,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         drawText(Component.translatable("gui.quarry.out").getString(), pPoseStack, 138, 20);
         drawText(Component.literal(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
         String yCoord = Component.translatable("gui.quarry.stop").getString();
-        ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 1);
+        ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 2);
         if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY") && getMenu().getTile().getLevel().getBlockState(getMenu().getTile().getBlockPos()).getValue(QuarryBlock.ACTIVE)) {
             yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
         }
