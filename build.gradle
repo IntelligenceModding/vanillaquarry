@@ -110,7 +110,6 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    implementation fg.deobf("curse.maven:we-${we_version}")
 }
 
 // Example for how to get properties into the manifest for reading at runtime.

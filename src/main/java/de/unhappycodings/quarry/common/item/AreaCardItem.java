@@ -32,7 +32,7 @@ import java.util.List;
 public class AreaCardItem extends Item implements MenuProvider {
 
     public AreaCardItem() {
-        super(new Item.Properties().stacksTo(1).tab(Quarry.creativeTab));
+        super(new Item.Properties().stacksTo(1));
     }
 
     public static void writePos(CompoundTag nbt, BlockPos pos) {

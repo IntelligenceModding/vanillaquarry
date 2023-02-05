@@ -8,7 +8,7 @@ import net.minecraft.data.DataGenerator;
 public class LanguageProvider extends net.minecraftforge.common.data.LanguageProvider {
 
     public LanguageProvider(DataGenerator gen, String locale) {
-        super(gen, Quarry.MOD_ID, locale);
+        super(gen.getPackOutput(), Quarry.MOD_ID, locale);
     }
 
     @Override

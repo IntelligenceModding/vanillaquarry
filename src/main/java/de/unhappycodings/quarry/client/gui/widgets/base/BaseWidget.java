@@ -6,11 +6,13 @@ import de.unhappycodings.quarry.client.gui.widgets.ModButton;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +42,6 @@ public abstract class BaseWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderToolTip(@NotNull PoseStack matrixStack, int mouseX, int mouseY) {
-        children.forEach(child -> child.renderToolTip(matrixStack, mouseX, mouseY));
-    }
-
-    @Override
     public void render(@NotNull PoseStack matrixStack, int x, int y, float partialTicks) {
         GuiUtil.reset();
 
@@ -57,7 +54,7 @@ public abstract class BaseWidget extends AbstractWidget {
     public void renderBg(@NotNull PoseStack matrixStack, @NotNull Minecraft minecraft, int pMouseX, int pMouseY) {
         GuiUtil.reset();
 
-        renderToolTip(matrixStack, pMouseX, pMouseY);
+        //renderToolTip(matrixStack, pMouseX, pMouseY);
     }
 
     @Override
@@ -100,10 +97,6 @@ public abstract class BaseWidget extends AbstractWidget {
 
     public void renderComponentTooltip(PoseStack poseStack, List<Component> components, int x, int y) {
         if (screen != null) screen.renderComponentTooltip(poseStack, components, x, y);
-    }
-
-    @Override
-    public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
     }
 
 }

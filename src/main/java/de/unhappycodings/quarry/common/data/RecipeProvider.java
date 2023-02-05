@@ -5,6 +5,7 @@ import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.util.ItemUtil;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -13,13 +14,13 @@ import java.util.function.Consumer;
 
 public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
-    public RecipeProvider(DataGenerator pGenerator) {
-        super(pGenerator);
+    public RecipeProvider(DataGenerator gen) {
+        super(gen.getPackOutput());
     }
 
     @Override
-    protected void buildCraftingRecipes(@NotNull Consumer<FinishedRecipe> consumer) {
-        ShapedRecipeBuilder.shaped(ModBlocks.QUARRY.get(), 1)
+    protected void buildRecipes(@NotNull Consumer<FinishedRecipe> consumer) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.QUARRY.get())
                 .define('a', Items.REDSTONE_TORCH)
                 .define('b', Items.REDSTONE)
                 .define('c', Items.REPEATER)
@@ -32,7 +33,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .pattern("bfa").pattern("geh").pattern("cid")
                 .unlockedBy("has_item", has(Items.FURNACE)).save(consumer,
                         ItemUtil.getRegName(ModBlocks.QUARRY.get()).getPath() + "_crafted");
-        ShapedRecipeBuilder.shaped(ModItems.AREA_CARD.get(), 1)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.AREA_CARD.get(), 1)
                 .define('a', Items.REDSTONE_TORCH)
                 .define('b', Items.REDSTONE)
                 .define('c', Items.OBSERVER)
@@ -43,4 +44,5 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .unlockedBy("has_item", has(Items.OBSERVER)).save(consumer,
                         ItemUtil.getRegName(ModItems.AREA_CARD.get()).getPath() + "_crafted");
     }
+
 }

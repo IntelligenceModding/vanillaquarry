@@ -278,7 +278,6 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     protected void subInit() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         for (ModEditBox editBox : positionInputs) {
             editBox.setBordered(false);
             editBox.setEditable(true);

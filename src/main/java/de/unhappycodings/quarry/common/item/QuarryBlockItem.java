@@ -18,7 +18,7 @@ import java.util.List;
 public class QuarryBlockItem extends BlockItem {
 
     public QuarryBlockItem() {
-        super(ModBlocks.QUARRY.get(), new Properties().stacksTo(1).tab(Quarry.creativeTab));
+        super(ModBlocks.QUARRY.get(), new Properties().stacksTo(1));
     }
 
     @Override

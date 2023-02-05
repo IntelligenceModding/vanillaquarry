@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -23,6 +23,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jline.reader.Widget;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -31,7 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @OnlyIn(Dist.CLIENT)
-public class ModEditBox extends AbstractWidget implements Widget, GuiEventListener {
+public class ModEditBox extends AbstractWidget implements Renderable, GuiEventListener {
     public static final int BACKWARDS = -1;
     public static final int FORWARDS = 1;
     public static final int DEFAULT_TEXT_COLOR = 14737632;
@@ -410,13 +411,13 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
         if (!this.isVisible()) {
             return false;
         } else {
-            boolean flag = pMouseX >= (double) this.x && pMouseX < (double) (this.x + this.width) && pMouseY >= (double) this.y && pMouseY < (double) (this.y + this.height);
+            boolean flag = pMouseX >= (double) this.getX() && pMouseX < (double) (this.getX() + this.width) && pMouseY >= (double) this.getY() && pMouseY < (double) (this.getY() + this.height);
             if (this.canLoseFocus) {
                 this.setFocus(flag);
             }
 
             if (this.isFocused() && flag && pButton == 0) {
-                int i = Mth.floor(pMouseX) - this.x;
+                int i = Mth.floor(pMouseX) - this.getX();
                 if (this.bordered) {
                     i -= 4;
                 }
@@ -441,8 +442,8 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
         if (this.isVisible()) {
             if (this.isBordered()) {
                 int i = this.isFocused() ? -1 : -6250336;
-                fill(pPoseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, i);
-                fill(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
+                fill(pPoseStack, this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, i);
+                fill(pPoseStack, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, -16777216);
             }
 
             int i2 = 1315860;
@@ -451,8 +452,8 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
             String s = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
             boolean flag = j >= 0 && j <= s.length();
             boolean flag1 = this.isFocused() && this.frame / 6 % 2 == 0 && flag;
-            int l = this.bordered ? this.x + 4 : this.x;
-            int i1 = this.bordered ? this.y + (this.height - 8) / 2 : this.y;
+            int l = this.bordered ? this.getX() + 4 : this.getX();
+            int i1 = this.bordered ? this.getY() + (this.height - 8) / 2 : this.getY();
             int j1 = l;
             if (k > s.length()) {
                 k = s.length();
@@ -512,12 +513,12 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
             pEndY = j;
         }
 
-        if (pEndX > this.x + this.width) {
-            pEndX = this.x + this.width;
+        if (pEndX > this.getX() + this.width) {
+            pEndX = this.getX() + this.width;
         }
 
-        if (pStartX > this.x + this.width) {
-            pStartX = this.x + this.width;
+        if (pStartX > this.getX() + this.width) {
+            pStartX = this.getX() + this.width;
         }
 
         Tesselator tesselator = Tesselator.getInstance();
@@ -602,7 +603,7 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
     }
 
     public boolean isMouseOver(double pMouseX, double pMouseY) {
-        return this.visible && pMouseX >= (double) this.x && pMouseX < (double) (this.x + this.width) && pMouseY >= (double) this.y && pMouseY < (double) (this.y + this.height);
+        return this.visible && pMouseX >= (double) this.getX() && pMouseX < (double) (this.getX() + this.width) && pMouseY >= (double) this.getY() && pMouseY < (double) (this.getY() + this.height);
     }
 
     protected void onFocusedChanged(boolean pFocused) {
@@ -686,14 +687,11 @@ public class ModEditBox extends AbstractWidget implements Widget, GuiEventListen
     }
 
     public int getScreenX(int pCharNum) {
-        return pCharNum > this.value.length() ? this.x : this.x + this.font.width(this.value.substring(0, pCharNum));
+        return pCharNum > this.value.length() ? this.getX() : this.getX() + this.font.width(this.value.substring(0, pCharNum));
     }
 
-    public void setX(int pX) {
-        this.x = pX;
-    }
-
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
         pNarrationElementOutput.add(NarratedElementType.TITLE, Component.translatable("narration.edit_box", this.getValue()));
     }
 }

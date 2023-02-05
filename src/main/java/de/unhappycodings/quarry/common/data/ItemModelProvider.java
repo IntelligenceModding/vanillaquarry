@@ -12,7 +12,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 public class ItemModelProvider extends net.minecraftforge.client.model.generators.ItemModelProvider {
 
     public ItemModelProvider(DataGenerator gen, ExistingFileHelper exFileHelper) {
-        super(gen, Quarry.MOD_ID, exFileHelper);
+        super(gen.getPackOutput(), Quarry.MOD_ID, exFileHelper);
     }
 
     @Override

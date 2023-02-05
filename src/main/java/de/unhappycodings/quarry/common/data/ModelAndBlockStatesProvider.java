@@ -16,7 +16,7 @@ public class ModelAndBlockStatesProvider extends BlockStateProvider {
     DataGenerator gen;
 
     public ModelAndBlockStatesProvider(DataGenerator gen, ExistingFileHelper exFileHelper) {
-        super(gen, Quarry.MOD_ID, exFileHelper);
+        super(gen.getPackOutput(), Quarry.MOD_ID, exFileHelper);
         this.gen = gen;
     }
 

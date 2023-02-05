@@ -60,8 +60,6 @@ public class Quarry {
     public static final ResourceLocation SKIP = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/skip_on.png");
     public static final ResourceLocation SKIP_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/skip_off.png");
 
-    public static final CreativeModeTab creativeTab = new ItemCreativeTab();
-
     public Quarry() {
         final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -83,6 +81,10 @@ public class Quarry {
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(PacketHandler::init);
+    }
+
+    public static ResourceLocation getRL(String resource) {
+        return new ResourceLocation(MOD_ID, resource);
     }
 
 }

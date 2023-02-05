@@ -5,6 +5,7 @@ import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.base.BaseWidget;
 import de.unhappycodings.quarry.common.container.QuarryScreen;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
+import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class ModButton extends BaseWidget {
@@ -34,13 +36,6 @@ public class ModButton extends BaseWidget {
         this.tX = tX;
         this.tY = tY;
         this.playSound = playSound;
-    }
-
-    @Override
-    public void renderToolTip(@NotNull PoseStack matrixStack, int mouseX, int mouseY) {
-        super.renderToolTip(matrixStack, mouseX, mouseY);
-        if (hoverText != null && isMouseOver(mouseX, mouseY))
-            renderComponentTooltip(matrixStack, Collections.singletonList(hoverText.get()), mouseX, mouseY);
     }
 
     @Override
@@ -71,14 +66,14 @@ public class ModButton extends BaseWidget {
         GuiUtil.bind(texture);
 
         if (!isMouseOver(x, y) || (isValid != null && !isValid.get()))
-            blit(matrixStack, this.x, this.y, 0, 0, width, height, tX, tY);
+            blit(matrixStack, this.getX(), this.getY(), 0, 0, width, height, tX, tY);
         if (isMouseOver(x, y) && (isValid != null && isValid.get()))
-            blit(matrixStack, this.x, this.y, 0, tY / 2f, width, height, tX, tY);
+            blit(matrixStack, this.getX(), this.getY(), 0, tY / 2f, width, height, tX, tY);
     }
 
     @Override
-    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
-        // overridden by purpose
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
+        // Overriden by purpose
     }
 
     @Override
