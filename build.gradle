@@ -98,6 +98,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
     implementation fg.deobf("curse.maven:we-${we_version}")
+    implementation fg.deobf("curse.maven:pipez-${pipez_version}")
 }
 
 jar {
