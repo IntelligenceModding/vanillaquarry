@@ -102,17 +102,19 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
             case SOUTH -> level.getBlockEntity(getBlockPos().east());
             default -> level.getBlockEntity(getBlockPos().south());
         };
-        LazyOptional<IItemHandler> capabilityRight = tileRight.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (in && capabilityRight.isPresent()) {
-            IItemHandler handlerRight = capabilityRight.resolve().get();
-            for (int i = 0; i < handlerRight.getSlots(); i++) {
-                ItemStack stack = handlerRight.getStackInSlot(i);
-                if (!(stack.getItem() instanceof BlockItem)) return;
-                if (quarryHandler.getStackInSlot(13).is(stack.getItem()) || quarryHandler.getStackInSlot(13).is(Items.AIR)) {
-                    if (quarryHandler.getStackInSlot(13).getCount() < quarryHandler.getStackInSlot(13).getMaxStackSize()) {
-                        quarryHandler.insertItem(13, new ItemStack(stack.getItem(), 1), false);
-                        handlerRight.extractItem(i, 1, false);
-                        break;
+        if (tileRight != null) {
+            LazyOptional<IItemHandler> capabilityRight = tileRight.getCapability(ForgeCapabilities.ITEM_HANDLER);
+            if (in && capabilityRight.isPresent()) {
+                IItemHandler handlerRight = capabilityRight.resolve().get();
+                for (int i = 0; i < handlerRight.getSlots(); i++) {
+                    ItemStack stack = handlerRight.getStackInSlot(i);
+                    if (!(stack.getItem() instanceof BlockItem)) return;
+                    if (quarryHandler.getStackInSlot(13).is(stack.getItem()) || quarryHandler.getStackInSlot(13).is(Items.AIR)) {
+                        if (quarryHandler.getStackInSlot(13).getCount() < quarryHandler.getStackInSlot(13).getMaxStackSize()) {
+                            quarryHandler.insertItem(13, new ItemStack(stack.getItem(), 1), false);
+                            handlerRight.extractItem(i, 1, false);
+                            break;
+                        }
                     }
                 }
             }
@@ -121,16 +123,18 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     private void exportImportAbove(IItemHandler quarryHandler, boolean in) {
         BlockEntity tileAbove = level.getBlockEntity(getBlockPos().above());
-        LazyOptional<IItemHandler> capabilityAbove = tileAbove.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (in && capabilityAbove.isPresent()) {
-            IItemHandler handlerAbove = capabilityAbove.resolve().get();
-            for (int i = 0; i < handlerAbove.getSlots(); i++) {
-                ItemStack stack = handlerAbove.getStackInSlot(i);
-                if (QuarryContainer.burnables.contains(stack.getItem())) {
-                    int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
-                    if (slot != -1 && slot != 99) {
-                        quarryHandler.insertItem(slot, new ItemStack(stack.getItem(), 1), false);
-                        handlerAbove.extractItem(i, 1, false);
+        if (tileAbove != null) {
+            LazyOptional<IItemHandler> capabilityAbove = tileAbove.getCapability(ForgeCapabilities.ITEM_HANDLER);
+            if (in && capabilityAbove.isPresent()) {
+                IItemHandler handlerAbove = capabilityAbove.resolve().get();
+                for (int i = 0; i < handlerAbove.getSlots(); i++) {
+                    ItemStack stack = handlerAbove.getStackInSlot(i);
+                    if (QuarryContainer.burnables.contains(stack.getItem())) {
+                        int slot = hasInputSpace(new ItemStack(stack.getItem(), 1));
+                        if (slot != -1 && slot != 99) {
+                            quarryHandler.insertItem(slot, new ItemStack(stack.getItem(), 1), false);
+                            handlerAbove.extractItem(i, 1, false);
+                        }
                     }
                 }
             }
@@ -139,26 +143,28 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     private void exportImportBelow(IItemHandler quarryHandler, boolean out) {
         BlockEntity tileBelow = level.getBlockEntity(getBlockPos().below());
-        LazyOptional<IItemHandler> capabilityBelow = tileBelow.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (out && capabilityBelow.isPresent()) {
-            IItemHandler handlerBelow = capabilityBelow.resolve().get();
-            boolean doBreak = false;
-            for (int i = 6; i <= 11; i++) {
-                ItemStack stack = quarryHandler.getStackInSlot(i);
-                for (int e = 0; e < handlerBelow.getSlots(); e++) {
-                    ItemStack slotStack = handlerBelow.getStackInSlot(e);
-                    if (!stack.is(Items.AIR)) {
-                        if (slotStack.isEmpty() || new ItemStack(stack.getItem(), 1).is(slotStack.getItem())) {
-                            if ((slotStack.getCount() + 1) <= stack.getMaxStackSize()) {
-                                handlerBelow.insertItem(e, new ItemStack(stack.getItem(), 1), false);
-                                quarryHandler.extractItem(i, 1, false);
-                                doBreak = true;
-                                break;
+        if (tileBelow != null) {
+            LazyOptional<IItemHandler> capabilityBelow = tileBelow.getCapability(ForgeCapabilities.ITEM_HANDLER);
+            if (out && capabilityBelow.isPresent()) {
+                IItemHandler handlerBelow = capabilityBelow.resolve().get();
+                boolean doBreak = false;
+                for (int i = 6; i <= 11; i++) {
+                    ItemStack stack = quarryHandler.getStackInSlot(i);
+                    for (int e = 0; e < handlerBelow.getSlots(); e++) {
+                        ItemStack slotStack = handlerBelow.getStackInSlot(e);
+                        if (!stack.is(Items.AIR)) {
+                            if (slotStack.isEmpty() || new ItemStack(stack.getItem(), 1).is(slotStack.getItem())) {
+                                if ((slotStack.getCount() + 1) <= stack.getMaxStackSize()) {
+                                    handlerBelow.insertItem(e, new ItemStack(stack.getItem(), 1), false);
+                                    quarryHandler.extractItem(i, 1, false);
+                                    doBreak = true;
+                                    break;
+                                }
                             }
                         }
                     }
+                    if (doBreak) break;
                 }
-                if (doBreak) break;
             }
         }
     }
