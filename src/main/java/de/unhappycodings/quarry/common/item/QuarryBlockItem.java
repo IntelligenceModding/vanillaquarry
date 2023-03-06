@@ -1,6 +1,5 @@
 package de.unhappycodings.quarry.common.item;
 
-import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.blocks.ModBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;

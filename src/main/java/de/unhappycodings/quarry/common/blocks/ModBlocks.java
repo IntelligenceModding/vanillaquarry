@@ -1,7 +1,6 @@
 package de.unhappycodings.quarry.common.blocks;
 
 
-import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.item.QuarryBlockItem;
 import de.unhappycodings.quarry.common.registration.Registration;
 import net.minecraft.world.item.BlockItem;
@@ -37,7 +36,6 @@ public class ModBlocks {
         Registration.ITEMS.register(name, blockItem);
         return registryObject;
     }
-
 
 
 }

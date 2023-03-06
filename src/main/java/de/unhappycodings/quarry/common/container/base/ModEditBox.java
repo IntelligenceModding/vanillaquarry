@@ -23,7 +23,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jline.reader.Widget;
 
 import javax.annotation.Nullable;
 import java.util.Objects;

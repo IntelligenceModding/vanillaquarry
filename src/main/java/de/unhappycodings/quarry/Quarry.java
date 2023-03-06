@@ -2,7 +2,6 @@ package de.unhappycodings.quarry;
 
 import com.mojang.logging.LogUtils;
 import de.unhappycodings.quarry.client.config.ClientConfig;
-import de.unhappycodings.quarry.common.ItemCreativeTab;
 import de.unhappycodings.quarry.common.blockentity.ModBlockEntities;
 import de.unhappycodings.quarry.common.blocks.ModBlocks;
 import de.unhappycodings.quarry.common.config.CommonConfig;
@@ -11,7 +10,6 @@ import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.registration.Registration;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;

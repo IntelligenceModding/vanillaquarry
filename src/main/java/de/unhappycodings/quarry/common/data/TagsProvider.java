@@ -3,8 +3,6 @@ package de.unhappycodings.quarry.common.data;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.registration.Registration;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

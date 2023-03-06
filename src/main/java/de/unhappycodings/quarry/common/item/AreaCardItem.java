@@ -1,6 +1,5 @@
 package de.unhappycodings.quarry.common.item;
 
-import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.blocks.QuarryBlock;
 import de.unhappycodings.quarry.common.container.AreaCardContainer;
 import net.minecraft.ChatFormatting;
