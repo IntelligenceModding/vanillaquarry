@@ -11,6 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -44,8 +45,8 @@ public abstract class BaseContainer extends AbstractContainerMenu {
         Slot sourceSlot = slots.get(index);
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem();
-        if (sourceStack.is(ModItems.AREA_CARD.get()) && playerIn.level.isClientSide) {
-            PacketHandler.sendToServer(new QuarryChangedPacket(sourceStack, 1, tileEntity.getBlockPos()));
+        if (playerIn.level.isClientSide && (sourceStack.is(ModItems.AREA_CARD.get()) || sourceStack.is(Items.AIR))) {
+            PacketHandler.sendToServer(new QuarryChangedPacket(sourceStack, sourceStack.is(ModItems.AREA_CARD.get()) ? 1 : 2, tileEntity.getBlockPos()));
         }
         ItemStack copyOfSourceStack = sourceStack.copy();
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
