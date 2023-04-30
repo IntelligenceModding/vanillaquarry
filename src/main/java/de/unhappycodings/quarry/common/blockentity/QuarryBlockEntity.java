@@ -606,7 +606,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-
     @Override
     public void saveAdditional(@NotNull CompoundTag nbt) {
         super.saveAdditional(nbt);
