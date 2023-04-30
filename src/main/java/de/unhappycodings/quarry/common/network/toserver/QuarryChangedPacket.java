@@ -27,17 +27,11 @@ public class QuarryChangedPacket implements IPacket {
 
     @SuppressWarnings("ConstantConditions")
     public void handle(NetworkEvent.Context context) {
-        if (type == 0) { // changed
-            ServerPlayer player = context.getSender();
-            Level level = player.getCommandSenderWorld();
-            level.getBlockEntity(pos).setChanged();
-        }
-        if (type == 1) { // refresh
-            ServerPlayer player = context.getSender();
-            Level level = player.getCommandSenderWorld();
-            level.getBlockEntity(pos).setChanged();
-            ((QuarryBlockEntity) level.getBlockEntity(pos)).refreshPositions(stack);
-        }
+        ServerPlayer player = context.getSender();
+        Level level = player.getCommandSenderWorld();
+        level.getBlockEntity(pos).setChanged();
+        if (type == 1) ((QuarryBlockEntity) level.getBlockEntity(pos)).refreshPositions(stack); // refresh
+        if (type == 2) ((QuarryBlockEntity) level.getBlockEntity(pos)).resetPositions(); // reset
     }
 
     public void encode(FriendlyByteBuf buffer) {

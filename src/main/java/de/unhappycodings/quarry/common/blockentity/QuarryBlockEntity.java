@@ -448,6 +448,10 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         return !event.isCanceled();
     }
 
+    public void resetPositions() {
+        blockStateList = null;
+    }
+
     public void refreshPositions(ItemStack itemStack) {
         CompoundTag pos1 = (CompoundTag) itemStack.getOrCreateTag().get("pos1");
         CompoundTag pos2 = (CompoundTag) itemStack.getOrCreateTag().get("pos2");
