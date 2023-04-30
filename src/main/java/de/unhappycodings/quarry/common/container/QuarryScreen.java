@@ -11,6 +11,7 @@ import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import de.unhappycodings.quarry.common.container.base.BaseSlot;
 import de.unhappycodings.quarry.common.container.base.SlotInputHandler;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
+import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.network.PacketHandler;
 import de.unhappycodings.quarry.common.network.toserver.*;
 import de.unhappycodings.quarry.common.util.CalcUtil;
@@ -297,7 +298,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         super.slotClicked(pSlot, pSlotId, pMouseButton, pType);
         sendChangedPacket();
         if (pSlotId == 48) {
-            PacketHandler.sendToServer(new QuarryChangedPacket(pSlot.getItem(), 1, this.getMenu().getTile().getBlockPos()));
+            PacketHandler.sendToServer(new QuarryChangedPacket(pSlot.getItem(), pSlot.getItem().is(ModItems.AREA_CARD.get()) ? 1 : 2, this.getMenu().getTile().getBlockPos()));
         }
     }
 

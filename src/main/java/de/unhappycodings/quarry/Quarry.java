@@ -77,12 +77,12 @@ public class Quarry {
         bus.addListener(this::onCommonSetup);
     }
 
-    public void onCommonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(PacketHandler::init);
-    }
-
     public static ResourceLocation getRL(String resource) {
         return new ResourceLocation(MOD_ID, resource);
+    }
+
+    public void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(PacketHandler::init);
     }
 
 }

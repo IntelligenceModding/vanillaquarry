@@ -187,7 +187,8 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         if (level.getGameTime() % 2 == 0) {
             boolean in = false;
             boolean out = false;
-            if (level.getGameTime() % 4 == 0) level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+            if (level.getGameTime() % 4 == 0)
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
             switch (getEject()) {
                 case 1 -> in = true;
                 case 2 -> out = true;
@@ -445,6 +446,10 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, player);
         MinecraftForge.EVENT_BUS.post(event);
         return !event.isCanceled();
+    }
+
+    public void resetPositions() {
+        blockStateList = null;
     }
 
     public void refreshPositions(ItemStack itemStack) {

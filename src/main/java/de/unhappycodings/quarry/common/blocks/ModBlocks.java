@@ -16,10 +16,8 @@ public class ModBlocks {
         throw new IllegalStateException("ModBlocks class");
     }
 
-    public static final RegistryObject<QuarryBlock> QUARRY = register("quarry_block", QuarryBlock::new, QuarryBlockItem::new);
-
     public static void register() {
-    }
+    }    public static final RegistryObject<QuarryBlock> QUARRY = register("quarry_block", QuarryBlock::new, QuarryBlockItem::new);
 
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = Registration.BLOCKS.register(name, block);
@@ -36,6 +34,8 @@ public class ModBlocks {
         Registration.ITEMS.register(name, blockItem);
         return registryObject;
     }
+
+
 
 
 }
