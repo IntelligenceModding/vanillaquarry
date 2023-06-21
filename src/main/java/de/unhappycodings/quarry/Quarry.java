@@ -8,6 +8,7 @@ import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.container.ContainerTypes;
 import de.unhappycodings.quarry.common.item.ModItems;
 import de.unhappycodings.quarry.common.network.PacketHandler;
+import de.unhappycodings.quarry.common.registration.ModCreativeTabs;
 import de.unhappycodings.quarry.common.registration.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -69,6 +70,7 @@ public class Quarry {
         ModItems.register();
         ModBlocks.register();
         ContainerTypes.register();
+        ModCreativeTabs.register();
         ModBlockEntities.BLOCK_ENTITIES.register(bus);
 
         CommonConfig.loadConfigFile(CommonConfig.commonConfig, FMLPaths.CONFIGDIR.get().resolve("quarry-common.toml").toString());

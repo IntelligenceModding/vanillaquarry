@@ -1,10 +1,10 @@
 package de.unhappycodings.quarry.client.gui.widgets;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.base.BaseWidget;
 import de.unhappycodings.quarry.common.container.QuarryScreen;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
@@ -58,14 +58,19 @@ public class ModButton extends BaseWidget {
     }
 
     @Override
-    public void render(@NotNull PoseStack matrixStack, int x, int y, float partialTicks) {
-        super.render(matrixStack, x, y, partialTicks);
+    public void render(@NotNull GuiGraphics graphics, int x, int y, float partialTicks) {
+        super.render(graphics, x, y, partialTicks);
         GuiUtil.bind(texture);
 
         if (!isMouseOver(x, y) || (isValid != null && !isValid.get()))
-            blit(matrixStack, this.getX(), this.getY(), 0, 0, width, height, tX, tY);
+            graphics.blit(texture, this.getX(), this.getY(), 0, 0, width, height, tX, tY);
         if (isMouseOver(x, y) && (isValid != null && isValid.get()))
-            blit(matrixStack, this.getX(), this.getY(), 0, tY / 2f, width, height, tX, tY);
+            graphics.blit(texture, this.getX(), this.getY(), 0, tY / 2f, width, height, tX, tY);
+    }
+
+    @Override
+    protected void renderWidget(GuiGraphics graphics, int x, int y, float partialTicks) {
+        render(graphics, x, y, partialTicks);
     }
 
     @Override

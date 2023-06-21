@@ -1,13 +1,12 @@
 package de.unhappycodings.quarry.common.container.base;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.common.util.RenderUtil;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
@@ -105,7 +104,7 @@ public class BaseSlot extends SlotItemHandler {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderGhostOverlay(PoseStack stack, int x, int y) {
+    public void renderGhostOverlay(GuiGraphics graphics, int x, int y) {
         if (getGhostOverlayItem() != null && getGhostOverlayItem().length > 0) {
             nextGhostItemTick++;
 
@@ -117,25 +116,24 @@ public class BaseSlot extends SlotItemHandler {
                 nextGhostItemTick = 0;
             }
 
-            stack.pushPose();
+            graphics.pose().pushPose();
             RenderUtil.renderGuiItem(currentGhostItem, x + this.x, y + this.y);
-            RenderSystem.setShaderTexture(0, ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY);
             RenderSystem.setShaderColor(1, 1, 1, 0.65f);
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();
             //stack.translate(0,0,10);
-            GuiComponent.blit(stack, x + this.x, y + this.y, 0, 0, 16, 16, 16, 16);
+            graphics.blit(ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY, x + this.x, y + this.y, 0, 0, 16, 16, 16, 16);
             RenderSystem.disableBlend();
             RenderSystem.enableDepthTest();
             GuiUtil.reset();
-            stack.popPose();
+            graphics.pose().popPose();
         }
         if (overlay != null && overlay.getFirst().test(getItem())) {
             RenderSystem.setShaderColor(1, 1, 1, 0.4f);
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();
             RenderSystem.setShaderTexture(0, overlay.getSecond());
-            GuiComponent.blit(stack, x + this.x, y + this.y, 0, 0, 16, 16, 16, 16);
+            graphics.blit(ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY, x + this.x, y + this.y, 0, 0, 16, 16, 16, 16);
             RenderSystem.disableBlend();
             RenderSystem.enableDepthTest();
 

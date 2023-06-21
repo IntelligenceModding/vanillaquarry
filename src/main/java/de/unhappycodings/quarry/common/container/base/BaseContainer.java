@@ -46,7 +46,7 @@ public abstract class BaseContainer extends AbstractContainerMenu {
         Slot sourceSlot = slots.get(index);
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem();
-        if (playerIn.level.isClientSide && (sourceStack.is(ModItems.AREA_CARD.get()) || sourceStack.is(Items.AIR))) {
+        if (playerIn.level().isClientSide && (sourceStack.is(ModItems.AREA_CARD.get()) || sourceStack.is(Items.AIR))) {
             PacketHandler.sendToServer(new QuarryChangedPacket(sourceStack, sourceStack.is(ModItems.AREA_CARD.get()) ? 1 : 2, tileEntity.getBlockPos()));
         }
         ItemStack copyOfSourceStack = sourceStack.copy();

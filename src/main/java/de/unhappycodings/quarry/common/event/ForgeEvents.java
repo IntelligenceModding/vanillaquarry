@@ -41,7 +41,7 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onQuarryBlockDestroy(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
-        Level level = event.getPlayer().getLevel();
+        Level level = event.getPlayer().level();
         BlockPos pos = event.getPos();
         if (!(level.getBlockState(pos).getBlock() instanceof QuarryBlock)) return;
         event.setCanceled(true);
@@ -82,7 +82,7 @@ public class ForgeEvents {
     }
 
     public static void renderCube(RenderLevelStageEvent event, BlockPos pos, Color color) {
-        VertexBuffer vertexBuffer = new VertexBuffer();
+        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder buffer = tessellator.getBuilder();
 

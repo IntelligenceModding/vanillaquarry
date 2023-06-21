@@ -59,6 +59,7 @@ public class AreaCardItem extends Item implements MenuProvider {
         for (int i = 0; i <= 6; i++) {
             if (stack.getOrCreateTag().getCompound("Filters").getBoolean(String.valueOf(i))) {
                 tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_active").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+                tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_enable").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
                 break;
             }
         }
@@ -112,6 +113,6 @@ public class AreaCardItem extends Item implements MenuProvider {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new AreaCardContainer(pContainerId, pPlayerInventory, pPlayer.getOnPos(), pPlayer.getLevel());
+        return new AreaCardContainer(pContainerId, pPlayerInventory, pPlayer.getOnPos(), pPlayer.level());
     }
 }

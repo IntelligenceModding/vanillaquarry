@@ -1,10 +1,10 @@
 package de.unhappycodings.quarry.client.gui.widgets.base;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
@@ -39,19 +39,12 @@ public abstract class BaseWidget extends AbstractWidget {
     }
 
     @Override
-    public void render(@NotNull PoseStack matrixStack, int x, int y, float partialTicks) {
+    public void render(@NotNull GuiGraphics graphics, int x, int y, float partialTicks) {
         GuiUtil.reset();
 
         for (BaseWidget child : children) {
-            child.render(matrixStack, x, y, minecraft.getDeltaFrameTime());
+            child.render(graphics, x, y, minecraft.getDeltaFrameTime());
         }
-    }
-
-    @Override
-    public void renderBg(@NotNull PoseStack matrixStack, @NotNull Minecraft minecraft, int pMouseX, int pMouseY) {
-        GuiUtil.reset();
-
-        //renderToolTip(matrixStack, pMouseX, pMouseY);
     }
 
     @Override
@@ -82,18 +75,6 @@ public abstract class BaseWidget extends AbstractWidget {
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
         return super.isMouseOver(mouseX, mouseY) || children.stream().anyMatch(child -> child.isMouseOver(mouseX, mouseY));
-    }
-
-    public void drawText(String text, PoseStack stack, int x, int y) {
-        Minecraft.getInstance().font.draw(stack, text, (leftPos - (width / 2) - x) - (Minecraft.getInstance().font.width(text) / 2), topPos + y, 4210752);
-    }
-
-    public void drawText(Component text, PoseStack stack, int x, int y) {
-        Minecraft.getInstance().font.draw(stack, text, (leftPos - (width / 2) - x) - (Minecraft.getInstance().font.width(text) / 2), topPos + y, 4210752);
-    }
-
-    public void renderComponentTooltip(PoseStack poseStack, List<Component> components, int x, int y) {
-        if (screen != null) screen.renderComponentTooltip(poseStack, components, x, y);
     }
 
 }

@@ -36,7 +36,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
@@ -62,7 +62,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     private static final int SPEED_2 = 5; // 5
     private static final int SPEED_3 = 2; // 2
     private final LazyOptional<? extends IItemHandler>[] itemHandler = SidedInvWrapper.create(this, Direction.values());
-    public LootContext.Builder lootcontextBuilder;
+    public LootParams.Builder lootcontextBuilder;
     public List<BlockPos> blockStateList;
     public NonNullList<ItemStack> items;
     private int speedModifier = 0;
@@ -461,7 +461,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         blockStateList = CalcUtil.getBlockStates(blockPos2, blockPos1, level);
     }
 
-    public LootContext.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch) {
+    public LootParams.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch) {
         ItemStack stack = new ItemStack(Items.STICK);
         if (isSilktouch) {
             stack.enchant(Enchantments.SILK_TOUCH, 1);
@@ -469,7 +469,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         if (isFortune) {
             stack.enchant(Enchantments.BLOCK_FORTUNE, 3);
         }
-        lootcontextBuilder = (new LootContext.Builder((ServerLevel) level)).withRandom(level.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.BLOCK_ENTITY, this);
+        lootcontextBuilder = (new LootParams.Builder((ServerLevel) level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.BLOCK_ENTITY, this);
         return lootcontextBuilder;
     }
 

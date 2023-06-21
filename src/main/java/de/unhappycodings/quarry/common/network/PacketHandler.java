@@ -47,7 +47,7 @@ public class PacketHandler {
     }
 
     public static void sendToClient(Object packet, ServerPlayer player) {
-        CHANNEL.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        CHANNEL.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     public static void sendToServer(Object packet) {
@@ -56,7 +56,7 @@ public class PacketHandler {
 
     public static void sendTo(Object packet, ServerPlayer player) {
         if (!(player instanceof FakePlayer)) {
-            CHANNEL.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            CHANNEL.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 }

@@ -1,5 +1,5 @@
-// 1.19.2	2022-09-24T16:44:54.7174654	Recipes
-bb6c8ed64140dd20cbbcdadc01a002b8437036e7 data/minecraft/advancements/recipes/quarry.items/area_card_crafted.json
-5a2eeef503f907955d14ff98601e7b231bbf34c4 data/minecraft/advancements/recipes/quarry.items/quarry_block_crafted.json
-a00d105a295811bac304c9dd021bbae2ff807574 data/minecraft/recipes/area_card_crafted.json
-8b9b4e91a561d353dfc152285c48e170f1219b74 data/minecraft/recipes/quarry_block_crafted.json
+// 1.20.1	2023-06-21T08:17:28.9318295	Recipes
+b1ec062b4ef50c71043ee7b328b3e2e6a4a72609 data/minecraft/advancements/recipes/misc/area_card_crafted.json
+a87bc38061913dac2e159606c4bd04f56b9eeca8 data/minecraft/advancements/recipes/misc/quarry_block_crafted.json
+a13b73b93e89eb2ba411fb7b8a2d8b43b6123c79 data/minecraft/recipes/area_card_crafted.json
+a35735b58db768b59767b0101ff3361a22a72425 data/minecraft/recipes/quarry_block_crafted.json

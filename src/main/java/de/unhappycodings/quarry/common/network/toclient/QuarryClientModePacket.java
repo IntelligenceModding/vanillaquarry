@@ -25,7 +25,7 @@ public class QuarryClientModePacket implements IPacket {
 
     public void handle(NetworkEvent.Context context) {
         LocalPlayer player = Minecraft.getInstance().player;
-        BlockEntity machine = player.level.getBlockEntity(pos);
+        BlockEntity machine = player.level().getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
         blockEntity.setMode(add);
     }

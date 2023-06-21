@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "key": {
     "a": {
       "item": "minecraft:redstone_torch"
@@ -36,5 +37,6 @@
   ],
   "result": {
     "item": "quarry:quarry_block"
-  }
+  },
+  "show_notification": true
 }

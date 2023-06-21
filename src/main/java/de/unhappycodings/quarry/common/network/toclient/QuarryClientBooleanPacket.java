@@ -27,7 +27,7 @@ public class QuarryClientBooleanPacket implements IPacket {
 
     public void handle(NetworkEvent.Context context) {
         LocalPlayer player = Minecraft.getInstance().player;
-        BlockEntity machine = player.level.getBlockEntity(pos);
+        BlockEntity machine = player.level().getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
         if (type.contains("locked")) blockEntity.setLocked(locked);
         if (type.contains("loop")) blockEntity.setLoop(locked);

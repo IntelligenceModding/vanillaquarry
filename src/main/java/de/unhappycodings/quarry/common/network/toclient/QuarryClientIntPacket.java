@@ -29,7 +29,7 @@ public class QuarryClientIntPacket implements IPacket {
     @SuppressWarnings("ConstantConditions")
     public void handle(NetworkEvent.Context context) {
         LocalPlayer player = Minecraft.getInstance().player;
-        BlockEntity machine = player.level.getBlockEntity(pos);
+        BlockEntity machine = player.level().getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
         if (type.contains("speed"))
             blockEntity.setSpeed(add);

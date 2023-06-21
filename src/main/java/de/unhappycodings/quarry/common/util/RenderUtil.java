@@ -6,11 +6,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 // CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
@@ -40,7 +40,7 @@ public class RenderUtil {
         boolean flag = !bakedmodel.usesBlockLight();
         if (flag) Lighting.setupForFlatItems();
 
-        itemRenderer.render(stack, ItemTransforms.TransformType.GUI, false, posestack1, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+        itemRenderer.render(stack, ItemDisplayContext.GUI, false, posestack1, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
         bufferSource.endBatch();
         RenderSystem.enableDepthTest();
         if (flag) {

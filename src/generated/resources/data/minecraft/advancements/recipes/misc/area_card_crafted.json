@@ -6,7 +6,7 @@
         "items": [
           {
             "items": [
-              "minecraft:furnace"
+              "minecraft:observer"
             ]
           }
         ]
@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:quarry_block_crafted"
+        "recipe": "minecraft:area_card_crafted"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,8 @@
   ],
   "rewards": {
     "recipes": [
-      "minecraft:quarry_block_crafted"
+      "minecraft:area_card_crafted"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

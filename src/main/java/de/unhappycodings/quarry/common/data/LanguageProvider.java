@@ -98,6 +98,7 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("item.quarry.areacard.text.from", "From");
         add("item.quarry.areacard.text.to", "To");
         add("item.quarry.areacard.text.filters_active", "Filters are active!");
+        add("item.quarry.areacard.text.filters_enable", "Don't forget to enable them!");
 
         add("item.quarry.areacard.text.around", "Blocks around");
         add("item.quarry.areacard.text.framing", "Framing chunks");

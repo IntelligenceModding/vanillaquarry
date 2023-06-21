@@ -1,6 +1,5 @@
 package de.unhappycodings.quarry.common.container;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
@@ -18,6 +17,8 @@ import de.unhappycodings.quarry.common.util.CalcUtil;
 import de.unhappycodings.quarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -59,7 +60,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     @Override
-    protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
+    protected void renderLabels(@NotNull GuiGraphics graphics, int pMouseX, int pMouseY) {
         if (getSlotUnderMouse() != null && getSlotUnderMouse() instanceof SlotInputHandler) {
             if (getSlotUnderMouse().getContainerSlot() == 13 && !getSlotUnderMouse().hasItem()) {
                 List<Component> list = new ArrayList<>();
@@ -69,39 +70,39 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 list.add(Component.literal(""));
                 list.add(Component.translatable("gui.quarry.replace_3").withStyle(ChatFormatting.YELLOW));
 
-                this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+                graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
             }
         }
         if (!Objects.equals(getMenu().getTile().getOwner(), this.getMinecraft().player.getName().getString() + "@" + this.getMinecraft().player.getStringUUID()) && this.getMenu().getTile().getLocked()) {
-            drawCenteredText(Component.translatable("gui.quarry.admin").getString(), pPoseStack, getSizeX() / 2, -19, 11141120);
-            drawCenteredText(Component.translatable("gui.quarry.others").getString(), pPoseStack, getSizeX() / 2, -10, 11141120);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.admin").getString(), getSizeY(), getSizeX() / 2, 11141120, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.others").getString(), getSizeY(), getSizeX() / 2, 11141120, false);
         }
-        drawText(Component.translatable("block.quarry.quarry_block").getString(), pPoseStack, 71, 7);
-        drawText(Component.translatable("gui.quarry.inventory").getString(), pPoseStack, 8, 110);
-        drawText(Component.translatable("gui.quarry.speed").getString(), pPoseStack, 73, 27);
-        drawText(Component.translatable("gui.quarry.fuel").getString(), pPoseStack, 19, 20);
-        drawText(Component.translatable("gui.quarry.out").getString(), pPoseStack, 138, 20);
-        drawText(Component.literal(getMenu().getTile().getSpeed() + 1 + "").getString(), pPoseStack, 85, 41);
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("block.quarry.quarry_block").getString(), 71, 7, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.inventory").getString(), 8, 110, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.speed").getString(), 73, 27, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.fuel").getString(), 19, 20, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.out").getString(), 138, 20, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.literal(getMenu().getTile().getSpeed() + 1 + "").getString(), 85, 41, 1315860, false);
         String yCoord = Component.translatable("gui.quarry.stop").getString();
         ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 2);
         if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY") && getMenu().getTile().getLevel().getBlockState(getMenu().getTile().getBlockPos()).getValue(QuarryBlock.ACTIVE)) {
             yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
         }
 
-        drawText(Component.literal("Y: " + yCoord).getString(), pPoseStack, 73, 95);
-        drawText(Component.translatable("gui.quarry.power.on").getString(), pPoseStack, 68, 59);
-        drawText(Component.translatable("gui.quarry.power.off").getString(), pPoseStack, 95, 59);
+        graphics.drawString(Minecraft.getInstance().font, Component.literal("Y: " + yCoord).getString(), 73, 95, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.power.on").getString(), 68, 59, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.power.off").getString(), 95, 59, 1315860, false);
 
         switch (getMenu().getTile().getMode()) {
             case 0 ->
-                    drawCenteredText(Component.translatable("gui.quarry.mode.default").getString(), pPoseStack, 87, 77);
+                    drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.default").getString(), 87, 77, 1315860, false);
             case 1 ->
-                    drawCenteredText(Component.translatable("gui.quarry.mode.efficient").getString(), pPoseStack, 87, 77);
+                    drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.efficient").getString(), 87, 77, 1315860, false);
             case 2 ->
-                    drawCenteredText(Component.translatable("gui.quarry.mode.fortune").getString(), pPoseStack, 87, 77);
+                    drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.fortune").getString(), 87, 77, 1315860, false);
             case 3 ->
-                    drawCenteredText(Component.translatable("gui.quarry.mode.silktouch").getString(), pPoseStack, 87, 77);
-            case 4 -> drawCenteredText(Component.translatable("gui.quarry.mode.void").getString(), pPoseStack, 87, 77);
+                    drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.silktouch").getString(), 87, 77, 1315860, false);
+            case 4 -> drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.void").getString(), 87, 77, 1315860, false);
         }
         if (modeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -117,7 +118,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             list.add(Component.translatable("gui.quarry.coal").append(" " + (new DecimalFormat("##.##").format(1600 / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.quarry.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             if (getMenu().getTile().getMode() == 1)
                 list.add(Component.translatable("gui.quarry.speed.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (infoButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -134,7 +135,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             list.add(Component.translatable("gui.quarry.replacing").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (lockButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -152,7 +153,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 list.add(Component.translatable("gui.quarry.lock.public.description").withStyle(ChatFormatting.YELLOW));
                 list.add(Component.translatable("gui.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
             }
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (loopButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -163,7 +164,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 list.add(Component.translatable("gui.quarry.loop.never"));
                 list.add(Component.translatable("gui.quarry.loop.stop").withStyle(ChatFormatting.YELLOW));
             }
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (filterButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -174,7 +175,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 list.add(Component.translatable("gui.quarry.filter.never"));
                 list.add(Component.translatable("gui.quarry.filter.all").withStyle(ChatFormatting.YELLOW));
             }
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (ejectButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -194,7 +195,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 list.add(Component.translatable("gui.quarry.output.pulls_above").withStyle(ChatFormatting.YELLOW));
                 list.add(Component.translatable("gui.quarry.output.eject_below").withStyle(ChatFormatting.YELLOW));
             }
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (skipButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -205,7 +206,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 list.add(Component.translatable("gui.quarry.skip.never"));
                 list.add(Component.translatable("gui.quarry.skip.iterate").withStyle(ChatFormatting.YELLOW));
             }
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
         if (darkmodeButtonIsHovered) {
             List<Component> list = new ArrayList<>();
@@ -216,8 +217,16 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 list.add(Component.translatable("gui.quarry.darkmode.white"));
                 list.add(Component.translatable("gui.quarry.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
-            this.renderComponentTooltip(pPoseStack, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
+    }
+
+    public void drawCenteredString(GuiGraphics graphics, Font font, String text, int x, int y, int color, boolean shadow) {
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, shadow);
+    }
+
+    public void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color, boolean shadow) {
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, shadow);
     }
 
     @Override
@@ -234,26 +243,26 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int x, int y) {
-        super.renderBg(matrixStack, partialTicks, x, y);
+    protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int x, int y) {
+        super.renderBg(graphics, partialTicks, x, y);
         Level level = this.getMenu().getTile().getLevel();
         BlockPos pos = this.getMenu().getTile().getBlockPos();
 
         // render burn tick process
         int height = getLitProgress();
-        this.blit(matrixStack, leftPos + 23, topPos + 86 + 13 - height, 176, 13 - height, 14, height + 1);
+        graphics.blit(getTexture(), leftPos + 23, topPos + 86 + 13 - height, 176, 13 - height, 14, height + 1);
 
         // render power dot indicators
         if (level.getBlockState(pos).getValue(QuarryBlock.ACTIVE)) {
-            blit(matrixStack, leftPos + 63, topPos + 96, 176, 14, 5, 5); // green
+            graphics.blit(getTexture(), leftPos + 63, topPos + 96, 176, 14, 5, 5); // green
         } else {
-            blit(matrixStack, leftPos + 63, topPos + 96, 182, 14, 5, 5); // red
+            graphics.blit(getTexture(), leftPos + 63, topPos + 96, 182, 14, 5, 5); // red
         }
 
         // Render slots
         for (Slot slot : container.slots) {
             if (slot instanceof BaseSlot baseSlot) {
-                baseSlot.renderGhostOverlay(matrixStack, getGuiLeft(), getGuiTop());
+                baseSlot.renderGhostOverlay(graphics, getGuiLeft(), getGuiTop());
             }
         }
     }
@@ -432,18 +441,6 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         String texture = "textures/gui/quarry_gui.png";
         if (getDarkModeConfigValue()) texture = "textures/gui/quarry_gui_dark.png";
         return new ResourceLocation(Quarry.MOD_ID, texture);
-    }
-
-    public void drawCenteredText(String text, PoseStack stack, int x, int y) {
-        Minecraft.getInstance().font.draw(stack, text, x - (Minecraft.getInstance().font.width(text) / 2f), y, 1315860);
-    }
-
-    public void drawCenteredText(String text, PoseStack stack, int x, int y, int color) {
-        Minecraft.getInstance().font.draw(stack, text, x - (Minecraft.getInstance().font.width(text) / 2f), y, color);
-    }
-
-    public void drawText(String text, PoseStack stack, int x, int y) {
-        Minecraft.getInstance().font.draw(stack, text, x, y, 1315860);
     }
 
     public int getBurnTime() {

@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "key": {
     "a": {
       "item": "minecraft:redstone_torch"
@@ -27,5 +28,6 @@
   ],
   "result": {
     "item": "quarry:area_card"
-  }
+  },
+  "show_notification": true
 }

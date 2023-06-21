@@ -72,6 +72,7 @@
   "item.quarry.areacard.text.chunk": "Chunk",
   "item.quarry.areacard.text.filter": "Filter",
   "item.quarry.areacard.text.filters_active": "Filters are active!",
+  "item.quarry.areacard.text.filters_enable": "Don't forget to enable them!",
   "item.quarry.areacard.text.framing": "Framing chunks",
   "item.quarry.areacard.text.from": "From",
   "item.quarry.areacard.text.illegal": "Illegal State",
