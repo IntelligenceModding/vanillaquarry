@@ -37,7 +37,6 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.WaterFluid;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
@@ -228,13 +227,12 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
                             setItem(output, new ItemStack(input.get(i).getItem().getCraftingRemainingItem(), getItem(output).getCount() + 1));
                             removeItem(i, 1);
                         }
-                        break;
                     } else {
                         totalBurnTime = burnTime + ForgeHooks.getBurnTime(input.get(i), null);
                         burnTime += totalBurnTime;
                         removeItem(i, 1);
-                        break;
                     }
+                    break;
                 }
             }
         }
@@ -488,12 +486,11 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     }
 
     public void refreshPositions(ItemStack itemStack) {
-        CompoundTag pos1 = (CompoundTag) itemStack.getOrCreateTag().get("pos1");
-        CompoundTag pos2 = (CompoundTag) itemStack.getOrCreateTag().get("pos2");
+        BlockPos pos1 = NbtUtil.getPos(itemStack.getOrCreateTag().getCompound("pos1"));
+        BlockPos pos2 = NbtUtil.getPos(itemStack.getOrCreateTag().getCompound("pos2"));
         if (pos1 == null || pos2 == null) return;
-        BlockPos blockPos1 = NbtUtil.getPos(pos1);
-        BlockPos blockPos2 = NbtUtil.getPos(pos2);
-        blockStateList = CalcUtil.getBlockStates(blockPos2, blockPos1, level);
+
+        blockStateList = CalcUtil.getBlockStates(pos2, pos1, level);
     }
 
     public LootParams.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch) {
@@ -538,16 +535,6 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
 
     public void setTotalBurnTime(int totalBurnTime) {
         this.totalBurnTime = totalBurnTime;
-    }
-
-    @Override
-    public Level getLevel() {
-        return super.getLevel();
-    }
-
-    @Override
-    public void setLevel(@NotNull Level pLevel) {
-        super.setLevel(pLevel);
     }
 
     public String getOwner() {
@@ -775,7 +762,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         if (this.level.getBlockEntity(this.worldPosition) != this) {
             return false;
         } else {

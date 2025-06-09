@@ -33,7 +33,15 @@ import java.awt.*;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Quarry.MOD_ID)
 public class AreaCardLevelRenderer {
 
-    @SuppressWarnings({"ConstantConditions"})
+    // Normal vectors for each face
+    private static final Vec3 NORMAL_UP = new Vec3(0.0f, 1.0f, 0.0f);
+    private static final Vec3 NORMAL_DOWN = new Vec3(0.0f, -1.0f, 0.0f);
+    private static final Vec3 NORMAL_NORTH = new Vec3(0.0f, 0.0f, -1.0f);
+    private static final Vec3 NORMAL_SOUTH = new Vec3(0.0f, 0.0f, 1.0f);
+    private static final Vec3 NORMAL_EAST = new Vec3(-1.0f, 0.0f, 0.0f);
+    private static final Vec3 NORMAL_WEST = new Vec3(1.0f, 0.0f, 0.0f);
+
+    @SuppressWarnings("ConstantConditions")
     @SubscribeEvent
     public static void renderSquareAboveWorldCentre(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
@@ -54,14 +62,6 @@ public class AreaCardLevelRenderer {
     }
 
     public static void renderCube(@NotNull RenderLevelStageEvent event, @NotNull BlockPos pos, @NotNull Color color) {
-        // Normal vectors for each face
-        final Vec3 NORMAL_UP = new Vec3(0.0f, 1.0f, 0.0f);
-        final Vec3 NORMAL_DOWN = new Vec3(0.0f, -1.0f, 0.0f);
-        final Vec3 NORMAL_NORTH = new Vec3(0.0f, 0.0f, -1.0f);
-        final Vec3 NORMAL_SOUTH = new Vec3(0.0f, 0.0f, 1.0f);
-        final Vec3 NORMAL_EAST = new Vec3(-1.0f, 0.0f, 0.0f);
-        final Vec3 NORMAL_WEST = new Vec3(1.0f, 0.0f, 0.0f);
-
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         Vec3 view = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
 
@@ -131,6 +131,5 @@ public class AreaCardLevelRenderer {
         poseStack.popPose();
 
         RenderSystem.enableDepthTest();
-
     }
 }
