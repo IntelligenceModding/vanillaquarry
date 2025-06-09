@@ -3,6 +3,7 @@ package de.unhappycodings.quarry.common.util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class NbtUtil {
 
@@ -24,9 +25,12 @@ public class NbtUtil {
         return tag.getInt(key);
     }
 
-    public static BlockPos getPos(CompoundTag tag) throws IllegalStateException {
+    public static BlockPos getPos(@Nullable CompoundTag tag) throws IllegalStateException {
+        if (tag == null)
+            return null;
+
         if (!tag.contains("x") || !tag.contains("y") || !tag.contains("z"))
-            throw new IllegalStateException("Tag does not contain position");
+            return null;
         return new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
     }
 
