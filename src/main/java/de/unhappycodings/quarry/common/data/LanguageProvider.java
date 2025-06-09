@@ -44,15 +44,15 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
 
         add("gui.quarry.admin", "Admin Access!");
         add("gui.quarry.others", "This is not your Quarry!");
-        add("gui.quarry.replacing", "Quarry will eliminate nearby Fluid Sources!");
+        add("gui.quarry.replacing", "Quarry will eliminate nearby fluid sources!");
 
         add("gui.quarry.consumption", "Consumption:");
         add("gui.quarry.coal", "1 coal:");
         add("gui.quarry.blocks", "blocks");
         add("gui.quarry.informations", "Informations");
         add("gui.quarry.when_turned_off", "When turned off, the quarry");
-        add("gui.quarry.will_consume", "will consume # BurnTick(s) per second.");
-        add("gui.quarry.changing_speed", "Changing the speed does also");
+        add("gui.quarry.will_consume", "will consume %s BurnTick(s) per second.");
+        add("gui.quarry.changing_speed", "Changing the speed or mode does also");
         add("gui.quarry.affect_fuel", "affect the fuel consumption!");
         add("gui.quarry.use_config", "values changable in config");
         add("gui.quarry.speed.80", "at 80% speed");
@@ -78,6 +78,11 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.skip.never", "Don't Skip Air");
         add("gui.quarry.skip.iterate", "Iterate through all blocks, even air!");
 
+        add("gui.quarry.replace.always", "Always Replace Liquids");
+        add("gui.quarry.replace.always.description", "Replaces nearby fluid sources with cobblestone.");
+        add("gui.quarry.replace.never", "Don't Replace Liquids");
+        add("gui.quarry.replace.never.description", "Ignores nearby fluid sources.");
+
         add("gui.quarry.output.dont", "Don't Eject/Pull");
         add("gui.quarry.output.in_out_hoppers", "output and input possible with hoppers.");
         add("gui.quarry.output.pull", "Only Pull");
@@ -97,8 +102,8 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("item.quarry.areacard.text.mined", "#Mined");
         add("item.quarry.areacard.text.from", "From");
         add("item.quarry.areacard.text.to", "To");
-        add("item.quarry.areacard.text.filters_active", "Filters are active!");
-        add("item.quarry.areacard.text.filters_enable", "Don't forget to enable them!");
+        add("item.quarry.areacard.text.filters_active", "%s filter(s) set!");
+        add("item.quarry.areacard.text.filters_enable", "Don't forget to enable filters in the quarry!");
 
         add("item.quarry.areacard.text.around", "Blocks around");
         add("item.quarry.areacard.text.framing", "Framing chunks");

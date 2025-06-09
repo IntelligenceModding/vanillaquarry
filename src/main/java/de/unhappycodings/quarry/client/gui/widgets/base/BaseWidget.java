@@ -67,11 +67,6 @@ public abstract class BaseWidget extends AbstractWidget {
         if (this instanceof ModButton) super.playDownSound(pHandler);
     }
 
-    public <ELEMENT extends BaseWidget> ELEMENT addChild(ELEMENT child) {
-        children.add(child);
-        return child;
-    }
-
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
         return super.isMouseOver(mouseX, mouseY) || children.stream().anyMatch(child -> child.isMouseOver(mouseX, mouseY));

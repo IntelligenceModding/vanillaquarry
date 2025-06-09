@@ -22,6 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -88,7 +89,7 @@ public class QuarryBlock extends BaseEntityBlock {
     public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRandom) {
         if (pState.getValue(POWERED)) {
             double d0 = (double) pPos.getX() + 0.5D;
-            double d1 = (double) pPos.getY();
+            double d1 = pPos.getY();
             double d2 = (double) pPos.getZ() + 0.5D;
             if (pRandom.nextDouble() < 0.1D) {
                 pLevel.playLocalSound(d0, d1, d2, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
@@ -96,7 +97,6 @@ public class QuarryBlock extends BaseEntityBlock {
 
             Direction direction = pState.getValue(FACING);
             Direction.Axis directionAxis = direction.getAxis();
-            double d3 = 0.52D;
             double d4 = pRandom.nextDouble() * 0.6D - 0.3D;
             double d5 = directionAxis == Direction.Axis.X ? (double) direction.getStepX() * 0.52D : d4;
             double d6 = pRandom.nextDouble() * 6.0D / 16.0D;
@@ -115,6 +115,11 @@ public class QuarryBlock extends BaseEntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED, WORKING, ACTIVE, FACING);
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        return state.getValue(POWERED) ? 15 : 0;
     }
 
     @SuppressWarnings("deprecation")

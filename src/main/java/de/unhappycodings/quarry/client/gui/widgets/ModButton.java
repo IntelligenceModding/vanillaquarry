@@ -1,5 +1,6 @@
 package de.unhappycodings.quarry.client.gui.widgets;
 
+import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.base.BaseWidget;
 import de.unhappycodings.quarry.common.container.QuarryScreen;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,11 +63,14 @@ public class ModButton extends BaseWidget {
     public void render(@NotNull GuiGraphics graphics, int x, int y, float partialTicks) {
         super.render(graphics, x, y, partialTicks);
         GuiUtil.bind(texture);
+        boolean darkmode = ClientConfig.enableQuarryDarkmode.get();
 
-        if (!isMouseOver(x, y) || (isValid != null && !isValid.get()))
-            graphics.blit(texture, this.getX(), this.getY(), 0, 0, width, height, tX, tY);
-        if (isMouseOver(x, y) && (isValid != null && isValid.get()))
-            graphics.blit(texture, this.getX(), this.getY(), 0, tY / 2f, width, height, tX, tY);
+        graphics.blit(texture, this.getX(), this.getY(), 0, darkmode ? tY / 2f : 0, width, height, tX, tY);
+
+
+        if (isMouseOver(x, y))
+            graphics.renderOutline(getX(), getY(), getWidth(), getHeight(), FastColor.ARGB32.color(255, 255, 255, 255));
+
     }
 
     @Override

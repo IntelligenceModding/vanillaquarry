@@ -70,6 +70,7 @@ public class ForgeEvents {
         Player player = Minecraft.getInstance().player;
         ItemStack item = player.getItemInHand(InteractionHand.MAIN_HAND);
         if (item.isEmpty()) return;
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
         if (item.getItem() instanceof AreaCardItem) {
             CompoundTag nbt = item.getOrCreateTag();
             if (nbt.contains("pos1"))
@@ -82,6 +83,7 @@ public class ForgeEvents {
     }
 
     public static void renderCube(RenderLevelStageEvent event, BlockPos pos, Color color) {
+
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder buffer = tessellator.getBuilder();
@@ -129,12 +131,9 @@ public class ForgeEvents {
         vertexBuffer.upload(buffer.end());
 
         Vec3 view = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-
+        RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
         PoseStack matrix = event.getPoseStack();
         matrix.pushPose();
         matrix.translate(-view.x, -view.y, -view.z);
@@ -142,9 +141,10 @@ public class ForgeEvents {
         VertexBuffer.unbind();
         matrix.popPose();
 
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        RenderSystem.enableDepthTest();
+
+
+
     }
 
 }

@@ -13,6 +13,7 @@ public class AreaCardContainer extends BaseContainer {
 
     public AreaCardContainer(int id, Inventory inventory, BlockPos pos, Level level) {
         super(ContainerTypes.AREA_CARD_CONTAINER.get(), id, inventory, pos, level);
+        layoutPlayerInventorySlots(8, 105);
         this.pos = pos;
         this.level = level;
     }

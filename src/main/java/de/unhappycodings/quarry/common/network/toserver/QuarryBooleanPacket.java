@@ -13,12 +13,12 @@ import net.minecraftforge.network.NetworkEvent;
 public class QuarryBooleanPacket implements IPacket {
 
     private final BlockPos pos;
-    private final boolean refresh;
+    private final boolean clientRefresh; // if true only passes through variables without updating them in server level
     private final String type;
 
-    public QuarryBooleanPacket(BlockPos pos, boolean refresh, String type) {
+    public QuarryBooleanPacket(BlockPos pos, boolean state, String type) {
         this.pos = pos;
-        this.refresh = refresh;
+        this.clientRefresh = state;
         this.type = type;
     }
 
@@ -31,40 +31,33 @@ public class QuarryBooleanPacket implements IPacket {
         ServerPlayer player = context.getSender();
         BlockEntity machine = player.getCommandSenderWorld().getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
+
         if (type.contains("locked")) {
-            if (!refresh) {
-                blockEntity.setLocked(!blockEntity.getLocked());
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), !blockEntity.getLocked(), "locked"), player);
-            } else {
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getLocked(), "locked"), player);
-            }
+            if (!clientRefresh) blockEntity.setLocked(!blockEntity.getLocked());
+
+            PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getLocked(), "locked"), player);
         } else if (type.contains("loop")) {
-            if (!refresh) {
-                blockEntity.setLoop(!blockEntity.getLoop());
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), !blockEntity.getLoop(), "loop"), player);
-            } else {
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getLoop(), "loop"), player);
-            }
+            if (!clientRefresh) blockEntity.setLoop(!blockEntity.getLoop());
+
+            PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getLoop(), "loop"), player);
         } else if (type.contains("filter")) {
-            if (!refresh) {
-                blockEntity.setFilter(!blockEntity.getFilter());
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), !blockEntity.getFilter(), "filter"), player);
-            } else {
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getFilter(), "filter"), player);
-            }
+            if (!clientRefresh) blockEntity.setFilter(!blockEntity.getFilter());
+
+            PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getFilter(), "filter"), player);
         } else if (type.contains("skip")) {
-            if (!refresh) {
-                blockEntity.setSkip(!blockEntity.getSkip());
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), !blockEntity.getSkip(), "skip"), player);
-            } else {
-                PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getSkip(), "skip"), player);
-            }
+            if (!clientRefresh) blockEntity.setSkip(!blockEntity.getSkip());
+
+            PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getSkip(), "skip"), player);
+        } else if (type.contains("replace")) {
+            if (!clientRefresh) blockEntity.setReplace(!blockEntity.getReplace());
+
+            PacketHandler.sendToClient(new QuarryClientBooleanPacket(machine.getBlockPos(), blockEntity.getReplace(), "replace"), player);
         }
     }
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos);
-        buffer.writeBoolean(refresh);
+        buffer.writeBoolean(clientRefresh);
         buffer.writeUtf(type);
     }
 }

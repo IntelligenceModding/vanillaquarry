@@ -40,6 +40,8 @@ minecraft {
 
             args "--username", "deadmau5"
             args "--uuid", "1e18d5ff-643d-45c8-b509-43b8461d8614"
+            args "--width", "1920"
+            args "--height", "1080"
 
             mods {
                 quarry {

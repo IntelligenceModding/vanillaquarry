@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
 public class QuarryChangedPacket implements IPacket {
@@ -29,9 +30,10 @@ public class QuarryChangedPacket implements IPacket {
     public void handle(NetworkEvent.Context context) {
         ServerPlayer player = context.getSender();
         Level level = player.getCommandSenderWorld();
-        level.getBlockEntity(pos).setChanged();
-        if (type == 1) ((QuarryBlockEntity) level.getBlockEntity(pos)).refreshPositions(stack); // refresh
-        if (type == 2) ((QuarryBlockEntity) level.getBlockEntity(pos)).resetPositions(); // reset
+        QuarryBlockEntity blockEntity = (QuarryBlockEntity) level.getBlockEntity(pos);
+        blockEntity.setChanged();
+        if (type == 1) blockEntity.refreshPositions(stack); // refresh
+        if (type == 2) blockEntity.resetPositions(); // reset
     }
 
     public void encode(FriendlyByteBuf buffer) {

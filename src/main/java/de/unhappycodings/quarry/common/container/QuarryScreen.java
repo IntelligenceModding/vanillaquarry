@@ -44,15 +44,8 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     public static ModButton filterMouseButton;
     public static ModButton ejectMouseButton;
     public static ModButton skipMouseButton;
+    public static ModButton replaceMouseButton;
     QuarryContainer container;
-    boolean modeButtonIsHovered;
-    boolean infoButtonIsHovered;
-    boolean lockButtonIsHovered;
-    boolean loopButtonIsHovered;
-    boolean filterButtonIsHovered;
-    boolean ejectButtonIsHovered;
-    boolean darkmodeButtonIsHovered;
-    boolean skipButtonIsHovered;
 
     public QuarryScreen(QuarryContainer screenContainer, Inventory inv, Component titleIn) {
         super(screenContainer, inv, titleIn);
@@ -61,6 +54,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics graphics, int pMouseX, int pMouseY) {
+        QuarryBlockEntity blockEntity = this.getMenu().getTile();
         if (getSlotUnderMouse() != null && getSlotUnderMouse() instanceof SlotInputHandler) {
             if (getSlotUnderMouse().getContainerSlot() == 13 && !getSlotUnderMouse().hasItem()) {
                 List<Component> list = new ArrayList<>();
@@ -73,19 +67,19 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
             }
         }
-        if (!Objects.equals(getMenu().getTile().getOwner(), this.getMinecraft().player.getName().getString() + "@" + this.getMinecraft().player.getStringUUID()) && this.getMenu().getTile().getLocked()) {
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.admin").getString(), getSizeY(), getSizeX() / 2, 11141120, false);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.others").getString(), getSizeY(), getSizeX() / 2, 11141120, false);
+        if (!Objects.equals(blockEntity.getOwner(), this.getMinecraft().player.getName().getString() + "@" + this.getMinecraft().player.getStringUUID()) && blockEntity.getLocked()) {
+            drawCenteredString(graphics, Minecraft.getInstance().font, ChatFormatting.BOLD + Component.translatable("gui.quarry.admin").getString(), getSizeX() / 2, -30, 11141120, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.others").getString(), getSizeX() / 2, - 20, 11141120, false);
         }
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("block.quarry.quarry_block").getString(), 71, 7, 1315860, false);
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.inventory").getString(), 8, 110, 1315860, false);
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.speed").getString(), 73, 27, 1315860, false);
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.fuel").getString(), 19, 20, 1315860, false);
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.out").getString(), 138, 20, 1315860, false);
-        graphics.drawString(Minecraft.getInstance().font, Component.literal(getMenu().getTile().getSpeed() + 1 + "").getString(), 85, 41, 1315860, false);
+        graphics.drawString(Minecraft.getInstance().font, Component.literal(blockEntity.getSpeed() + 1 + "").getString(), 85, 41, 1315860, false);
         String yCoord = Component.translatable("gui.quarry.stop").getString();
         ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 2);
-        if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY") && getMenu().getTile().getLevel().getBlockState(getMenu().getTile().getBlockPos()).getValue(QuarryBlock.ACTIVE)) {
+        if (itemStack.getItem() instanceof AreaCardItem && NbtUtil.getNbtTag(itemStack).contains("currentY") && blockEntity.getLevel().getBlockState(blockEntity.getBlockPos()).getValue(QuarryBlock.ACTIVE)) {
             yCoord = String.valueOf(NbtUtil.getNbtTag(itemStack).getInt("currentY"));
         }
 
@@ -93,7 +87,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.power.on").getString(), 68, 59, 1315860, false);
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.power.off").getString(), 95, 59, 1315860, false);
 
-        switch (getMenu().getTile().getMode()) {
+        switch (blockEntity.getMode()) {
             case 0 ->
                     drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.default").getString(), 87, 77, 1315860, false);
             case 1 ->
@@ -104,10 +98,10 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                     drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.silktouch").getString(), 87, 77, 1315860, false);
             case 4 -> drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.mode.void").getString(), 87, 77, 1315860, false);
         }
-        if (modeButtonIsHovered) {
+        if (modeMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            float totalBurnTicks = CalcUtil.getNeededTicks(getMenu().getTile().getMode(), getMenu().getTile().getSpeed());
-            switch (getMenu().getTile().getMode()) {
+            float totalBurnTicks = CalcUtil.getNeededTicks(blockEntity.getMode(), blockEntity.getSpeed());
+            switch (blockEntity.getMode()) {
                 case 0 -> list.add(Component.translatable("gui.quarry.mode.default"));
                 case 1 -> list.add(Component.translatable("gui.quarry.mode.efficient"));
                 case 2 -> list.add(Component.translatable("gui.quarry.mode.fortune"));
@@ -116,18 +110,18 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
             list.add(Component.translatable("gui.quarry.consumption").append(" " + totalBurnTicks + " ").append("ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.coal").append(" " + (new DecimalFormat("##.##").format(1600 / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.quarry.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            if (getMenu().getTile().getMode() == 1)
+            if (blockEntity.getMode() == 1)
                 list.add(Component.translatable("gui.quarry.speed.80").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
-        if (infoButtonIsHovered) {
+        if (infoMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.quarry.informations"));
             list.add(Component.literal(""));
             list.add(Component.literal("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
             list.add(Component.translatable("gui.quarry.when_turned_off").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            list.add(Component.literal(Component.translatable("gui.quarry.will_consume").getString().replace("#", CommonConfig.quarryIdleConsumption.get().toString())).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.will_consume", CommonConfig.quarryIdleConsumption.get().toString()).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.changing_speed").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
@@ -137,14 +131,14 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             list.add(Component.translatable("gui.quarry.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
-        if (lockButtonIsHovered) {
+        if (lockMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             String owner = "undefined";
-            String ownerString = getMenu().getTile().getOwner();
+            String ownerString = blockEntity.getOwner();
             if (!ownerString.isEmpty())
                 owner = ownerString.replace("@", " (") + (ownerString.equals("undefined") ? "" : ")");
 
-            if (getMenu().getTile().getLocked()) {
+            if (blockEntity.getLocked()) {
                 list.add(Component.translatable("gui.quarry.lock.private"));
                 list.add(Component.translatable("gui.quarry.lock.private.description").withStyle(ChatFormatting.YELLOW));
                 list.add(Component.translatable("gui.quarry.lock.owner", owner).withStyle(ChatFormatting.YELLOW));
@@ -155,9 +149,9 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
-        if (loopButtonIsHovered) {
+        if (loopMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            if (getMenu().getTile().getLoop()) {
+            if (blockEntity.getLoop()) {
                 list.add(Component.translatable("gui.quarry.loop.always"));
                 list.add(Component.translatable("gui.quarry.loop.restart").withStyle(ChatFormatting.YELLOW));
             } else {
@@ -166,9 +160,9 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
-        if (filterButtonIsHovered) {
+        if (filterMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            if (getMenu().getTile().getFilter()) {
+            if (blockEntity.getFilter()) {
                 list.add(Component.translatable("gui.quarry.filter.always"));
                 list.add(Component.translatable("gui.quarry.filter.filters").withStyle(ChatFormatting.YELLOW));
             } else {
@@ -177,16 +171,16 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
-        if (ejectButtonIsHovered) {
+        if (ejectMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            if (getMenu().getTile().getEject() == 0) {
+            if (blockEntity.getEject() == 0) {
                 list.add(Component.translatable("gui.quarry.output.dont"));
                 list.add(Component.translatable("gui.quarry.output.in_out_hoppers").withStyle(ChatFormatting.YELLOW));
-            } else if (getMenu().getTile().getEject() == 1) {
+            } else if (blockEntity.getEject() == 1) {
                 list.add(Component.translatable("gui.quarry.output.pull"));
                 list.add(Component.translatable("gui.quarry.output.pulls_above").withStyle(ChatFormatting.YELLOW));
                 list.add(Component.translatable("gui.quarry.output.out_hoppers").withStyle(ChatFormatting.YELLOW));
-            } else if (getMenu().getTile().getEject() == 2) {
+            } else if (blockEntity.getEject() == 2) {
                 list.add(Component.translatable("gui.quarry.output.eject"));
                 list.add(Component.translatable("gui.quarry.output.eject_below").withStyle(ChatFormatting.YELLOW));
                 list.add(Component.translatable("gui.quarry.output.in_hoppers").withStyle(ChatFormatting.YELLOW));
@@ -197,9 +191,20 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
-        if (skipButtonIsHovered) {
+        if (darkmodeMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            if (getMenu().getTile().getSkip()) {
+            if (getDarkModeConfigValue()) {
+                list.add(Component.translatable("gui.quarry.darkmode.dark"));
+                list.add(Component.translatable("gui.quarry.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
+            } else {
+                list.add(Component.translatable("gui.quarry.darkmode.white"));
+                list.add(Component.translatable("gui.quarry.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
+            }
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+        }
+        if (skipMouseButton.isMouseOver(pMouseX, pMouseY)) {
+            List<Component> list = new ArrayList<>();
+            if (blockEntity.getSkip()) {
                 list.add(Component.translatable("gui.quarry.skip.always"));
                 list.add(Component.translatable("gui.quarry.skip.skipped").withStyle(ChatFormatting.YELLOW));
             } else {
@@ -208,14 +213,14 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             }
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
-        if (darkmodeButtonIsHovered) {
+        if (replaceMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            if (getDarkModeConfigValue()) {
-                list.add(Component.translatable("gui.quarry.darkmode.dark"));
-                list.add(Component.translatable("gui.quarry.darkmode.dark.switch").withStyle(ChatFormatting.YELLOW));
+            if (blockEntity.getReplace()) {
+                list.add(Component.translatable("gui.quarry.replace.always"));
+                list.add(Component.translatable("gui.quarry.replace.always.description").withStyle(ChatFormatting.YELLOW));
             } else {
-                list.add(Component.translatable("gui.quarry.darkmode.white"));
-                list.add(Component.translatable("gui.quarry.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.replace.never"));
+                list.add(Component.translatable("gui.quarry.replace.never.description").withStyle(ChatFormatting.YELLOW));
             }
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
@@ -245,8 +250,24 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     @Override
     protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int x, int y) {
         super.renderBg(graphics, partialTicks, x, y);
-        Level level = this.getMenu().getTile().getLevel();
-        BlockPos pos = this.getMenu().getTile().getBlockPos();
+        QuarryBlockEntity blockEntity = this.getMenu().getTile();
+        Level level = blockEntity.getLevel();
+        BlockPos pos = blockEntity.getBlockPos();
+
+        // render sides
+        graphics.blit(getTexture(), leftPos - 32, topPos + 12, 191, 0, 32, 88); // left
+        graphics.blit(getTexture(), leftPos + getSizeX(), topPos + 12, 224, 0, 32, 88); // right
+
+        // render button indicator
+        // 0 = green | 2 = yellow | 4 = red | 6 = white
+        graphics.blit(getTexture(), leftPos - 27, topPos + 21, 177 + (blockEntity.getLocked() ? 2 : 4), 20, 1, 10); // lock
+        graphics.blit(getTexture(), leftPos - 27, topPos + 41, 177 + (blockEntity.getLoop() ? 4 : 0), 20, 1, 10); // loop
+        graphics.blit(getTexture(), leftPos - 27, topPos + 61, 177 + (blockEntity.getFilter() ? 4 : 0), 20, 1, 10); // filter
+        graphics.blit(getTexture(), leftPos - 27, topPos + 81, 177 + (blockEntity.getEject() == 2 || blockEntity.getEject() == 3 ? 4 : 0), 20, 1, 4); // eject
+        graphics.blit(getTexture(), leftPos - 27, topPos + 87, 177 + (blockEntity.getEject() == 1 || blockEntity.getEject() == 3 ? 4 : 0), 20, 1, 4); // pull
+
+        graphics.blit(getTexture(), leftPos + getSizeX() + 25, topPos + 61, 177 + (blockEntity.getSkip() ? 4 : 0), 20, 1, 10); // skip air
+        graphics.blit(getTexture(), leftPos + getSizeX() + 25, topPos + 81, 177 + (blockEntity.getReplace() ? 4 : 0), 20, 1, 10); // replace fluids
 
         // render burn tick process
         int height = getLitProgress();
@@ -268,29 +289,27 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     protected void addElements() {
-        QuarryBlockEntity tile = this.getMenu().getTile();
-        boolean darkmode = getDarkModeConfigValue();
-        boolean locked = tile.getLocked();
-        boolean loop = tile.getLoop();
-        boolean filter = tile.getFilter();
-        boolean skip = tile.getSkip();
-        int eject = tile.getEject();
-        infoMouseButton = new ModButton(161, 6, 9, 9, Quarry.INFO, null, null, tile, this, 9, 18, false);
-        lockMouseButton = new ModButton(6, 6, 9, 9, locked ? Quarry.LOCK : Quarry.LOCK_OPEN, this::cycleLocked, null, tile, this, 9, 18, true);
-        darkmodeMouseButton = new ModButton(150, 6, 9, 9, darkmode ? Quarry.DARK_MODE : Quarry.WHITE_MODE, () -> {
+        QuarryBlockEntity blockEntity = this.getMenu().getTile();
+        // right side
+        infoMouseButton = new ModButton(getSizeX() + 7, 17, 18, 18, Quarry.INFO, null, null, blockEntity, this, 18, 36, false);
+        darkmodeMouseButton = new ModButton(getSizeX() + 7, 37, 18, 18, Quarry.DARK_MODE, () -> {
             refreshWidgets();
             setDarkModeConfigValue(!getDarkModeConfigValue());
-        }, null, tile, this, 9, 18, true);
-        loopMouseButton = new ModButton(17, 6, 9, 9, loop ? Quarry.LOOP : Quarry.LOOP_OFF, () -> cycleLoop(), null, tile, this, 9, 18, true);
-        filterMouseButton = new ModButton(28, 6, 9, 9, filter ? Quarry.FILTER : Quarry.FILTER_OFF, () -> cycleFilter(true), null, tile, this, 9, 18, true);
-        ejectMouseButton = new ModButton(39, 6, 9, 9, eject <= 1 ? (eject == 0 ? Quarry.EJECT_OFF : Quarry.EJECT_IN) : (eject == 2 ? Quarry.EJECT_OUT : Quarry.EJECT_ALL), () -> changeEject((byte) 1), null, tile, this, 9, 18, true);
-        skipMouseButton = new ModButton(50, 6, 9, 9, skip ? Quarry.SKIP : Quarry.SKIP_OFF, () -> cycleSkip(), null, tile, this, 9, 18, true);
+        }, null, blockEntity, this, 18, 36, true);
+        skipMouseButton = new ModButton(getSizeX() + 7, 57, 18, 18, Quarry.SKIP, () -> cycleBoolean("skip"), null, blockEntity, this, 18, 36, true);
+        replaceMouseButton = new ModButton(getSizeX() + 7, 77, 18, 18, Quarry.REPLACE, () -> cycleBoolean("replace"), null, blockEntity, this, 18, 36, true);
 
-        modeMouseButton = new ModButton(56, 74, 64, 14, darkmode ? Quarry.MODE_DARK : Quarry.MODE, () -> changeMode(false), () -> changeMode(true), tile, this, 64, 28, true);
-        addRenderableWidget(new ModButton(69, 38, 10, 14, darkmode ? Quarry.COUNTER_DOWN_DARK : Quarry.COUNTER_DOWN, () -> changeSpeed((byte) -1), null, tile, this, 10, 28, true));
-        addRenderableWidget(new ModButton(95, 38, 10, 14, darkmode ? Quarry.COUNTER_UP_DARK : Quarry.COUNTER_UP, () -> changeSpeed((byte) 1), null, tile, this, 10, 28, true));
-        addRenderableWidget(new ModButton(61, 56, 25, 14, darkmode ? Quarry.POWER_DARK : Quarry.POWER, () -> changePower(true), null, tile, this, 25, 28, true));
-        addRenderableWidget(new ModButton(90, 56, 25, 14, darkmode ? Quarry.POWER_DARK : Quarry.POWER, () -> changePower(false), null, tile, this, 25, 28, true));
+        // left side
+        lockMouseButton = new ModButton(-26, 17, 18, 18, Quarry.LOCK, this::cycleLocked, null, blockEntity, this, 18, 36, true);
+        loopMouseButton = new ModButton(-26, 37, 18, 18, Quarry.LOOP, () -> cycleBoolean("loop"), null, blockEntity, this, 18, 36, true);
+        filterMouseButton = new ModButton(-26, 57, 18, 18, Quarry.FILTER, () -> cycleBoolean("filter"), null, blockEntity, this, 18, 36, true);
+        ejectMouseButton = new ModButton(-26, 77, 18, 18, Quarry.EJECT, () -> changeEject((byte) 1), null, blockEntity, this, 18, 36, true);
+
+        modeMouseButton = new ModButton(56, 74, 64, 14, Quarry.MODE, () -> changeMode(false), () -> changeMode(true), blockEntity, this, 64, 28, true);
+        addRenderableWidget(new ModButton(69, 38, 10, 14, Quarry.COUNTER_DOWN, () -> changeSpeed((byte) -1), null, blockEntity, this, 10, 28, true));
+        addRenderableWidget(new ModButton(95, 38, 10, 14, Quarry.COUNTER_UP, () -> changeSpeed((byte) 1), null, blockEntity, this, 10, 28, true));
+        addRenderableWidget(new ModButton(61, 56, 25, 14, Quarry.POWER, () -> changePower(true), null, blockEntity, this, 25, 28, true));
+        addRenderableWidget(new ModButton(90, 56, 25, 14, Quarry.POWER, () -> changePower(false), null, blockEntity, this, 25, 28, true));
 
         addRenderableWidget(infoMouseButton);
         addRenderableWidget(lockMouseButton);
@@ -299,6 +318,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         addRenderableWidget(filterMouseButton);
         addRenderableWidget(ejectMouseButton);
         addRenderableWidget(skipMouseButton);
+        addRenderableWidget(replaceMouseButton);
         addRenderableWidget(modeMouseButton);
     }
 
@@ -309,51 +329,6 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         if (pSlotId == 48) {
             PacketHandler.sendToServer(new QuarryChangedPacket(pSlot.getItem(), pSlot.getItem().is(ModItems.AREA_CARD.get()) ? 1 : 2, this.getMenu().getTile().getBlockPos()));
         }
-    }
-
-    @Override
-    protected boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-        if (modeMouseButton != null && modeMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            modeButtonIsHovered = true;
-        } else {
-            if (modeButtonIsHovered) modeButtonIsHovered = false;
-        }
-        if (infoMouseButton != null && infoMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            infoButtonIsHovered = true;
-        } else {
-            if (infoButtonIsHovered) infoButtonIsHovered = false;
-        }
-        if (lockMouseButton != null && lockMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            lockButtonIsHovered = true;
-        } else {
-            if (lockButtonIsHovered) lockButtonIsHovered = false;
-        }
-        if (loopMouseButton != null && loopMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            loopButtonIsHovered = true;
-        } else {
-            if (loopButtonIsHovered) loopButtonIsHovered = false;
-        }
-        if (ejectMouseButton != null && ejectMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            ejectButtonIsHovered = true;
-        } else {
-            if (ejectButtonIsHovered) ejectButtonIsHovered = false;
-        }
-        if (filterMouseButton != null && filterMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            filterButtonIsHovered = true;
-        } else {
-            if (filterButtonIsHovered) filterButtonIsHovered = false;
-        }
-        if (darkmodeMouseButton != null && darkmodeMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            darkmodeButtonIsHovered = true;
-        } else {
-            if (darkmodeButtonIsHovered) darkmodeButtonIsHovered = false;
-        }
-        if (skipMouseButton != null && skipMouseButton.isMouseOver(pMouseX, pMouseY)) {
-            skipButtonIsHovered = true;
-        } else {
-            if (skipButtonIsHovered) skipButtonIsHovered = false;
-        }
-        return super.isHovering(pX, pY, pWidth, pHeight, pMouseX, pMouseY);
     }
 
     @Override
@@ -381,7 +356,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     public void cycleLocked() {
         QuarryBlockEntity entity = this.getMenu().getTile();
         if ((Objects.equals(((QuarryBlockEntity) entity.getLevel().getBlockEntity(entity.getBlockPos())).getOwner(), this.getMinecraft().player.getName().getString() + "@" + this.getMinecraft().player.getStringUUID())) || this.getMinecraft().player.hasPermissions(2))
-            PacketHandler.sendToServer(new QuarryBooleanPacket(this.getMenu().getTile().getBlockPos(), false, "locked"));
+            PacketHandler.sendToServer(new QuarryBooleanPacket(entity.getBlockPos(), false, "locked"));
         sendChangedPacket();
     }
 
@@ -405,18 +380,8 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         sendChangedPacket();
     }
 
-    public void cycleLoop() {
-        PacketHandler.sendToServer(new QuarryBooleanPacket(this.getMenu().getTile().getBlockPos(), false, "loop"));
-        sendChangedPacket();
-    }
-
-    public void cycleSkip() {
-        PacketHandler.sendToServer(new QuarryBooleanPacket(this.getMenu().getTile().getBlockPos(), false, "skip"));
-        sendChangedPacket();
-    }
-
-    private void cycleFilter(boolean state) {
-        PacketHandler.sendToServer(new QuarryBooleanPacket(this.getMenu().getTile().getBlockPos(), false, "filter"));
+    public void cycleBoolean(String type) {
+        PacketHandler.sendToServer(new QuarryBooleanPacket(this.getMenu().getTile().getBlockPos(), false, type));
         sendChangedPacket();
     }
 

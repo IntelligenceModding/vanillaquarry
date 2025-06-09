@@ -2,8 +2,10 @@ package de.unhappycodings.quarry.common.item;
 
 import de.unhappycodings.quarry.common.blocks.QuarryBlock;
 import de.unhappycodings.quarry.common.container.AreaCardContainer;
+import de.unhappycodings.quarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -22,11 +24,17 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class AreaCardItem extends Item implements MenuProvider {
 
@@ -35,9 +43,7 @@ public class AreaCardItem extends Item implements MenuProvider {
     }
 
     public static void writePos(CompoundTag nbt, BlockPos pos) {
-        nbt.putInt("x", pos.getX());
-        nbt.putInt("y", pos.getY());
-        nbt.putInt("z", pos.getZ());
+        NbtUtil.writePos(nbt, pos);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -57,8 +63,9 @@ public class AreaCardItem extends Item implements MenuProvider {
             tooltipComponents.add(Component.translatable("item.quarry.areacard.text.to").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         }
         for (int i = 0; i <= 6; i++) {
-            if (stack.getOrCreateTag().getCompound("Filters").getBoolean(String.valueOf(i))) {
-                tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_active").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+            CompoundTag nbt = stack.getOrCreateTag().getCompound("Filters");
+            if (!nbt.isEmpty()) {
+                tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_active", nbt.getAllKeys().size()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
                 tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_enable").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
                 break;
             }
@@ -99,8 +106,20 @@ public class AreaCardItem extends Item implements MenuProvider {
     @NotNull
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player pPlayer, @NotNull InteractionHand pUsedHand) {
-        if (!pLevel.isClientSide && pUsedHand == InteractionHand.MAIN_HAND)
-            NetworkHooks.openScreen((ServerPlayer) pPlayer, this);
+        if (pUsedHand == InteractionHand.MAIN_HAND) {
+            if (pPlayer.isShiftKeyDown() && !pLevel.isClientSide) {
+                CompoundTag tag = pPlayer.getItemInHand(InteractionHand.MAIN_HAND).getOrCreateTag();
+                tag.remove("pos1");
+                tag.remove("pos2");
+                tag.remove("Filters");
+                tag.remove("lastBlock");
+                tag.remove("currentY");
+                tag.remove("Selection");
+                pPlayer.sendSystemMessage(Component.literal("Area card reset to defaults").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            } else if (!pLevel.isClientSide)
+                NetworkHooks.openScreen((ServerPlayer) pPlayer, this);
+
+        }
         return super.use(pLevel, pPlayer, pUsedHand);
     }
 
