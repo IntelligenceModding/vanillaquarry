@@ -22,7 +22,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
@@ -129,7 +128,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         graphics.blit(getTexture(), leftPos - 27, topPos + 21, 202 - (stack.getOrCreateTag().getInt("Selection") == 0 ? 1 : 0), 57, 1, 10); // pos
         graphics.blit(getTexture(), leftPos - 27, topPos + 41, 202 - (stack.getOrCreateTag().getInt("Selection") == 1 ? 1 : 0), 57, 1, 10); // radius
         graphics.blit(getTexture(), leftPos - 27, topPos + 61, 202 - (stack.getOrCreateTag().getInt("Selection") == 2 ? 1 : 0), 57, 1, 10); // chunk
-        graphics.blit(getTexture(), leftPos - 27, topPos + 81, 202- (stack.getOrCreateTag().getInt("Selection") == 3 ? 1 : 0), 57, 1, 10); // eject
+        graphics.blit(getTexture(), leftPos - 27, topPos + 81, 202 - (stack.getOrCreateTag().getInt("Selection") == 3 ? 1 : 0), 57, 1, 10); // eject
 
         if (stack.getOrCreateTag().getInt("Selection") == 1) {
             graphics.blit(getTexture(), leftPos + (getSizeX() / 2) - 39, topPos + 67, 177, 150, 78, 14);
