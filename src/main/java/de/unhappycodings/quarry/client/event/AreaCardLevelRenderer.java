@@ -76,7 +76,7 @@ public class AreaCardLevelRenderer {
 
         RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        bufferbuilder.begin(RenderType.translucent().mode(), DefaultVertexFormat.POSITION_COLOR);
+        bufferbuilder.begin(RenderType.translucent().mode(), DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();

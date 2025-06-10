@@ -25,7 +25,7 @@ public class NbtUtil {
         return tag.getInt(key);
     }
 
-    public static BlockPos getPos(@Nullable CompoundTag tag) throws IllegalStateException {
+    public static BlockPos getPos(@Nullable CompoundTag tag) {
         if (tag == null)
             return null;
 
