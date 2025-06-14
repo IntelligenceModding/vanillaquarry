@@ -31,13 +31,6 @@ public abstract class BaseWidget extends AbstractWidget {
         this.topPos = screen.getGuiTop();
     }
 
-    public BaseWidget(int x, int y, int width, int height, int imageWidth, int imageHeight) {
-        super(((width - imageWidth) / 2) + x, ((height - imageHeight) / 2) + y, width, height, Component.empty());
-        this.screen = null;
-        this.leftPos = (width - imageWidth) / 2;
-        this.topPos = (height - imageHeight) / 2;
-    }
-
     @Override
     public void render(@NotNull GuiGraphics graphics, int x, int y, float partialTicks) {
         GuiUtil.reset();

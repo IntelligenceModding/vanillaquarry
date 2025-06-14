@@ -19,6 +19,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -207,6 +208,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             if (blockEntity.getSkip()) {
                 list.add(Component.translatable("gui.quarry.skip.always"));
                 list.add(Component.translatable("gui.quarry.skip.skipped").withStyle(ChatFormatting.YELLOW));
+                list.add(Component.translatable("gui.quarry.skip.skips").withStyle(ChatFormatting.YELLOW));
             } else {
                 list.add(Component.translatable("gui.quarry.skip.never"));
                 list.add(Component.translatable("gui.quarry.skip.iterate").withStyle(ChatFormatting.YELLOW));
@@ -227,10 +229,6 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     public void drawCenteredString(GuiGraphics graphics, Font font, String text, int x, int y, int color, boolean shadow) {
-        graphics.drawString(font, text, x - font.width(text) / 2, y, color, shadow);
-    }
-
-    public void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color, boolean shadow) {
         graphics.drawString(font, text, x - font.width(text) / 2, y, color, shadow);
     }
 
@@ -354,8 +352,11 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     public void cycleLocked() {
+        if (Minecraft.getInstance().player == null || Minecraft.getInstance().level == null) return;
+
+        LocalPlayer player = Minecraft.getInstance().player;
         QuarryBlockEntity entity = this.getMenu().getTile();
-        if ((Objects.equals(((QuarryBlockEntity) entity.getLevel().getBlockEntity(entity.getBlockPos())).getOwner(), this.getMinecraft().player.getName().getString() + "@" + this.getMinecraft().player.getStringUUID())) || this.getMinecraft().player.hasPermissions(2))
+        if ((Objects.equals(entity.getOwner(), player.getName().getString() + "@" + player.getStringUUID())) || player.hasPermissions(2))
             PacketHandler.sendToServer(new QuarryBooleanPacket(entity.getBlockPos(), false, "locked"));
         sendChangedPacket();
     }

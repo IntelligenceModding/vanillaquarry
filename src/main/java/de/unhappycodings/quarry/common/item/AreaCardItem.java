@@ -44,22 +44,22 @@ public class AreaCardItem extends Item implements MenuProvider {
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
         if (stack.getOrCreateTag().contains("pos1")) {
             String pos = stack.getOrCreateTag().get("pos1").getAsString().replace("{", "").replace("}", "").replace(",", " ");
-            tooltipComponents.add(Component.translatable("item.quarry.areacard.text.box").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            tooltipComponents.add(Component.translatable("gui.areacard.box").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             if (stack.getOrCreateTag().contains("lastBlock")) {
                 int blocksMined = stack.getOrCreateTag().getInt("lastBlock");
-                tooltipComponents.add(Component.translatable("item.quarry.areacard.text.mined").append(" " + blocksMined).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                tooltipComponents.add(Component.translatable("gui.areacard.mined").append(" " + blocksMined).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             }
-            tooltipComponents.add(Component.translatable("item.quarry.areacard.text.from").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            tooltipComponents.add(Component.translatable("gui.areacard.from").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         }
         if (stack.getOrCreateTag().contains("pos2")) {
             String pos = stack.getOrCreateTag().get("pos2").getAsString().replace("{", "").replace("}", "").replace(",", " ");
-            tooltipComponents.add(Component.translatable("item.quarry.areacard.text.to").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            tooltipComponents.add(Component.translatable("gui.areacard.to").append(" " + pos).setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         }
         for (int i = 0; i <= 6; i++) {
             CompoundTag nbt = stack.getOrCreateTag().getCompound("Filters");
             if (!nbt.isEmpty()) {
-                tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_active", nbt.getAllKeys().size()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
-                tooltipComponents.add(Component.translatable("item.quarry.areacard.text.filters_enable").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+                tooltipComponents.add(Component.translatable("gui.areacard.filters_active", nbt.getAllKeys().size()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+                tooltipComponents.add(Component.translatable("gui.areacard.filters_enable").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
                 break;
             }
         }
@@ -124,7 +124,7 @@ public class AreaCardItem extends Item implements MenuProvider {
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+    public AbstractContainerMenu createMenu(int pContainerId, @NotNull Inventory pPlayerInventory, Player pPlayer) {
         return new AreaCardContainer(pContainerId, pPlayerInventory, pPlayer.getOnPos(), pPlayer.level());
     }
 }

@@ -39,10 +39,7 @@ public class Quarry {
     public static final ResourceLocation DARK_MODE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/dark_mode_switch.png");
 
     public static final ResourceLocation BLANK = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/blank.png");
-    public static final ResourceLocation SAVE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/save.png");
     public static final ResourceLocation FIELD = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/field.png");
-    public static final ResourceLocation SELECTOR = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/selector_on.png");
-    public static final ResourceLocation SELECTOR_OFF = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/selector_off.png");
     public static final ResourceLocation SKIP = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/skip.png");
     public static final ResourceLocation REPLACE = new ResourceLocation(Quarry.MOD_ID, "textures/gui/button/replace.png");
 

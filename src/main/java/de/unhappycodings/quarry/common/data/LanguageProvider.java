@@ -75,6 +75,7 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
 
         add("gui.quarry.skip.always", "Always Skip Air");
         add("gui.quarry.skip.skipped", "Don't try to break blocks as air.");
+        add("gui.quarry.skip.skips", "Skips 160 air per second max.");
         add("gui.quarry.skip.never", "Don't Skip Air");
         add("gui.quarry.skip.iterate", "Iterate through all blocks, even air!");
 
@@ -98,24 +99,40 @@ public class LanguageProvider extends net.minecraftforge.common.data.LanguagePro
         add("gui.quarry.darkmode.white", "Whitemode");
         add("gui.quarry.darkmode.white.switch", "click to switch to darkmode.");
 
-        add("item.quarry.areacard.text.box", "Box (Solid)");
-        add("item.quarry.areacard.text.mined", "#Mined");
-        add("item.quarry.areacard.text.from", "From");
-        add("item.quarry.areacard.text.to", "To");
-        add("item.quarry.areacard.text.filters_active", "%s filter(s) set!");
-        add("item.quarry.areacard.text.filters_enable", "Don't forget to enable filters in the quarry!");
+        add("gui.areacard.box", "Box (Solid)");
+        add("gui.areacard.mined", "#Mined");
+        add("gui.areacard.from", "From");
+        add("gui.areacard.to", "To");
+        add("gui.areacard.filters_active", "%s filter(s) set!");
+        add("gui.areacard.filters_enable", "Don't forget to enable filters in the quarry!");
 
-        add("item.quarry.areacard.text.around", "Blocks around");
-        add("item.quarry.areacard.text.framing", "Framing chunks");
-        add("item.quarry.areacard.text.illegal", "Illegal State");
+        add("gui.areacard.around", "Blocks around");
+        add("gui.areacard.framing", "Framing chunks");
+        add("gui.areacard.illegal", "Illegal State");
 
-        add("item.quarry.areacard.text.save", "Save");
-        add("item.quarry.areacard.text.pos", "Pos");
-        add("item.quarry.areacard.text.radius", "Radius");
-        add("item.quarry.areacard.text.chunk", "Chunk");
-        add("item.quarry.areacard.text.pos_1", "Position 1");
-        add("item.quarry.areacard.text.pos_2", "Position 2");
-        add("item.quarry.areacard.text.filter", "Filter");
+        add("gui.areacard.save", "Save");
+        add("gui.areacard.pos", "Pos");
+        add("gui.areacard.radius", "Radius");
+        add("gui.areacard.chunk", "Chunk");
+        add("gui.areacard.pos_1", "Position 1");
+        add("gui.areacard.pos_2", "Position 2");
+        add("gui.areacard.filter", "Filter");
+
+        add("gui.areacard.selection.filter", "Filter: ");
+        add("gui.areacard.selection.filter.set", "Click with item in mouse to set");
+        add("gui.areacard.selection.filter.unset", "Filter: Not Set");
+        add("gui.areacard.selection.filter.reset", "Click with bare hand to remove filter");
+
+        add("gui.areacard.selection.position", "Position");
+        add("gui.areacard.selection.position.description", "Set both positions to your desire");
+
+        add("gui.areacard.selection.radius", "Radius");
+        add("gui.areacard.selection.radius.description", "Square radius around your current position");
+
+        add("gui.areacard.selection.chunk", "Chunk");
+        add("gui.areacard.selection.chunk.description", "Square chunk radius around your current chunk");
+
+        add("gui.areacard.selection.filter.description", "Set filters to get rid of useless drops");
 
         add("message.quarry.savedfirst", "First position saved! Now select the second corner.");
         add("message.quarry.savedsecond", "New settings copied to the area card!");

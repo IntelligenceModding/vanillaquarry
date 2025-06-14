@@ -50,8 +50,4 @@ public class QuarryBlockItem extends BlockItem {
         return Style.EMPTY.withColor(ChatFormatting.GREEN);
     }
 
-    public Style gray() {
-        return Style.EMPTY.withColor(ChatFormatting.GRAY);
-    }
-
 }

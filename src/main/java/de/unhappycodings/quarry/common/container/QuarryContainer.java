@@ -66,10 +66,6 @@ public class QuarryContainer extends BaseContainer {
         return this.tileEntity;
     }
 
-    public SlotItemHandler getInputSlot() {
-        return inputSlot;
-    }
-
     @Override
     public boolean stillValid(@NotNull Player playerIn) {
         return true;

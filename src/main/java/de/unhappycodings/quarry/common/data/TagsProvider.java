@@ -19,19 +19,18 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 public class TagsProvider extends net.minecraft.data.tags.TagsProvider<Block> {
-    private final DeferredRegister<Block> blockRegistry;
-    private PackOutput packOutput;
+    private final PackOutput packOutput;
 
     @SuppressWarnings("deprecation")
     protected TagsProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> future, @Nullable ExistingFileHelper existingFileHelper, DeferredRegister<Block> registry) {
         super(packOutput, ForgeRegistries.BLOCKS.getRegistryKey(), future, Quarry.MOD_ID, existingFileHelper);
         this.packOutput = packOutput;
-        this.blockRegistry = registry;
     }
 
     @Override
-    protected void addTags(HolderLookup.Provider pProvider) {
+    protected void addTags(@NotNull HolderLookup.Provider pProvider) {
         // Interate through all Blocks and add them the "Mineable with Pickaxe" tag
+
         for (RegistryObject<Block> block : Registration.BLOCKS.getEntries()) {
             tag(BlockTags.MINEABLE_WITH_PICKAXE).add(getResourceKey(block));
         }

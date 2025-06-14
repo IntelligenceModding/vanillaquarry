@@ -9,7 +9,6 @@ import de.unhappycodings.quarry.common.network.toserver.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
@@ -54,9 +53,4 @@ public class PacketHandler {
         CHANNEL.sendToServer(packet);
     }
 
-    public static void sendTo(Object packet, ServerPlayer player) {
-        if (!(player instanceof FakePlayer)) {
-            CHANNEL.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-        }
-    }
 }

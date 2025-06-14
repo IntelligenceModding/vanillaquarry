@@ -1,11 +1,7 @@
 package de.unhappycodings.quarry.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.*;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.common.config.CommonConfig;
@@ -72,7 +68,7 @@ public class AreaCardLevelRenderer {
         float r = color.getRed() / 255f;
         float g = color.getGreen() / 255f;
         float b = color.getBlue() / 255f;
-        float a = 0.3f;
+        float a = 0.5f;
 
         RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);

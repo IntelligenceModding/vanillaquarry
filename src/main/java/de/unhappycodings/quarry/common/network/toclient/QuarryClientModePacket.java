@@ -3,7 +3,6 @@ package de.unhappycodings.quarry.common.network.toclient;
 import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.quarry.common.network.base.IPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,8 +23,9 @@ public class QuarryClientModePacket implements IPacket {
     }
 
     public void handle(NetworkEvent.Context context) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        BlockEntity machine = player.level().getBlockEntity(pos);
+        if (Minecraft.getInstance().level == null) return;
+
+        BlockEntity machine = Minecraft.getInstance().level.getBlockEntity(pos);
         if (!(machine instanceof QuarryBlockEntity blockEntity)) return;
         blockEntity.setMode(add);
     }

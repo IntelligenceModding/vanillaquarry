@@ -44,28 +44,30 @@ public abstract class BaseContainer extends AbstractContainerMenu {
     @Override
     public ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
-        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
+        if (!sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem();
-        if (playerIn.level().isClientSide && (sourceStack.is(ModItems.AREA_CARD.get()) || sourceStack.is(Items.AIR))) {
+
+        if (playerIn.level().isClientSide && (sourceStack.is(ModItems.AREA_CARD.get()) || sourceStack.is(Items.AIR)))
             PacketHandler.sendToServer(new QuarryChangedPacket(sourceStack, sourceStack.is(ModItems.AREA_CARD.get()) ? 1 : 2, tileEntity.getBlockPos()));
-        }
+
         ItemStack copyOfSourceStack = sourceStack.copy();
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)) {
+            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false))
                 return ItemStack.EMPTY;
-            }
+
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
-            if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+            if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false))
                 return ItemStack.EMPTY;
-            }
+
         } else {
             return ItemStack.EMPTY;
         }
-        if (sourceStack.getCount() == 0) {
+
+        if (sourceStack.getCount() == 0)
             sourceSlot.set(ItemStack.EMPTY);
-        } else {
+        else
             sourceSlot.setChanged();
-        }
+
         sourceSlot.onTake(playerIn, sourceStack);
         return copyOfSourceStack;
     }

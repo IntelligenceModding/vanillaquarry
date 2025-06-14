@@ -62,11 +62,11 @@ public class BaseSlot extends SlotItemHandler {
         return this;
     }
 
-    public int getTexX() {
+    public int getTextX() {
         return this.x - (getSize() - 16) / 2;
     }
 
-    public int getTexY() {
+    public int getTextY() {
         return this.y - (getSize() - 16) / 2;
     }
 
@@ -121,8 +121,9 @@ public class BaseSlot extends SlotItemHandler {
             RenderSystem.setShaderColor(1, 1, 1, 0.65f);
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();
-            //stack.translate(0,0,10);
+
             graphics.blit(ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY, x + this.x, y + this.y, 0, 0, 16, 16, 16, 16);
+
             RenderSystem.disableBlend();
             RenderSystem.enableDepthTest();
             GuiUtil.reset();
@@ -133,7 +134,9 @@ public class BaseSlot extends SlotItemHandler {
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();
             RenderSystem.setShaderTexture(0, overlay.getSecond());
+
             graphics.blit(ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY, x + this.x, y + this.y, 0, 0, 16, 16, 16, 16);
+
             RenderSystem.disableBlend();
             RenderSystem.enableDepthTest();
 

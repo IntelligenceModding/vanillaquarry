@@ -14,6 +14,7 @@ public class ModCreativeTabs {
         ItemCreativeTab.populateCreativeTabBuilder(builder);
         return builder.build();
     }
+
     public static void register() {
 
     }

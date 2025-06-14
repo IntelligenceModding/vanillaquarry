@@ -22,8 +22,6 @@ public class DataProvider {
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> completablefuture = CompletableFuture.supplyAsync(VanillaRegistries::createLookup, Util.backgroundExecutor());
 
-        generator.addProvider(true, new ModelAndBlockStatesProvider(generator, existingFileHelper));
-        generator.addProvider(true, new ItemModelProvider(generator, existingFileHelper));
         generator.addProvider(true, new TagsProvider(generator.getPackOutput(), completablefuture, existingFileHelper, Registration.BLOCKS));
         generator.addProvider(true, new RecipeProvider(generator));
         generator.addProvider(true, new LanguageProvider(generator, "en_us"));

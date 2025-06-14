@@ -5,6 +5,7 @@ import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
+import de.unhappycodings.quarry.common.blockentity.QuarryBlockEntity;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import de.unhappycodings.quarry.common.container.base.ModEditBox;
 import de.unhappycodings.quarry.common.item.AreaCardItem;
@@ -61,6 +62,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     boolean init2 = false;
     boolean init3 = false;
     boolean init4 = false;
+    boolean changesMade = false;
     int blockRadius = 0;
     int chunkRadius = 0;
     long blockCount = 1;
@@ -94,8 +96,10 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, float partialTicks) {
+    public void render(@NotNull GuiGraphics graphics, int x, int y, float partialTicks) {
         super.render(graphics, x, y, partialTicks);
+        if (Minecraft.getInstance().player == null) return;
+
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         for (ModEditBox editBox : positionInputs) {
             if (editBox != null) {
@@ -118,6 +122,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int x, int y) {
         super.renderBg(graphics, partialTicks, x, y);
+        if (Minecraft.getInstance().player == null) return;
+
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
 
         // left side
@@ -141,7 +147,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             for (int i = 0; i < 17; i++) {
                 for (int e = 0; e < 17; e++) {
                     if (posList[i][e] <= chunkRadius) {
-                        graphics.blit(getTexture(), (int) (leftPos + 118 + (Math.ceil(e * 3))), (int) (topPos + 28 + (Math.ceil(i * 3))), 198, 57, 2, 2);
+                        graphics.blit(getTexture(), (int) (leftPos + 118 + ((double) e * 3)), (int) (topPos + 28 + ((double) i * 3)), 198, 57, 2, 2);
                     }
                 }
             }
@@ -149,22 +155,20 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         if (stack.getOrCreateTag().getInt("Selection") == 3) {
 
             for (int i = 0; i < 27; i++) {
-                graphics.blit(getTexture(), leftPos + 7 + (i % 9) * 18, (int) (topPos + 27 + Math.floor(i / 9) * 18), 0, 187, 18, 18); // Count output field
-                if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9) * 18) + 1, 16, 16, x, y)) {
-                    renderGhostOverlay(graphics, filters[i].getDefaultInstance(), leftPos + 7 + (i % 9) * 18 + 1, (int) (topPos + 27 + Math.floor(i / 9) * 18 + 1), false);
-                } else {
-                    renderGhostOverlay(graphics, filters[i].getDefaultInstance(), leftPos + 7 + (i % 9) * 18 + 1, (int) (topPos + 27 + Math.floor(i / 9) * 18 + 1), true);
-                }
+                graphics.blit(getTexture(), leftPos + 7 + (i % 9) * 18, (int) (topPos + 27 + Math.floor(i / 9D) * 18), 0, 187, 18, 18); // Count output field
+                renderGhostOverlay(graphics, filters[i].getDefaultInstance(), leftPos + 7 + (i % 9) * 18 + 1, (int) (topPos + 27 + Math.floor((double) i / 9) * 18 + 1), !isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9D) * 18) + 1, 16, 16, x, y));
             }
         }
     }
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics graphics, int pMouseX, int pMouseY) {
+        if (Minecraft.getInstance().player == null) return;
+
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         if (stack.getOrCreateTag().getInt("Selection") == 0) {
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("item.quarry.areacard.text.pos_1").getString(), 30, 25, 1315860, false);
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("item.quarry.areacard.text.pos_2").getString(), 96, 25, 1315860, false);
+            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.pos_1").getString(), 30, 25, 1315860, false);
+            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.pos_2").getString(), 96, 25, 1315860, false);
             graphics.drawString(Minecraft.getInstance().font, Component.literal("X").getString(), 84, 41, 1315860, false);
             graphics.drawString(Minecraft.getInstance().font, Component.literal("Y").getString(), 84, 57, 1315860, false);
             graphics.drawString(Minecraft.getInstance().font, Component.literal("Z").getString(), 84, 74, 1315860, false);
@@ -188,9 +192,9 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             }
         }
         if (stack.getOrCreateTag().getInt("Selection") == 1) {
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("item.quarry.areacard.text.around"), 51, 34, 1315860, false);
+            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.around"), 51, 34, 1315860, false);
             drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(blockRadius)), 88, 52, 1315860, false);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal("#").append(String.valueOf(blockCount)), 88, 71, 1315860, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal("#").append(String.valueOf(blockCount)), 88, 70, ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632, true);
             if (!init4) {
                 BlockPos pos1 = BlockPos.ZERO;
                 if (stack.getOrCreateTag().contains("pos1"))
@@ -217,9 +221,9 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 }
             }
             int count = ((chunkRadius * 2 + 1) * (chunkRadius * 2 + 1)) * (16 * 16 * multiplicator);
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("item.quarry.areacard.text.framing").getString(), 18, 23, 1315860, false);
+            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.framing").getString(), 18, 23, 1315860, false);
             drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(chunkRadius)).getString(), 56, 37, 1315860, false);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(valid ? "#" : "").append(String.valueOf(valid ? count : Component.translatable("item.quarry.areacard.text.illegal").getString())).getString(), 55, 56, valid ? 1315860 : 16670302, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(valid ? "#" : "").append(String.valueOf(valid ? count : Component.translatable("gui.areacard.illegal").getString())).getString(), 55, 55, valid ? ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632 : 16670302, true);
             if (!init3) {
                 BlockPos pos1 = BlockPos.ZERO;
                 if (stack.getOrCreateTag().contains("pos1"))
@@ -238,14 +242,14 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         }
         if (stack.getOrCreateTag().getInt("Selection") == 3) {
             for (int i = 0; i < 27; i++) {
-                if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9) * 18) + 1, 16, 16, pMouseX, pMouseY)) {
+                if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9D) * 18) + 1, 16, 16, pMouseX, pMouseY)) {
                     List<Component> list = new ArrayList<>();
                     if (!filters[i].getDefaultInstance().isEmpty()) {
-                        list.add(Component.literal("Filter: ").append(filters[i].getDefaultInstance().getDisplayName()));
-                        list.add(Component.literal("Click with bare hand to remove filter").withStyle(ChatFormatting.YELLOW));
+                        list.add(Component.translatable("gui.areacard.filter").append(filters[i].getDefaultInstance().getDisplayName()));
+                        list.add(Component.translatable("gui.areacard.selection.filter.reset").withStyle(ChatFormatting.YELLOW));
                     } else {
-                        list.add(Component.literal("Filter: Not Set"));
-                        list.add(Component.literal("Click with item in mouse to set").withStyle(ChatFormatting.YELLOW));
+                        list.add(Component.translatable("gui.areacard.selection.filter.unset"));
+                        list.add(Component.translatable("gui.areacard.selection.filter.set").withStyle(ChatFormatting.YELLOW));
                     }
                     graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
                 }
@@ -266,29 +270,29 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
         if (posMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            list.add(Component.literal("Position"));
-            list.add(Component.literal("Set both positions to your desire").withStyle(ChatFormatting.YELLOW));
+            list.add(Component.translatable("gui.areacard.selection.position"));
+            list.add(Component.translatable("gui.areacard.selection.position.description").withStyle(ChatFormatting.YELLOW));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
 
         if (radiusMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            list.add(Component.literal("Radius"));
-            list.add(Component.literal("Square radius around your current position").withStyle(ChatFormatting.YELLOW));
+            list.add(Component.translatable("gui.areacard.selection.radius"));
+            list.add(Component.translatable("gui.areacard.selection.radius.description").withStyle(ChatFormatting.YELLOW));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
 
         if (chunkMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            list.add(Component.literal("Chunk"));
-            list.add(Component.literal("Square chunk radius around your current chunk").withStyle(ChatFormatting.YELLOW));
+            list.add(Component.translatable("gui.areacard.selection.chunk"));
+            list.add(Component.translatable("gui.areacard.selection.chunk.description").withStyle(ChatFormatting.YELLOW));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
 
         if (filterMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            list.add(Component.literal("Filter"));
-            list.add(Component.literal("Set filters to get rid of useless drops").withStyle(ChatFormatting.YELLOW));
+            list.add(Component.translatable("gui.areacard.selection.filter"));
+            list.add(Component.translatable("gui.areacard.selection.filter.description").withStyle(ChatFormatting.YELLOW));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
 
@@ -321,9 +325,15 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     @Override
     public void onClose() {
-        savePositions();
-        if (Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.AREA_CARD.get()))
-            saveFilter(Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND));
+        if (Minecraft.getInstance().player == null) return;
+
+        if (changesMade) {
+            savePositions();
+            if (Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.AREA_CARD.get()))
+                saveFilter(Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND));
+        } else {
+            PacketHandler.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND)));
+        }
         super.onClose();
     }
 
@@ -369,23 +379,26 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             editBox.setFocused(false);
             if (editBox.isHoveredOrFocused()) {
                 setInitialFocus(editBox);
+                changesMade = true;
             }
         }
         for (ModEditBox editBox : heightInputs) {
             editBox.setFocused(false);
             if (editBox.isHoveredOrFocused()) {
                 setInitialFocus(editBox);
+                changesMade = true;
             }
         }
         // add and remove filters ability
         for (int i = 0; i < 27; i++) {
-            if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9) * 18) + 1, 16, 16, pMouseX, pMouseY)) {
+            if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9D) * 18) + 1, 16, 16, pMouseX, pMouseY)) {
                 ItemStack mouse = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (Minecraft.getInstance().player.containerMenu.getCarried() == ItemStack.EMPTY) {
                     filters[i] = ItemStack.EMPTY.getItem();
                 } else {
                     filters[i] = mouse.getItem();
                 }
+                changesMade = true;
             }
         }
 
@@ -394,6 +407,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     protected void addElements() {
         subInit();
+        if (Minecraft.getInstance().player == null) return;
+
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         int selection = stack.getOrCreateTag().getInt("Selection");
 
@@ -421,10 +436,10 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         }, null, null, this, 18, 36, true);
         addRenderableWidget(darkmodeMouseButton);
 
-        posMouseButton = new ModButton(-26, 17, 18, 18, POS, () -> stack.getOrCreateTag().putInt("Selection", 0), null, null, this, 18, 36, true);
-        radiusMouseButton = new ModButton(-26, 37, 18, 18, RADIUS, () -> stack.getOrCreateTag().putInt("Selection", 1), null, null, this, 18, 36, true);
-        chunkMouseButton = new ModButton(-26, 57, 18, 18, CHUNK, () -> stack.getOrCreateTag().putInt("Selection", 2), null, null, this, 18, 36, true);
-        filterMouseButton = new ModButton(-26, 77, 18, 18, FILTER, () -> stack.getOrCreateTag().putInt("Selection", 3), null, null, this, 18, 36, true);
+        posMouseButton = new ModButton(-26, 17, 18, 18, POS, () -> {stack.getOrCreateTag().putInt("Selection", 0); changesMade = true;}, null, null, this, 18, 36, true);
+        radiusMouseButton = new ModButton(-26, 37, 18, 18, RADIUS, () -> {stack.getOrCreateTag().putInt("Selection", 1); changesMade = true;}, null, null, this, 18, 36, true);
+        chunkMouseButton = new ModButton(-26, 57, 18, 18, CHUNK, () -> {stack.getOrCreateTag().putInt("Selection", 2); changesMade = true;}, null, null, this, 18, 36, true);
+        filterMouseButton = new ModButton(-26, 77, 18, 18, FILTER, () -> {stack.getOrCreateTag().putInt("Selection", 3); changesMade = true;}, null, null, this, 18, 36, true);
 
         addRenderableWidget(posMouseButton);
         addRenderableWidget(radiusMouseButton);
@@ -433,6 +448,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     public void cycleChunkRadius(int add) {
+        changesMade = true;
         if (add > 0) {
             if (chunkRadius == 8) {
                 chunkRadius = 0;
@@ -449,6 +465,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     public void cycleBlockRadius(int add) {
+        changesMade = true;
         if (add > 0) {
             if (blockRadius == 1024) {
                 blockRadius = 0;
@@ -474,6 +491,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     public BlockPos getOffsetPos(int modifier) {
+        if (Minecraft.getInstance().player == null) return BlockPos.ZERO;
+
         return new BlockPos(Minecraft.getInstance().player.blockPosition().offset(modifier, modifier, modifier));
     }
 
@@ -499,9 +518,10 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     public void savePositions() {
+        if (Minecraft.getInstance().player == null || Minecraft.getInstance().level == null) return;
+        
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         String[] posString = {"x", "y", "z"};
-        CompoundTag filters = stack.getOrCreateTag().getCompound("Filters");
         if (stack.getOrCreateTag().getInt("Selection") == 0) {
             for (int e = 1; e <= 2; e++) {
                 for (int i = 1; i < 3; i++) {
@@ -516,22 +536,11 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 if (!stack.getOrCreateTag().contains("pos" + e)) return;
                 BlockPos pos = NbtUtil.getPos(stack.getOrCreateTag().getCompound("pos" + e));
                 ModEditBox[] posList = e == 2 ? new ModEditBox[]{pos2x, pos2y, pos2z} : new ModEditBox[]{pos1x, pos1y, pos1z};
+                CompoundTag filters = stack.getOrCreateTag().getCompound("Filters");
                 for (int i = 0; i < posList.length; i++) {
                     if (!posList[i].getValue().isEmpty() && !Objects.equals(posList[i].getValue(), String.valueOf(pos.getX())) && posList[i].getValue().matches("^-?(\\d+$)")) {
                         CompoundTag tag = stack.getOrCreateTag().getCompound("pos" + e);
-                        int current = Integer.parseInt(posList[i].getValue());
-                        if (posString[i].equals("y")) {
-                            if (current > 320)
-                                current = 320;
-                            if (current < -64)
-                                current = -64;
-                        }
-                        if (posString[i].equals("x") || posString[i].equals("z")) {
-                            if (current > 30000000)
-                                current = 30000000;
-                            if (current < -30000000)
-                                current = -30000000;
-                        }
+                        int current = getCurrent(posList, i, posString);
 
                         tag.putInt(posString[i], current);
                         if (!filters.isEmpty())
@@ -560,7 +569,6 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             CompoundTag tag = new CompoundTag();
             int offset1 = 7 + (chunkRadius * 16);
             int offset2 = -8 - (chunkRadius * 16);
-            ;
             BlockPos chunkMiddle = Minecraft.getInstance().player.chunkPosition().getMiddleBlockPosition(0);
             BlockPos pos1 = chunkMiddle.offset(offset1, 0, offset1);
             BlockPos pos2 = chunkMiddle.offset(offset2, 0, offset2);
@@ -580,18 +588,26 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         }
     }
 
+    private static int getCurrent(ModEditBox[] posList, int i, String[] posString) {
+        int current = Integer.parseInt(posList[i].getValue());
+        if (posString[i].equals("y")) {
+            if (current > 320)
+                current = 320;
+            if (current < -64)
+                current = -64;
+        }
+        if (posString[i].equals("x") || posString[i].equals("z")) {
+            if (current > 30000000)
+                current = 30000000;
+            if (current < -30000000)
+                current = -30000000;
+        }
+        return current;
+    }
+
     public void loadFilter(ItemStack stack) {
         if (stack.getItem() instanceof AreaCardItem) {
-            CompoundTag currentTag = stack.getOrCreateTag().getCompound("Filters");
-
-            for (int i = 0; i < 27; i++) {
-                if (currentTag.contains(i + "")) {
-                    CompoundTag tag = new CompoundTag();
-                    tag.putString("id", currentTag.getString(i + ""));
-                    tag.putByte("Count", (byte) 1);
-                    filters[i] = ItemStack.of(tag).getItem();
-                }
-            }
+            QuarryBlockEntity.updateFilters(stack, filters);
         }
     }
 
@@ -613,9 +629,12 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     @Override
     protected void containerTick() {
-        ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
-        refreshDarkmode();
         super.containerTick();
+        if (Minecraft.getInstance().player == null) return;
+
+        refreshDarkmode();
+
+        ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         for (ModEditBox editBox : positionInputs) {
             if (stack.getOrCreateTag().getInt("Selection") == 0)
                 editBox.tick();
@@ -641,6 +660,11 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
         for (ModEditBox editBox : positionInputs)
             editBox.setTextColor(ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632);
+
+        for (ModEditBox heightInput : heightInputs) {
+            heightInput.setTextColor(ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632);
+        }
+
     }
 
     public void refreshWidgets() {

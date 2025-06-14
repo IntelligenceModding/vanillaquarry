@@ -22,7 +22,7 @@ public class SlotCondition {
     /**
      * Sets the valid tags for the item
      *
-     * @param neededTags the tags which the item should have
+     * @param neededPreds the tags which the item should have
      * @return the current instance
      */
     public SlotCondition setNeededPreds(List<Predicate<ItemStack>> neededPreds) {
@@ -55,7 +55,7 @@ public class SlotCondition {
     /**
      * Sets the valid tags for the item
      *
-     * @param neededTags the tags which the item should have
+     * @param neededPred the tags which the item should have
      * @return the current instance
      */
     public SlotCondition setNeededPred(Predicate<ItemStack> neededPred) {
