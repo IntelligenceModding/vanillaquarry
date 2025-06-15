@@ -24,7 +24,7 @@
 
 <br>
 
-<img src="images/features.png" alt="drawing" height="80px"/>
+<img src="images/features.png" alt="drawing"/>
 
 <br>
 <br>
@@ -47,12 +47,12 @@
 
 <br>
 
-<img src="images/other.png" alt="drawing" height="80px"/>
+<img src="images/other.png" alt="drawing"/>
 
 <br>
 <br>
 
-<iframe src="https://youtu.be/C8DtKjo9qCo"></iframe>
+<iframe src="https://www.youtube.com/watch?v=C8DtKjo9qCo"></iframe>
 
 <br>
 <br>
