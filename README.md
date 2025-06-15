@@ -52,7 +52,7 @@
 <br>
 <br>
 
-<iframe src="https://youtu.be/C8DtKjo9qCo"></iframe>
+[![DemonstrationVideo](https://img.youtube.com/vi/C8DtKjo9qCo/maxresdefault.jpg)](https://www.youtube.com/watch?v=C8DtKjo9qCo)
 
 <br>
 <br>
