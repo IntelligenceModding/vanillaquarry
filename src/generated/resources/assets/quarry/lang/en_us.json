@@ -16,7 +16,7 @@
   "gui.areacard.radius": "Radius",
   "gui.areacard.save": "Save",
   "gui.areacard.selection.chunk": "Chunk",
-  "gui.areacard.selection.chunk.position": "Square chunk radius around your current chunk",
+  "gui.areacard.selection.chunk.description": "Square chunk radius around your current chunk",
   "gui.areacard.selection.filter": "Filter: ",
   "gui.areacard.selection.filter.description": "Set filters to get rid of useless drops",
   "gui.areacard.selection.filter.reset": "Click with bare hand to remove filter",

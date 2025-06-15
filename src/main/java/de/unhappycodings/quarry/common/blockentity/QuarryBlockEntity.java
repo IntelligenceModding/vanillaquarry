@@ -387,7 +387,7 @@ public class QuarryBlockEntity extends BaseContainerBlockEntity implements World
         }
     }
 
-    @SuppressWarnings({"deprecation"})
+    @SuppressWarnings("deprecation")
     private void refuelQuarry(List<ItemStack> input ) {
         for (int i = 0; i < input.size(); i++) {
             if (ForgeHooks.getBurnTime(input.get(i), null) > 0) {

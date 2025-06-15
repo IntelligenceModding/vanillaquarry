@@ -245,7 +245,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9D) * 18) + 1, 16, 16, pMouseX, pMouseY)) {
                     List<Component> list = new ArrayList<>();
                     if (!filters[i].getDefaultInstance().isEmpty()) {
-                        list.add(Component.translatable("gui.areacard.filter").append(filters[i].getDefaultInstance().getDisplayName()));
+                        list.add(Component.translatable("gui.areacard.selection.filter").append(filters[i].getDefaultInstance().getDisplayName()));
                         list.add(Component.translatable("gui.areacard.selection.filter.reset").withStyle(ChatFormatting.YELLOW));
                     } else {
                         list.add(Component.translatable("gui.areacard.selection.filter.unset"));
@@ -291,7 +291,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
         if (filterMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
-            list.add(Component.translatable("gui.areacard.selection.filter"));
+            list.add(Component.translatable("gui.areacard.filter"));
             list.add(Component.translatable("gui.areacard.selection.filter.description").withStyle(ChatFormatting.YELLOW));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
@@ -436,10 +436,22 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         }, null, null, this, 18, 36, true);
         addRenderableWidget(darkmodeMouseButton);
 
-        posMouseButton = new ModButton(-26, 17, 18, 18, POS, () -> {stack.getOrCreateTag().putInt("Selection", 0); changesMade = true;}, null, null, this, 18, 36, true);
-        radiusMouseButton = new ModButton(-26, 37, 18, 18, RADIUS, () -> {stack.getOrCreateTag().putInt("Selection", 1); changesMade = true;}, null, null, this, 18, 36, true);
-        chunkMouseButton = new ModButton(-26, 57, 18, 18, CHUNK, () -> {stack.getOrCreateTag().putInt("Selection", 2); changesMade = true;}, null, null, this, 18, 36, true);
-        filterMouseButton = new ModButton(-26, 77, 18, 18, FILTER, () -> {stack.getOrCreateTag().putInt("Selection", 3); changesMade = true;}, null, null, this, 18, 36, true);
+        posMouseButton = new ModButton(-26, 17, 18, 18, POS, () -> {
+            stack.getOrCreateTag().putInt("Selection", 0);
+            changesMade = true;
+        }, null, null, this, 18, 36, true);
+        radiusMouseButton = new ModButton(-26, 37, 18, 18, RADIUS, () -> {
+            stack.getOrCreateTag().putInt("Selection", 1);
+            changesMade = true;
+        }, null, null, this, 18, 36, true);
+        chunkMouseButton = new ModButton(-26, 57, 18, 18, CHUNK, () -> {
+            stack.getOrCreateTag().putInt("Selection", 2);
+            changesMade = true;
+        }, null, null, this, 18, 36, true);
+        filterMouseButton = new ModButton(-26, 77, 18, 18, FILTER, () -> {
+            stack.getOrCreateTag().putInt("Selection", 3);
+            changesMade = true;
+        }, null, null, this, 18, 36, true);
 
         addRenderableWidget(posMouseButton);
         addRenderableWidget(radiusMouseButton);
@@ -519,7 +531,6 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
     public void savePositions() {
         if (Minecraft.getInstance().player == null || Minecraft.getInstance().level == null) return;
-        
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         String[] posString = {"x", "y", "z"};
         if (stack.getOrCreateTag().getInt("Selection") == 0) {
