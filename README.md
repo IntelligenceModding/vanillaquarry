@@ -1,10 +1,12 @@
 <br>
 <br>
 
-<center>
+<div align = center>
 
 <img src="images/minecraft_title.png" alt="drawing"/>
 
+<br>
+<br>
 
 [![License](https://img.shields.io/badge/License-MIT-830F26?style=for-the-badge&labelColor=A4011A&logoColor=white&logo=bookstack)](https://github.com/UnhappyCodings/thoriumreactors/blob/master/LICENSE)
 [![License](https://img.shields.io/discord/734726882058174486?style=for-the-badge&label=Discord&color=4B58CC&labelColor=5865F2)](https://discord.intelligence-modding.de/)
@@ -13,7 +15,7 @@
 [![Ko-Fi](https://img.shields.io/badge/Buy_Me_A_Coffee-0577ab?style=for-the-badge&logoColor=white&logo=KoFi)](https://ko-fi.com/unhappywithoutu)
 
 <br>
-
+  
 <font size="4">
 
 *This Minecraft Forge Mod adds a vanilla styled quarry to the game.*
@@ -52,7 +54,7 @@
 <br>
 <br>
 
-<iframe src="https://www.youtube.com/watch?v=C8DtKjo9qCo"></iframe>
+[![DemonstrationVideo](https://img.youtube.com/vi/C8DtKjo9qCo/maxresdefault.jpg)](https://www.youtube.com/watch?v=C8DtKjo9qCo)
 
 <br>
 <br>
@@ -60,4 +62,4 @@
 <img src="images/area_card.png" alt="drawing" width="25%"/>
 <img src="images/quarry_block.png" alt="drawing" width="25%"/>
 
-</center>
+</div>
