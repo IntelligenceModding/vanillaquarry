@@ -1,7 +1,7 @@
 <br>
 <br>
 
-<center>
+<div align = center>
 
 <img src="images/minecraft_title.png" alt="drawing"/>
 
@@ -13,7 +13,7 @@
 [![Ko-Fi](https://img.shields.io/badge/Buy_Me_A_Coffee-0577ab?style=for-the-badge&logoColor=white&logo=KoFi)](https://ko-fi.com/unhappywithoutu)
 
 <br>
-
+  
 <font size="4">
 
 *This Minecraft Forge Mod adds a vanilla styled quarry to the game.*
@@ -60,4 +60,4 @@
 <img src="images/area_card.png" alt="drawing" width="25%"/>
 <img src="images/quarry_block.png" alt="drawing" width="25%"/>
 
-</center>
+</div>
