@@ -1,25 +1,65 @@
+<br>
+<br>
 
-Installation information
-=======
+<div align = center>
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+<img src="images/minecraft_title.png" alt="drawing"/>
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+<br>
+<br>
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+[![License](https://img.shields.io/badge/License-MIT-830F26?style=for-the-badge&labelColor=A4011A&logoColor=white&logo=bookstack)](https://github.com/UnhappyCodings/thoriumreactors/blob/master/LICENSE)
+[![License](https://img.shields.io/discord/734726882058174486?style=for-the-badge&label=Discord&color=4B58CC&labelColor=5865F2)](https://discord.intelligence-modding.de/)
+[![Downloads](https://cf.way2muchnoise.eu/full_676373_downloads.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/quarry)
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+[![Ko-Fi](https://img.shields.io/badge/Buy_Me_A_Coffee-0577ab?style=for-the-badge&logoColor=white&logo=KoFi)](https://ko-fi.com/unhappywithoutu)
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+<br>
+  
+<font size="4">
+
+*This Minecraft Forge Mod adds a vanilla styled quarry to the game.*
+
+*Fully fuel powered with many useful features!*
+
+</font>
+
+<br>
+
+<img src="images/features.png" alt="drawing"/>
+
+<br>
+<br>
+
+<div align="left">
+
+<font size="3">
+
+- Set up to 27 different blocks as filters
+- Make the quarry run in loop mode for cobblestone generators
+- Use the pull and eject item mode to make your build more compact and faster
+- Replace broken blocks with your set block to create floors, walls or ceilings fast
+- Skip air blocks to fasten up your excavation
+- Select whole chunks or blocks around you with simple clicks
+- Modify the selected coordinates easily in the area card gui
+
+</font>
+
+</div>
+
+<br>
+
+<img src="images/other.png" alt="drawing"/>
+
+<br>
+<br>
+
+[![DemonstrationVideo](https://img.youtube.com/vi/C8DtKjo9qCo/maxresdefault.jpg)](https://www.youtube.com/watch?v=C8DtKjo9qCo)
+
+<br>
+<br>
+
+<img src="images/area_card.png" alt="drawing" width="25%"/>
+<img src="images/quarry_block.png" alt="drawing" width="25%"/>
+
+</div>
