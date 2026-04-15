@@ -27,7 +27,7 @@
     "def"
   ],
   "result": {
-    "item": "quarry:area_card"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "quarry:area_card"
+  }
 }
