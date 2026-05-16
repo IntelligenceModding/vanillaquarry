@@ -61,9 +61,9 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.yes", "Yes");
         add("gui.quarry.no", "No");
 
-        add("gui.quarry.loop.always", "Always loop");
+        add("gui.quarry.loop.always", "Always Loop");
         add("gui.quarry.loop.restart", "restarts after finished.");
-        add("gui.quarry.loop.never", "Don't loop");
+        add("gui.quarry.loop.never", "Don't Loop");
         add("gui.quarry.loop.stop", "stop after area is mined.");
 
         add("gui.quarry.filter.always", "Always Filter");
