@@ -1,6 +1,5 @@
 package de.unhappycodings.quarry.common.container;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
@@ -13,7 +12,6 @@ import de.unhappycodings.quarry.common.container.base.SlotInputHandler;
 import de.unhappycodings.quarry.common.item.AreaCard;
 import de.unhappycodings.quarry.common.networking.toServer.*;
 import de.unhappycodings.quarry.common.util.CalcUtil;
-import de.unhappycodings.quarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
