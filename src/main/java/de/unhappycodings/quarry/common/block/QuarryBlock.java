@@ -33,6 +33,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -42,6 +44,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class QuarryBlock extends BaseEntityBlock {
@@ -142,6 +146,15 @@ public class QuarryBlock extends BaseEntityBlock {
             case SOUTH -> SHAPE_SOUTH;
             default -> SHAPE_WEST;
         };
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        BlockEntity entity = params.getParameter(LootContextParams.BLOCK_ENTITY);
+        ItemStack machineStack = new ItemStack(this.asItem(), 1);
+        entity.saveToItem(machineStack, entity.getLevel().registryAccess());
+
+        return Collections.singletonList(machineStack);
     }
 
     @Override

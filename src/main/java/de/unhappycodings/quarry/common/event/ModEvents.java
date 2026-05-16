@@ -26,25 +26,16 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onQuarryBlockDestroy(BlockEvent.BreakEvent event) {
-        Player player = event.getPlayer();
         Level level = event.getPlayer().level();
         BlockPos pos = event.getPos();
-        if (!(level.getBlockState(pos).getBlock() instanceof QuarryBlock)) return;
-        event.setCanceled(true);
+        if (!level.getBlockState(pos).is(Quarry.QUARRY_BLOCK.get())) return;
         QuarryEntity quarry = (QuarryEntity) level.getBlockEntity(pos);
+        Player player = event.getPlayer();
         if ((!Objects.equals(quarry.getOwner(), player.getName().getString() + "@" + player.getStringUUID()) && quarry.getLocked()) && !player.hasPermissions(2)) {
             String owner = quarry.getOwner();
             if (owner.isEmpty()) owner = "undefined";
+            event.setCanceled(true);
             player.sendSystemMessage(Component.translatable("gui.quarry.message.quarry_from").append(" " + owner + " ").append(Component.translatable("gui.quarry.message.is_locked")).withStyle(ChatFormatting.YELLOW));
-        } else {
-            QuarryEntity machine = (QuarryEntity) level.getBlockEntity(pos);
-            ItemStack machineStack = new ItemStack(Quarry.QUARRY_BLOCK.get(), 1);
-            machine.saveToItem(machineStack, event.getLevel().registryAccess());
-            //if (machine.hasCustomName()) machineStack.setHoverName(machine.getCustomName());
-            ItemEntity itementity = new ItemEntity(level, (double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, machineStack);
-            itementity.setDefaultPickUpDelay();
-            level.addFreshEntity(itementity);
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
         }
     }
 
