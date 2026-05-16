@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.blockentity.QuarryEntity;
 import de.unhappycodings.quarry.common.container.QuarryContainer;
-import de.unhappycodings.quarry.common.container.QuarryScreen;
 import de.unhappycodings.quarry.common.networking.toServer.QuarryBooleanPacket;
 import de.unhappycodings.quarry.common.networking.toServer.QuarryIntPacket;
 import de.unhappycodings.quarry.common.networking.toServer.QuarryModePacket;
@@ -17,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
@@ -62,9 +60,8 @@ public class QuarryBlock extends BaseEntityBlock {
     }
 
     public QuarryBlock() {
-        super(Properties.ofFullCopy(Blocks.STONE).strength(3.0F, 6.0F).isRedstoneConductor((blockState, blockGetter, blockPos) -> false));
+        super(Blocks.DEEPSLATE.properties().isRedstoneConductor((blockState, blockGetter, blockPos) -> false));
         this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false).setValue(WORKING, false).setValue(ACTIVE, false).setValue(FACING, Direction.NORTH));
-
     }
 
     @Override
@@ -128,6 +125,11 @@ public class QuarryBlock extends BaseEntityBlock {
     @Override
     public VoxelShape getCollisionShape(@Nonnull BlockState state, @Nonnull BlockGetter getter, @Nonnull BlockPos pos, @Nonnull CollisionContext collisionContext) {
         return Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    }
+
+    @Override
+    protected void spawnDestroyParticles(Level level, Player player, BlockPos pos, BlockState state) {
+        super.spawnDestroyParticles(level, player, pos, Blocks.STONE.defaultBlockState());
     }
 
     @SuppressWarnings("deprecation")
