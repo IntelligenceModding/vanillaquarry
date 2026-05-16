@@ -239,6 +239,11 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         addElements();
     }
 
+    @Override
+    public int getSlotColor(int index) {
+        return ClientConfig.enableQuarryDarkmode.get() ? 0x806B6B6B : super.getSlotColor(index);
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int x, int y) {
