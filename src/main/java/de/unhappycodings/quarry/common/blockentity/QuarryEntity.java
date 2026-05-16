@@ -7,8 +7,10 @@ import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.container.QuarryContainer;
 import de.unhappycodings.quarry.common.util.CalcUtil;
 import de.unhappycodings.quarry.common.util.NbtUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -17,12 +19,9 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -36,7 +35,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -45,7 +43,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -64,6 +61,17 @@ import java.util.UUID;
 
 @EventBusSubscriber(modid = Quarry.MOD_ID)
 public class QuarryEntity extends BlockEntity implements MenuProvider {
+    public final ItemStackHandler inventory = new ItemStackHandler(14) {
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+            if (!level.isClientSide()) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
+        }
+
+    };
     private final int SPEED_0 = 15;
     private final int SPEED_1 = 12;
     private final int SPEED_2 = 10; // 5
@@ -71,42 +79,6 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     private final int SPEED_4 = 6; // 2
     private final int SPEED_5 = 4; // 2
     private final int SPEED_6 = 2; // 2
-
-    public LootParams.Builder lootcontextBuilder;
-    public List<BlockPos> blockStateList;
-    private boolean isFortune = false;
-    private boolean isSilktouch = false;
-    private boolean isVoid = false;
-    private FakePlayer fakePlayer;
-
-    public Item[] filters = null;
-
-    private String owner;
-    private int burnTicks;
-    private int ticks;
-    private int speed;
-    private int mode;
-    private int eject;
-    private boolean filter;
-    private boolean loop;
-    private boolean locked;
-    private boolean skip;
-    private boolean replace;
-    private int burnTime;
-    private int totalBurnTime;
-
-    public final ItemStackHandler inventory = new ItemStackHandler(14) {
-
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            if(!level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
-        }
-
-    };
-
     private final IItemHandlerModifiable topHandler = new IItemHandlerModifiable() {
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
@@ -150,7 +122,6 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
             return inventory.isItemValid(slot, stack);
         }
     };
-
     private final IItemHandlerModifiable downHandler = new IItemHandlerModifiable() {
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
@@ -194,7 +165,6 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
             return inventory.isItemValid(slot, stack);
         }
     };
-
     private final IItemHandlerModifiable rightHandler = new IItemHandlerModifiable() {
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
@@ -234,48 +204,189 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
             return slot == 13 && stack.getItem() instanceof BlockItem;
         }
     };
+    public LootParams.Builder lootcontextBuilder;
+    public List<BlockPos> blockStateList;
+    public Item[] filters = null;
+    private boolean isFortune = false;
+    private boolean isSilktouch = false;
+    private boolean isVoid = false;
+    private FakePlayer fakePlayer;
+    private String owner;
+    private int burnTicks;
+    private int ticks;
+    private int speed;
+    private int mode;
+    private int eject;
+    private boolean filter;
+    private boolean loop;
+    private boolean locked;
+    private boolean skip;
+    private boolean replace;
+    private int burnTime;
+    private int totalBurnTime;
 
     public QuarryEntity(BlockPos pos, BlockState blockState) {
         super(Quarry.QUARRY_ENTITY.get(), pos, blockState);
     }
 
-    public void tick(Level level, BlockPos pos, BlockState state, QuarryEntity blockEntity) {
+    @SubscribeEvent  // on the mod event bus
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Quarry.QUARRY_ENTITY.get(), (object, context) -> {
 
-        if (fakePlayer == null) fakePlayer = FakePlayerFactory.get((ServerLevel) level, new GameProfile(UUID.fromString("6e483f02-30db-4454-b612-3a167614b576"), "vanillaquarry"));
+            if (context == Direction.DOWN) return object.downHandler;
+            if (context == Direction.UP) return object.topHandler;
+            switch (object.getBlockState().getValue(QuarryBlock.FACING)) {
+                case NORTH -> {
+                    if (context == Direction.WEST) return object.rightHandler;
+                }
+                case EAST -> {
+                    if (context == Direction.NORTH) return object.rightHandler;
+                }
+                case SOUTH -> {
+                    if (context == Direction.EAST) return object.rightHandler;
+                }
+                default -> {
+                    if (context == Direction.SOUTH) return object.rightHandler;
+                }
+            }
+            if (context == null) return object.inventory;
+            return null;
+        });
+
+    }
+
+    public void tick(Level level, BlockPos pos, BlockState state, QuarryEntity blockEntity) {
         if (level.isClientSide) return;
+
+        // Fakeplayer handling
+        initFakePlayer(level);
+
+        // Eject / Pull functionality
+        if (getEject() > 0 && level.getGameTime() % 2 == 0) handleEjectPull(pos, state, blockEntity);
+
+        // Refueling
+        handleRefueling(pos, state);
+
+        // Filter Updating
+        ItemStack cardSlot = getItem(12, level, pos);
+        handleFilterUpdate(cardSlot, pos);
+
+        // Core Logic
+        if (!state.getValue(QuarryBlock.ACTIVE)) return;
         fakePlayer.tick();
-        BlockState above = level.getBlockState(pos.above());
-        BlockState below = level.getBlockState(pos.below());
-        BlockState right = switch (state.getValue(QuarryBlock.FACING)) {
+
+        if (state.getValue(QuarryBlock.WORKING))
+            level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.WORKING, false));
+        if (!cardSlot.is(Quarry.AREA_CARD.get()) || (!cardSlot.has(Quarry.POS_1) && !cardSlot.has(Quarry.POS_2))) {
+            filters = null;
+            return;
+        }
+
+        // Get Mode to variables to work with in-code easier!
+        updateModeModifiers();
+
+        if (blockStateList == null || blockStateList.isEmpty()) refreshPositions(cardSlot, level);
+        float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
+
+        if (!blockStateList.isEmpty() && burnTime > fuelModifier) {
+            if (!cardSlot.has(Quarry.LAST_BLOCK)) cardSlot.set(Quarry.LAST_BLOCK, 0);
+
+            // If card end reached -> Item data reset and machine turn Off
+            int blockIndex = cardSlot.get(Quarry.LAST_BLOCK);
+            if (blockIndex > blockStateList.size() - 1) {
+                level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.WORKING, false).setValue(QuarryBlock.ACTIVE, false));
+                cardSlot.set(Quarry.LAST_BLOCK, 0);
+                if (getLoop()) level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.ACTIVE, true));
+                return;
+            }
+
+            // Skip current tick if quarry's speed is lower
+            if (handleSpeedCalculations()) {
+                ticks++;
+                return;
+            }
+
+            // Check if block is within protection radius of quarry (1 block square) and skip if
+            BlockPos currentBlock = blockStateList.get(blockIndex);
+            if (handleNearbyRadiusProtection(currentBlock, pos, cardSlot, blockIndex)) return;
+
+            // Check if current block is air
+            BlockState currentBlockState = level.getBlockState(currentBlock);
+            if (currentBlockState.getBlock() == Blocks.AIR) {
+                handleAirBlock(blockIndex, cardSlot, currentBlock, fuelModifier);
+
+            } else {
+                // Block drops looping with inventory-space checking and block breaking
+                List<ItemStack> drops = currentBlockState.getDrops(getBuilder(level, currentBlock, isSilktouch, isFortune));
+                if (handleDropsEmptyCheck(drops, currentBlockState, currentBlock, pos, state, blockIndex, fuelModifier, cardSlot))
+                    return;
+
+                // Checks if block can be theoretically "broken" (Checking inventory space, void mode, chunk protection and filters)
+                if (handleBlockAndDropCheck(drops, cardSlot, blockIndex, currentBlock, fuelModifier, pos, state, currentBlockState))
+                    handleBlockBreak(pos, state, level, currentBlock, currentBlockState); // Breaking block and replacing nearby fluid sources if enabled
+
+            }
+        } else {
+            // Machine turns off after use
+            level.setBlock(pos, state.setValue(QuarryBlock.ACTIVE, false).setValue(QuarryBlock.WORKING, false), 3);
+        }
+
+        ticks = 0;
+    }
+
+    private void initFakePlayer(Level level) {
+        if (fakePlayer != null) return;
+        if (!(level instanceof ServerLevel sl)) return;
+
+        fakePlayer = FakePlayerFactory.get(sl, new GameProfile(UUID.fromString("6e483f02-30db-4454-b612-3a167614b576"), "vanillaquarry"));
+    }
+
+    private BlockState getRightBlock(Level level, BlockPos pos, BlockState state) {
+        return switch (state.getValue(QuarryBlock.FACING)) {
             case NORTH -> level.getBlockState(pos.west());
             case EAST -> level.getBlockState(pos.north());
             case SOUTH -> level.getBlockState(pos.east());
             default -> level.getBlockState(pos.south());
         };
+    }
 
-        // Eject / Pull functionality
-        if (getEject() > 0 && level.getGameTime() % 2 == 0) {
-            boolean in = false;
-            boolean out = false;
-            if (level.getGameTime() % 4 == 0)
-                level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
-            switch (getEject()) {
-                case 1 -> in = true;
-                case 2 -> out = true;
-                case 3 -> {
-                    in = true;
-                    out = true;
-                }
-            }
-            IItemHandler quarryCapability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-            if (quarryCapability != null) {
-                if (right.hasBlockEntity()) exportImportRightSide(blockEntity.rightHandler, in, level, pos);
-                if (above.hasBlockEntity()) exportImportAbove(blockEntity.topHandler, in, level, pos);
-                if (below.hasBlockEntity()) exportImportBelow(blockEntity.downHandler, out, level, pos);
+    private void handleEjectPull(BlockPos pos, BlockState state, QuarryEntity blockEntity) {
+        final long gameTime = level.getGameTime();
+        BlockState above = level.getBlockState(pos.above());
+        BlockState below = level.getBlockState(pos.below());
+        BlockState right = getRightBlock(level, pos, state);
+
+        boolean in = false;
+        boolean out = false;
+        if (gameTime % 4 == 0) level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+
+        switch (getEject()) {
+            case 1 -> in = true;
+            case 2 -> out = true;
+            case 3 -> {
+                in = true;
+                out = true;
             }
         }
+        IItemHandler quarryCapability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        if (quarryCapability != null) {
+            if (above.hasBlockEntity()) exportImportAbove(blockEntity.topHandler, in, level, pos);
+            if (below.hasBlockEntity()) exportImportBelow(blockEntity.downHandler, out, level, pos);
+            if (right.hasBlockEntity()) exportImportRightSide(blockEntity.rightHandler, in, level, pos);
+        }
 
-        // Refueling stuff
+    }
+
+    private void handleFilterUpdate(ItemStack cardSlot, BlockPos pos) {
+        if (cardSlot.is(Quarry.AREA_CARD.get())) {
+            if (filters == null) {
+                filters = new Item[27];
+                updateFilters(cardSlot, filters, level);
+            }
+        }
+    }
+
+    private void handleRefueling(BlockPos pos, BlockState state) {
         List<ItemStack> input = new ArrayList<>();
         for (int i = 0; i <= 5; i++)
             input.add(getItem(i, level, pos));
@@ -296,150 +407,108 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         }
 
         burnTicks++;
-        ItemStack cardSlot = getItem(12, level, pos);
-        if (cardSlot.is(Quarry.AREA_CARD.get())) {
-            if (filters == null) {
-                filters = new Item[27];
-                updateFilters(cardSlot, filters, level);
+    }
+
+    private boolean handleDropsEmptyCheck(List<ItemStack> drops, BlockState currentBlockState, BlockPos currentBlock, BlockPos pos, BlockState state, int blockIndex, float fuelModifier, ItemStack cardSlot) {
+        if (drops.isEmpty()) {
+            if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
+                setChanged(level, pos, state);
+                level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), 3);
             }
+            updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
+            burnTime -= (int) fuelModifier;
+            return true;
         }
-        if (state.getValue(QuarryBlock.ACTIVE)) {
-            level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.WORKING, false));
-            if (cardSlot.is(Quarry.AREA_CARD.get())) {
-                if (cardSlot.has(Quarry.POS_1) && cardSlot.has(Quarry.POS_2)) {
-                    // Get Speed and set to variables
-                    int speedModifier = 0;
-                    level.tickRateManager().setFrozen(false);
-                    boolean skipNext = speed == 0 && !(ticks + speedModifier >= SPEED_0);
-                    if (speed == 1 && !(ticks + speedModifier >= SPEED_1 && ticks % 4 == 0)) skipNext = true;
-                    if (speed == 2 && !(ticks + speedModifier >= SPEED_2)) skipNext = true;
-                    if (speed == 3 && !(ticks + speedModifier >= SPEED_3)) skipNext = true;
-                    if (speed == 4 && !(ticks + speedModifier >= SPEED_5)) skipNext = true;
-                    if (speed == 5 && !(ticks + speedModifier >= SPEED_4)) skipNext = true;
-                    if (speed == 6 && !(ticks + speedModifier >= SPEED_6)) skipNext = true;
+        return false;
+    }
 
-                    // Get Mode to variables to work with in-code easier!
-                    updateModeModifiers();
+    private void handleBlockBreak(BlockPos pos, BlockState state, Level level, BlockPos currentBlock, BlockState currentBlockState) {
+        breakBlock(currentBlock, currentBlockState, level, pos);
 
-                    if (blockStateList == null || blockStateList.isEmpty()) refreshPositions(cardSlot, level);
-                    float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
-                    if (!blockStateList.isEmpty() && burnTime > fuelModifier) {
-                        if (!cardSlot.has(Quarry.LAST_BLOCK)) cardSlot.set(Quarry.LAST_BLOCK, 0);
+        // Enable indicator light | Will reset next tick
+        level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.WORKING, true));
 
-                        // Item Data Reset And Machine Turn Off
-                        int blockIndex = cardSlot.get(Quarry.LAST_BLOCK);
-                        if (blockIndex > blockStateList.size() - 1) {
-                            level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.WORKING, false).setValue(QuarryBlock.ACTIVE, false));
-                            cardSlot.set(Quarry.LAST_BLOCK, 0);
-                            if (getLoop())
-                                level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.ACTIVE, true));
-                            return;
-                        }
+        // Nearly fluids check -> Replace with cobblestone | If option enabled
+        if (getReplace()) tryReplaceFluidSources(currentBlock, level);
+    }
 
-                        // Checking for Invalid Blocks
-                        BlockPos currentBlock = blockStateList.get(blockIndex);
-                        BlockState currentBlockState = level.getBlockState(currentBlock);
+    private void handleAirBlock(int blockIndex, ItemStack cardSlot, BlockPos currentBlock, float fuelModifier) {
+        int tempIndex = blockIndex;
+        int index = 0;
+        for (int i = 0; i <= 32; i++) {
 
-                        // Skip out of range AND Skip in 1 block radius around quarry
-                        int distanceX = currentBlock.getX() - pos.getX();
-                        int distanceY = currentBlock.getY() - pos.getY();
-                        int distanceZ = currentBlock.getZ() - pos.getZ();
-
-                        int maxRadius = CommonConfig.quarryMineRadius.get();
-                        if (((distanceX > maxRadius || distanceX < -maxRadius) || (distanceY > maxRadius || distanceY < -maxRadius) || (distanceZ > maxRadius || distanceZ < -maxRadius)) || isInNearSquare(pos, currentBlock, level)) {
-                            updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
-                            return;
-                        }
-
-                        // Checking for Speed Delay and Air Skipping
-                        if (skipNext) {
-                            ticks++;
-                            return;
-                        }
-
-                        if (currentBlockState.getBlock() == Blocks.AIR) {
-                            int tempIndex = blockIndex;
-                            int index = 0;
-                            for (int i = 0; i <= 32; i++) {
-
-                                if (blockStateList.size() - 1 >= tempIndex + i && level.getBlockState(blockStateList.get(tempIndex + i)).getBlock() == Blocks.AIR) {
-                                    //level.setBlockAndUpdate(blockStateList.get(tempIndex + i), Blocks.RED_WOOL.defaultBlockState()); FOR TESTING
-                                    index++;
-                                } else {
-                                    break;
-                                }
-                            }
-
-                            if (index > 0)
-                                updateCardNbt(cardSlot, blockIndex + index, currentBlock.getY());
-
-                            burnTime -= (int) fuelModifier;
-                        } else {
-                            // Block Drops Looping with Inventory-Space Checking and Block Breaking
-                            List<ItemStack> drops = currentBlockState.getDrops(getBuilder(level, currentBlock, isSilktouch, isFortune));
-                            if (drops.isEmpty()) {
-                                if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
-                                    setChanged(level, pos, state);
-                                    level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
-                                    level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), 3);
-                                }
-                                updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
-                                burnTime -= (int) fuelModifier;
-                                return;
-                            }
-                            boolean broken = false;
-                            for (ItemStack drop : drops) {
-                                if (isVoid) {
-                                    updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
-                                    burnTime -= (int) fuelModifier;
-                                    broken = true;
-                                    break;
-                                }
-                                setChanged(level, pos, state);
-                                int index = hasOutputSpace(drop, level, pos);
-                                if (index != 0) {
-                                    boolean filtered = false;
-                                    if (getFilter()) {
-                                        for (Item item : filters) {
-                                            if (drop.is(item))
-                                                filtered = true;
-                                        }
-                                    }
-
-                                    if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
-                                        if (!filtered)
-                                            insertItem(index, new ItemStack(drop.getItem(), drop.getCount()), level, pos);
-                                        burnTime -= (int) fuelModifier;
-                                        broken = true;
-                                    }
-                                    updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
-                                    break;
-                                }
-                            }
-                            if (broken) {
-                                breakBlock(currentBlock, currentBlockState, level, pos);
-
-                                // Enable Indicator light | Will reset next Tick
-                                level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.WORKING, true));
-
-                                // Nearly fluids check -> Replace with cobblestone | If option enabled
-                                if (getReplace()) {
-                                    tryReplaceFluidSources(currentBlock, level);
-                                }
-                            }
-                        }
-                    } else {
-                        // Machine turns off after use
-                        level.setBlock(pos, state.setValue(QuarryBlock.ACTIVE, false).setValue(QuarryBlock.WORKING, false), 3);
-                    }
-
-                    ticks = 0;
-                }
+            if (blockStateList.size() - 1 >= tempIndex + i && level.getBlockState(blockStateList.get(tempIndex + i)).getBlock() == Blocks.AIR) {
+                index++;
             } else {
-                filters = null;
+                break;
             }
         }
 
+        if (index > 0) updateCardNbt(cardSlot, blockIndex + index, currentBlock.getY());
+
+        burnTime -= (int) fuelModifier;
+    }
+
+    private boolean handleNearbyRadiusProtection(BlockPos currentBlock, BlockPos pos, ItemStack cardSlot, int blockIndex) {
+        int distanceX = currentBlock.getX() - pos.getX();
+        int distanceY = currentBlock.getY() - pos.getY();
+        int distanceZ = currentBlock.getZ() - pos.getZ();
+
+        int maxRadius = CommonConfig.quarryMineRadius.get();
+        if (((distanceX > maxRadius || distanceX < -maxRadius) || (distanceY > maxRadius || distanceY < -maxRadius) || (distanceZ > maxRadius || distanceZ < -maxRadius)) || isInNearSquare(pos, currentBlock, level)) {
+            updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean handleBlockAndDropCheck(List<ItemStack> drops, ItemStack cardSlot, int blockIndex, BlockPos currentBlock, float fuelModifier, BlockPos pos, BlockState state, BlockState currentBlockState) {
+        boolean blockBroken = false;
+        for (ItemStack drop : drops) {
+            if (isVoid) {
+                updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
+                burnTime -= (int) fuelModifier;
+                blockBroken = true;
+                break;
+            }
+            setChanged(level, pos, state);
+            int index = hasOutputSpace(drop, level, pos);
+            if (index != 0) {
+                boolean filtered = false;
+                if (getFilter()) {
+                    for (Item item : filters) {
+                        if (drop.is(item)) {
+                            filtered = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
+                    if (!filtered) insertItem(index, new ItemStack(drop.getItem(), drop.getCount()), level, pos);
+                    burnTime -= (int) fuelModifier;
+                    blockBroken = true;
+                }
+                updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
+                break;
+            }
+        }
+        return blockBroken;
+    }
+
+    private boolean handleSpeedCalculations() {
+        int modifiedTick = ticks + (getMode() == 1 ? (int) Math.ceil((float) getSpeed() * 0.8f) * -1 : 0); // Remove 20% speed if efficient mode
+        return switch (speed) {
+            case 0 -> modifiedTick < SPEED_0;
+            case 1 -> !(modifiedTick >= SPEED_1 && ticks % 4 == 0);
+            case 2 -> modifiedTick < SPEED_2;
+            case 3 -> modifiedTick < SPEED_3;
+            case 4 -> modifiedTick < SPEED_5;
+            case 5 -> modifiedTick < SPEED_4;
+            case 6 -> modifiedTick < SPEED_6;
+            default -> true;
+        };
     }
 
     public ItemStack getItem(int slot, Level level, BlockPos pos) {
@@ -477,33 +546,6 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
     public ItemStackHandler getInventory() {
         return inventory;
-    }
-
-    @SubscribeEvent  // on the mod event bus
-    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Quarry.QUARRY_ENTITY.get(), (object, context) -> {
-
-            if (context == Direction.DOWN) return object.downHandler;
-            if (context == Direction.UP) return object.topHandler;
-            switch (object.getBlockState().getValue(QuarryBlock.FACING)) {
-                case NORTH -> {
-                    if (context == Direction.WEST) return object.rightHandler;
-                }
-                case EAST -> {
-                    if (context == Direction.NORTH) return object.rightHandler;
-                }
-                case SOUTH -> {
-                    if (context == Direction.EAST) return object.rightHandler;
-                }
-                default -> {
-                    if (context == Direction.SOUTH) return object.rightHandler;
-                }
-            }
-            if (context == null)
-                return object.inventory;
-            return null;
-        });
-
     }
 
     private void exportImportRightSide(IItemHandler quarryHandler, boolean input, Level level, BlockPos pos) {
@@ -604,8 +646,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
                     Item remainItem = stack.getCraftingRemainingItem();
                     int output = hasOutputSpace(new ItemStack(remainItem, 1), level, pos);
                     if (output == 0) return;
-                    if (output != 99)
-                        insertItem(output, new ItemStack(remainItem, 1), level, pos);
+                    if (output != 99) insertItem(output, new ItemStack(remainItem, 1), level, pos);
                 }
                 totalBurnTime = burnTime + input.get(i).getBurnTime(RecipeType.SMELTING);
                 burnTime = totalBurnTime;
@@ -810,9 +851,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     }
 
     public Holder<Enchantment> getEnchantment(Level level, ResourceKey<Enchantment> key) {
-        return level.registryAccess()
-                .registryOrThrow(Registries.ENCHANTMENT)
-                .getHolderOrThrow(key);
+        return level.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key);
     }
 
     public void resetPositions() {
