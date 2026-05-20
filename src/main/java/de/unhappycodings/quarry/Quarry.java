@@ -55,6 +55,7 @@ public class Quarry {
     public static final ResourceLocation EJECT = ResourceLocation.tryBuild(Quarry.MOD_ID, "textures/gui/button/eject.png");
 
     public static final ResourceLocation DARK_MODE = ResourceLocation.tryBuild(Quarry.MOD_ID, "textures/gui/button/dark_mode_switch.png");
+    public static final ResourceLocation RESET = ResourceLocation.tryBuild(Quarry.MOD_ID, "textures/gui/button/reset.png");
 
     public static final ResourceLocation BLANK = ResourceLocation.tryBuild(Quarry.MOD_ID, "textures/gui/button/blank.png");
     public static final ResourceLocation FIELD = ResourceLocation.tryBuild(Quarry.MOD_ID, "textures/gui/button/field.png");

@@ -113,6 +113,11 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.darkmode.white", "Whitemode");
         add("gui.quarry.darkmode.white.switch", "click to switch to darkmode.");
 
+        add("gui.quarry.reset", "Reset mined blocks");
+        add("gui.quarry.reset.switch", "click to set the mined block count to 0.");
+        add("gui.quarry.reset.desc", "This will make the quarry start");
+        add("gui.quarry.reset.desc_1", "from the beginning of the selected area.");
+
         add("gui.areacard.box", "Box (Solid)");
         add("gui.areacard.mined", "#Mined");
         add("gui.areacard.from", "From");

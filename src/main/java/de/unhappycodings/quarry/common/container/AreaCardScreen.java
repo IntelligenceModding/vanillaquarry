@@ -42,6 +42,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     public final ResourceLocation CHUNK = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/chunk.png");
     public final ResourceLocation FILTER = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/filter.png");
     public ModButton darkmodeMouseButton;
+    public ModButton resetMouseButton;
     public ModButton posMouseButton;
     public ModButton radiusMouseButton;
     public ModButton chunkMouseButton;
@@ -127,7 +128,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
         // left side
         graphics.blit(getTexture(), leftPos - 32, topPos + 12, 224, 56, 32, 88); // left
-        graphics.blit(getTexture(), leftPos + getSizeX(), topPos + 12, 191, 68, 32, 28); // right
+        graphics.blit(getTexture(), leftPos + getSizeX(), topPos + 12, 191, 68, 32, 48); // right
 
         // indicators
         graphics.blit(getTexture(), leftPos - 27, topPos + 21, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 0 ? 1 : 0), 57, 1, 10); // pos
@@ -264,6 +265,16 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 list.add(Component.translatable("gui.quarry.darkmode.white"));
                 list.add(Component.translatable("gui.quarry.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
+            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+        }
+
+        if (resetMouseButton.isMouseOver(pMouseX, pMouseY)) {
+            List<Component> list = new ArrayList<>();
+            list.add(Component.translatable("gui.quarry.reset"));
+            list.add(Component.translatable("gui.quarry.reset.switch").withStyle(ChatFormatting.YELLOW));
+            list.add(Component.translatable("gui.quarry.reset.desc").withStyle(ChatFormatting.YELLOW));
+            list.add(Component.translatable("gui.quarry.reset.desc_1").withStyle(ChatFormatting.YELLOW));
+
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
         }
 
@@ -434,6 +445,11 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             setDarkModeConfigValue(!getDarkModeConfigValue());
         }, null, null, this, 18, 36, true);
         addRenderableWidget(darkmodeMouseButton);
+
+        resetMouseButton = new ModButton(getSizeX() + 7, 37, 18, 18, Quarry.RESET, () -> {
+            stack.set(Quarry.LAST_BLOCK, 0);
+        }, null, null, this, 18, 36, true);
+        addRenderableWidget(resetMouseButton);
 
         posMouseButton = new ModButton(-26, 17, 18, 18, POS, () -> {
             stack.set(Quarry.SELECTION, 0);
