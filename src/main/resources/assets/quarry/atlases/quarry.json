@@ -1,0 +1,8 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "quarry:block/quarry_background"
+    }
+  ]
+}

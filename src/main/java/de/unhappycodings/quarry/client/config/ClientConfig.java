@@ -12,6 +12,7 @@ public class ClientConfig {
 
     //region General
     public static ModConfigSpec.ConfigValue<Boolean> enableQuarryDarkmode;
+    public static ModConfigSpec.ConfigValue<Boolean> enableQuarryHolograph;
     public static ModConfigSpec.ConfigValue<Boolean> enableAreaCardCornerRendering;
     //endregion
 
@@ -24,6 +25,7 @@ public class ClientConfig {
     private static void init(ModConfigSpec.Builder clientBuilder) {
         clientBuilder.push("General");
         enableQuarryDarkmode = clientBuilder.comment("Should the quarry gui screen be rendered in Dark Mode.").define("enable_quarry_darkmode", false);
+        enableQuarryHolograph = clientBuilder.comment("Should the quarry informations holograph be rendered?").define("enable_quarry_holograph", true);
         enableAreaCardCornerRendering = clientBuilder.comment("Render the with Area Card selected corners in world.").define("enable_area_card_corner_rendering", true);
         clientBuilder.pop();
     }

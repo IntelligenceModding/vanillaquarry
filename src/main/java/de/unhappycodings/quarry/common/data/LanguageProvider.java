@@ -48,6 +48,7 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.coal", "1 coal:");
         add("gui.quarry.blocks", "blocks");
         add("gui.quarry.informations", "Informations");
+        add("gui.quarry.maxrange", "Max Range is %s blocks cubic.");
         add("gui.quarry.when_turned_off", "When turned off, the quarry");
         add("gui.quarry.will_consume", "will consume %s BurnTick(s) per second.");
         add("gui.quarry.changing_speed", "Changing the speed or mode does also");
@@ -60,6 +61,21 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.fueled", "Fueled:");
         add("gui.quarry.yes", "Yes");
         add("gui.quarry.no", "No");
+
+        add("gui.quarry.holo.quarry", "QUARRY");
+        add("gui.quarry.holo.security", "Security");
+        add("gui.quarry.holo.loop", "Loop");
+        add("gui.quarry.holo.filter", "Filter");
+        add("gui.quarry.holo.inout", "In/Out");
+        add("gui.quarry.holo.skip", "Skip Air");
+        add("gui.quarry.holo.replace", "Replace Liquid");
+        add("gui.quarry.holo.estimate", "Estimate");
+        add("gui.quarry.holo.fuel", "Fuel:");
+        add("gui.quarry.holo.work", "Work:");
+        add("gui.quarry.holo.stop", "Stop");
+        add("gui.quarry.holo.mining", "Mining");
+        add("gui.quarry.holo.outofrange", "Out of Range");
+        add("gui.quarry.holo.invfull", "Inv. full");
 
         add("gui.quarry.loop.always", "Always Loop");
         add("gui.quarry.loop.restart", "restarts after finished.");

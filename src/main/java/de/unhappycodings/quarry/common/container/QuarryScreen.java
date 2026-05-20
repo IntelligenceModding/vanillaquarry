@@ -113,6 +113,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         if (infoMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.quarry.informations"));
+            list.add(Component.literal("click to toggle holograph display.").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
             list.add(Component.literal("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
@@ -123,6 +124,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             list.add(Component.translatable("gui.quarry.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.replacing").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.maxrange", CommonConfig.quarryMineRadius.get()).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.use_config").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
             graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
@@ -264,6 +266,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         graphics.blit(getTexture(), leftPos - 27, topPos + 81, 177 + (blockEntity.getEject() == 2 || blockEntity.getEject() == 3 ? 4 : 0), 20, 1, 4); // eject
         graphics.blit(getTexture(), leftPos - 27, topPos + 87, 177 + (blockEntity.getEject() == 1 || blockEntity.getEject() == 3 ? 4 : 0), 20, 1, 4); // pull
 
+        graphics.blit(getTexture(), leftPos + getSizeX() + 25, topPos + 21, 177 + (ClientConfig.enableQuarryHolograph.get() ? 4 : 0), 20, 1, 10); // skip air
         graphics.blit(getTexture(), leftPos + getSizeX() + 25, topPos + 61, 177 + (blockEntity.getSkip() ? 4 : 0), 20, 1, 10); // skip air
         graphics.blit(getTexture(), leftPos + getSizeX() + 25, topPos + 81, 177 + (blockEntity.getReplace() ? 4 : 0), 20, 1, 10); // replace fluids
 
@@ -272,11 +275,8 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         graphics.blit(getTexture(), leftPos + 23, topPos + 86 + 13 - height, 176, 13 - height, 14, height + 1);
 
         // render power dot indicators
-        if (level.getBlockState(pos).getValue(QuarryBlock.ACTIVE)) {
-            graphics.blit(getTexture(), leftPos + 63, topPos + 96, 176, 14, 5, 5); // green
-        } else {
-            graphics.blit(getTexture(), leftPos + 63, topPos + 96, 182, 14, 5, 5); // red
-        }
+        graphics.blit(getTexture(), leftPos + 63, topPos + 96, !level.getBlockState(pos).getValue(QuarryBlock.ACTIVE) ? 181 : blockEntity.inventoryFull || blockEntity.skippingAir || blockEntity.outOfRange ? 186 : 176, 14, 5, 5); // red
+
 
         // Render slots
         for (Slot slot : container.slots) {
@@ -289,7 +289,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     protected void addElements() {
         QuarryEntity blockEntity = this.getMenu().getTile();
         // right side
-        infoMouseButton = new ModButton(getSizeX() + 7, 17, 18, 18, Quarry.INFO, null, null, blockEntity, this, 18, 36, false);
+        infoMouseButton = new ModButton(getSizeX() + 7, 17, 18, 18, Quarry.INFO, () -> setHolographConfigValue(!getHolographConfigValue()), null, blockEntity, this, 18, 36, true);
         darkmodeMouseButton = new ModButton(getSizeX() + 7, 37, 18, 18, Quarry.DARK_MODE, () -> {
             refreshWidgets();
             setDarkModeConfigValue(!getDarkModeConfigValue());
@@ -335,6 +335,14 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     protected void containerTick() {
         refreshDarkmode();
         super.containerTick();
+    }
+
+    public boolean getHolographConfigValue() {
+        return ClientConfig.enableQuarryHolograph.get();
+    }
+
+    public void setHolographConfigValue(boolean state) {
+        ClientConfig.enableQuarryHolograph.set(state);
     }
 
     public boolean getDarkModeConfigValue() {

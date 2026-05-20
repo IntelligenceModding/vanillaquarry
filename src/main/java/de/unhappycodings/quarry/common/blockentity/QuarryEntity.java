@@ -224,6 +224,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     private boolean replace;
     private int burnTime;
     private int totalBurnTime;
+    public boolean outOfRange;
+    public boolean inventoryFull;
+    public boolean skippingAir;
 
     public QuarryEntity(BlockPos pos, BlockState blockState) {
         super(Quarry.QUARRY_ENTITY.get(), pos, blockState);
@@ -308,14 +311,24 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
             // Check if block is within protection radius of quarry (1 block square) and skip if
             BlockPos currentBlock = blockStateList.get(blockIndex);
-            if (handleNearbyRadiusProtection(currentBlock, pos, cardSlot, blockIndex)) return;
+            if (isOutOfRangeOrInProtection(currentBlock, pos, cardSlot, blockIndex)) {
+                outOfRange = true;
+                level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+                return;
+            } else {
+                outOfRange = false;
+            }
 
             // Check if current block is air
             BlockState currentBlockState = level.getBlockState(currentBlock);
             if (currentBlockState.getBlock() == Blocks.AIR) {
+                skippingAir = true;
+                level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 handleAirBlock(blockIndex, cardSlot, currentBlock, fuelModifier);
 
             } else {
+                skippingAir = false;
+
                 // Block drops looping with inventory-space checking and block breaking
                 List<ItemStack> drops = currentBlockState.getDrops(getBuilder(level, currentBlock, isSilktouch, isFortune));
                 if (handleDropsEmptyCheck(drops, currentBlockState, currentBlock, pos, state, blockIndex, fuelModifier, cardSlot))
@@ -450,7 +463,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         burnTime -= (int) fuelModifier;
     }
 
-    private boolean handleNearbyRadiusProtection(BlockPos currentBlock, BlockPos pos, ItemStack cardSlot, int blockIndex) {
+    private boolean isOutOfRangeOrInProtection(BlockPos currentBlock, BlockPos pos, ItemStack cardSlot, int blockIndex) {
         int distanceX = currentBlock.getX() - pos.getX();
         int distanceY = currentBlock.getY() - pos.getY();
         int distanceZ = currentBlock.getZ() - pos.getZ();
@@ -470,11 +483,13 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
                 updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
                 burnTime -= (int) fuelModifier;
                 blockBroken = true;
+                inventoryFull = false;
                 break;
             }
             setChanged(level, pos, state);
             int index = hasOutputSpace(drop, level, pos);
             if (index != 0) {
+                inventoryFull = false;
                 boolean filtered = false;
                 if (getFilter()) {
                     for (Item item : filters) {
@@ -492,6 +507,11 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
                 }
                 updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
                 break;
+            } else {
+                if (!inventoryFull) {
+                    inventoryFull = true;
+                    level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+                }
             }
         }
         return blockBroken;
@@ -508,6 +528,19 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
             case 5 -> modifiedTick < SPEED_5 - 1;
             case 6 -> modifiedTick < SPEED_6 - 1;
             default -> true;
+        };
+    }
+
+    public int getTicksForSpeed(int speed) {
+        return switch (speed) {
+            case 0 -> SPEED_0;
+            case 1 -> SPEED_1;
+            case 2 -> SPEED_2;
+            case 3 -> SPEED_3;
+            case 4 -> SPEED_4;
+            case 5 -> SPEED_5;
+            case 6 -> SPEED_6;
+            default -> 0;
         };
     }
 
@@ -786,6 +819,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         nbt.putBoolean("Loop", getLoop());
         nbt.putBoolean("Skip", getSkip());
         nbt.putBoolean("Replace", getReplace());
+        nbt.putBoolean("OutOfRange", outOfRange);
+        nbt.putBoolean("InventoryFull", inventoryFull);
+        nbt.putBoolean("SkippingAir", skippingAir);
         nbt.put("Items", this.inventory.serializeNBT(registries));
         return nbt;
     }
@@ -804,6 +840,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         setLoop(tag.getBoolean("Loop"));
         setSkip(tag.getBoolean("Skip"));
         setReplace(tag.getBoolean("Replace"));
+        outOfRange = tag.getBoolean("OutOfRange");
+        inventoryFull = tag.getBoolean("InventoryFull");
+        skippingAir = tag.getBoolean("SkippingAir");
         this.inventory.deserializeNBT(lookupProvider, tag.getCompound("Items"));
     }
 
@@ -821,6 +860,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         nbt.putBoolean("Loop", getLoop());
         nbt.putBoolean("Skip", getSkip());
         nbt.putBoolean("Replace", getReplace());
+        nbt.putBoolean("OutOfRange", outOfRange);
+        nbt.putBoolean("InventoryFull", inventoryFull);
+        nbt.putBoolean("SkippingAir", skippingAir);
         nbt.put("Items", this.inventory.serializeNBT(registries));
     }
 
@@ -838,6 +880,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         loop = nbt.getBoolean("Loop");
         skip = nbt.getBoolean("Skip");
         replace = nbt.getBoolean("Replace");
+        outOfRange = nbt.getBoolean("OutOfRange");
+        inventoryFull = nbt.getBoolean("InventoryFull");
+        skippingAir = nbt.getBoolean("SkippingAir");
         this.inventory.deserializeNBT(registries, nbt.getCompound("Items"));
     }
 
