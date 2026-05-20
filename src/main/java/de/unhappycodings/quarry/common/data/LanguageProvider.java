@@ -55,6 +55,7 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.affect_fuel", "affect the fuel consumption!");
         add("gui.quarry.use_config", "values changable in config");
         add("gui.quarry.speed.80", "at 80% speed");
+        add("gui.quarry.toggleholo", "click to toggle holograph display.");
 
         add("gui.quarry.owner", "Owner:");
         add("gui.quarry.security", "Safety:");
@@ -76,6 +77,7 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.holo.mining", "Mining");
         add("gui.quarry.holo.outofrange", "Out of Range");
         add("gui.quarry.holo.invfull", "Inv. full");
+        add("gui.quarry.holo.skipping", "Skipping Air");
 
         add("gui.quarry.loop.always", "Always Loop");
         add("gui.quarry.loop.restart", "restarts after finished.");

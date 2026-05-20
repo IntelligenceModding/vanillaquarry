@@ -14,6 +14,7 @@ public class DataProvider {
         DataGenerator generator = event.getGenerator();
 
         generator.addProvider(true, new LanguageProvider(generator, "en_us"));
+        generator.addProvider(true, new GermanLanguageProvider(generator, "de_de"));
         generator.addProvider(true, new RecipeProvider(generator.getPackOutput(), event.getLookupProvider()));
     }
 }
