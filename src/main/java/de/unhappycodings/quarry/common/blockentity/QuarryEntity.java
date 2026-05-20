@@ -498,15 +498,15 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean handleSpeedCalculations() {
-        int modifiedTick = ticks + (getMode() == 1 ? (int) Math.ceil((float) getSpeed() * 0.8f) * -1 : 0); // Remove 20% speed if efficient mode
+        int modifiedTick = ticks + (getMode() == 1 ? (int) Math.ceil((float) getTicksForSpeed(speed) * 0.2f) * -1 : 0); // Remove 20% speed if efficient mode
         return switch (speed) {
-            case 0 -> modifiedTick < SPEED_0;
-            case 1 -> !(modifiedTick >= SPEED_1 && ticks % 4 == 0);
-            case 2 -> modifiedTick < SPEED_2;
-            case 3 -> modifiedTick < SPEED_3;
-            case 4 -> modifiedTick < SPEED_5;
-            case 5 -> modifiedTick < SPEED_4;
-            case 6 -> modifiedTick < SPEED_6;
+            case 0 -> modifiedTick < SPEED_0 - 1;
+            case 1 -> modifiedTick < SPEED_1 - 1;
+            case 2 -> modifiedTick < SPEED_2 - 1;
+            case 3 -> modifiedTick < SPEED_3 - 1;
+            case 4 -> modifiedTick < SPEED_4 - 1;
+            case 5 -> modifiedTick < SPEED_5 - 1;
+            case 6 -> modifiedTick < SPEED_6 - 1;
             default -> true;
         };
     }
