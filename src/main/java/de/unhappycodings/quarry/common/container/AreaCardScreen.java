@@ -192,7 +192,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             }
         }
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 1) {
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.around"), 51, 34, 1315860, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.areacard.around"), getSizeX() / 2, 34, 1315860, false);
             drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(blockRadius)), 88, 52, 1315860, false);
             drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal("#").append(String.valueOf(blockCount)), 88, 70, ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632, true);
             if (!init4) {
@@ -221,7 +221,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 }
             }
             int count = ((chunkRadius * 2 + 1) * (chunkRadius * 2 + 1)) * (16 * 16 * multiplicator);
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.framing").getString(), 18, 23, 1315860, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.areacard.framing").getString(), getSizeX() / 3, 23, 1315860, false);
             drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(chunkRadius)).getString(), 56, 37, 1315860, false);
             drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(valid ? "#" : "").append(String.valueOf(valid ? count : Component.translatable("gui.areacard.illegal").getString())).getString(), 55, 55, valid ? ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632 : 16670302, true);
             if (!init3) {

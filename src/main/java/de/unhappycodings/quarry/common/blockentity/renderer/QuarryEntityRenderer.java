@@ -176,7 +176,7 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
                 boolean inventoryFull = blockEntity.inventoryFull;
                 boolean skippingAir = blockEntity.skippingAir;
 
-                drawText(40, 108, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable(!active ? "gui.quarry.holo.stop" : outOfRange ? "gui.quarry.holo.outofrange" : inventoryFull ? "gui.quarry.holo.invfull" : skippingAir ? "Skipping Air" : "gui.quarry.holo.mining"), 80)).withStyle(blink && ((outOfRange || inventoryFull) && active) ? ChatFormatting.UNDERLINE : ChatFormatting.RESET).withColor(!active ? RED : outOfRange || inventoryFull || skippingAir ? ORANGE : GREEN), poseStack, buffer);
+                drawText(40, 108, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable(!active ? "gui.quarry.holo.stop" : outOfRange ? "gui.quarry.holo.outofrange" : inventoryFull ? "gui.quarry.holo.invfull" : skippingAir ? "gui.quarry.holo.skipping" : "gui.quarry.holo.mining"), 80)).withStyle(blink && ((outOfRange || inventoryFull) && active) ? ChatFormatting.UNDERLINE : ChatFormatting.RESET).withColor(!active ? RED : outOfRange || inventoryFull || skippingAir ? ORANGE : GREEN), poseStack, buffer);
                 drawRightboundText(160, 108, Component.literal(getMode(blockEntity.getMode())), poseStack, buffer);
 
                 drawText(40, 118, Component.literal(Math.round(percentage * 100.0) / 100.0 + "%").withColor(lerpColor3(Color.RED.getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), percentage)), poseStack, buffer);
@@ -214,7 +214,7 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
     void renderRemainingTime(QuarryEntity blockEntity, PoseStack poseStack, long totalBurnTime, int blocksRemain, MultiBufferSource buffer) {
         float runsPerSec = 20f / blockEntity.getTicksForSpeed(blockEntity.getSpeed()); // 20 ticks
 
-        drawCenteredText(100, 145, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.estimate"), 40)).withColor(WHITE), poseStack, buffer);
+        drawCenteredText(100, 145, Component.literal(getTranslatable("gui.quarry.holo.estimate")).withColor(WHITE), poseStack, buffer);
         drawText(40, 155, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.fuel"), 40)).withColor(WHITE), poseStack, buffer);
         drawRightboundText(160, 155, Component.literal(formatTime(totalBurnTime / (runsPerSec * CalcUtil.getNeededTicks(blockEntity.getMode(), blockEntity.getSpeed())))).withColor(WHITE), poseStack, buffer);
         drawText(40, 165, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.work"), 40)).withColor(WHITE), poseStack, buffer);

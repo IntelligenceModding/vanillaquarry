@@ -71,12 +71,13 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             drawCenteredString(graphics, Minecraft.getInstance().font, ChatFormatting.BOLD + Component.translatable("gui.quarry.admin").getString(), getSizeX() / 2, -30, 11141120, false);
             drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.others").getString(), getSizeX() / 2, -20, 11141120, false);
         }
-        graphics.drawString(Minecraft.getInstance().font, Component.translatable("block.quarry.quarry_block").getString(), 71, 7, 1315860, false);
+
+        drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("block.quarry.quarry_block").getString(), getSizeX() / 2, 7, 1315860, false);
         graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.inventory").getString(), 8, 110, 1315860, false);
-        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.speed").getString(), 73, 27, 1315860, false);
-        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.fuel").getString(), 19, 20, 1315860, false);
-        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.out").getString(), 138, 20, 1315860, false);
-        graphics.drawString(Minecraft.getInstance().font, Component.literal(blockEntity.getSpeed() + 1 + "").getString(), 85, 41, 1315860, false);
+        drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.speed").getString(), getSizeX() / 2, 27, 1315860, false);
+        drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.fuel").getString(), 29, 20, 1315860, false);
+        drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.quarry.out").getString(), 148, 20, 1315860, false);
+        drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(blockEntity.getSpeed() + 1 + "").getString(), getSizeX() / 2, 41, 1315860, false);
         String yCoord = Component.translatable("gui.quarry.stop").getString();
         ItemStack itemStack = getMenu().getItems().get(getMenu().getItems().size() - 2);
         if (itemStack.getItem() instanceof AreaCard && itemStack.has(Quarry.CURRENT_Y) && blockEntity.getLevel().getBlockState(blockEntity.getBlockPos()).getValue(QuarryBlock.ACTIVE)) {
@@ -113,7 +114,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         if (infoMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.quarry.informations"));
-            list.add(Component.literal("click to toggle holograph display.").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.toggleholo").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
             list.add(Component.literal("#" + getBurnTime() + "/" + getTotalBurnTime() + " ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
