@@ -1,18 +1,15 @@
 package de.unhappycodings.quarry.common.container.base;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
@@ -21,11 +18,10 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 // CREDIT GOES TO: Sr_endi  | https://github.com/Seniorendi
-public class BaseSlot extends SlotItemHandler {
-    public static final ResourceLocation GHOST_OVERLAY = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/ghost_overlay.png");
-    public static final ResourceLocation GHOST_OVERLAY_DARK = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/ghost_overlay_dark.png");
+public class BaseSlot extends Slot {
+    public static final Identifier GHOST_OVERLAY = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/ghost_overlay.png");
+    public static final Identifier GHOST_OVERLAY_DARK = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/ghost_overlay_dark.png");
 
-    private final Inventory inventory;
     private final Predicate<ItemStack> canPlace;
     public boolean isEnabled = true;
     int size;
@@ -33,9 +29,8 @@ public class BaseSlot extends SlotItemHandler {
     private int nextGhostItemTick = 0;
     private ItemStack currentGhostItem;
 
-    public BaseSlot(IItemHandler itemHandler, Inventory inventory, int index, int xPosition, int yPosition, ResourceLocation texture, Predicate<ItemStack> canPlace, ItemStack... ghostOverlays) {
-        super(itemHandler, index, xPosition, yPosition);
-        this.inventory = inventory;
+    public BaseSlot(Container container, Inventory inventory, int index, int xPosition, int yPosition, Identifier texture, Predicate<ItemStack> canPlace, ItemStack... ghostOverlays) {
+        super(container, index, xPosition, yPosition);
         this.size = 18;
         this.canPlace = canPlace;
         this.ghostOverlays = ghostOverlays;
@@ -91,17 +86,11 @@ public class BaseSlot extends SlotItemHandler {
         return isEnabled;
     }
 
-    @Override
-    public void setChanged() {
-        if (inventory != null) inventory.setChanged();
-    }
-
     public ItemStack[] getGhostOverlayItem() {
         return ghostOverlays;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public void renderGhostOverlay(GuiGraphics graphics, int x, int y) {
+    public void renderGhostOverlay(GuiGraphicsExtractor graphics, int x, int y) {
         if (getGhostOverlayItem() != null && getGhostOverlayItem().length > 0) {
             nextGhostItemTick++;
 
@@ -113,17 +102,14 @@ public class BaseSlot extends SlotItemHandler {
                 nextGhostItemTick = 0;
             }
 
-            graphics.pose().pushPose();
+            graphics.pose().pushMatrix();
 
-            graphics.renderItem(this.currentGhostItem, x + this.x, y + this.y);
-
-            RenderSystem.setShaderColor(1, 1, 1, 0.45f);
-            graphics.pose().translate(0, 0, 200);
+            graphics.item(this.currentGhostItem, x + this.x, y + this.y);
 
             graphics.fill(x + this.x, y + this.y, x + this.x + 16, y + this.y + 16, ClientConfig.enableQuarryDarkmode.get() ? 0xA0434343 : 0xA08B8B8B);
 
             GuiUtil.reset();
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
 
         }
     }

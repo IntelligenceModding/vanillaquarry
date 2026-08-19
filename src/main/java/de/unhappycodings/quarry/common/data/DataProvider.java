@@ -1,7 +1,6 @@
 package de.unhappycodings.quarry.common.data;
 
 import de.unhappycodings.quarry.Quarry;
-import net.minecraft.data.DataGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -10,11 +9,14 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 public class DataProvider {
 
     @SubscribeEvent
-    public static void onDataGen(GatherDataEvent event) {
-        DataGenerator generator = event.getGenerator();
+    public static void onClientDataGen(GatherDataEvent.Client event) {
+        event.addProvider(new LanguageProvider(event.getGenerator(), "en_us"));
+        event.addProvider(new GermanLanguageProvider(event.getGenerator(), "de_de"));
+        event.addProvider(new RecipeProvider.Runner(event.getGenerator().getPackOutput(), event.getLookupProvider()));
+    }
 
-        generator.addProvider(true, new LanguageProvider(generator, "en_us"));
-        generator.addProvider(true, new GermanLanguageProvider(generator, "de_de"));
-        generator.addProvider(true, new RecipeProvider(generator.getPackOutput(), event.getLookupProvider()));
+    @SubscribeEvent
+    public static void onServerDataGen(GatherDataEvent.Server event) {
+        event.addProvider(new RecipeProvider.Runner(event.getGenerator().getPackOutput(), event.getLookupProvider()));
     }
 }

@@ -11,12 +11,17 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
 
     @Override
     protected void addTranslations() {
-        add(Quarry.QUARRY_BLOCK.get(), "Quarry");
-        add(Quarry.AREA_CARD.get(), "Area Card");
+        add("block.quarry.quarry_block", "Quarry");
+        add("block.quarry.fe_quarry_block", "FE Quarry");
+        add("item.quarry.quarry_block", "Quarry");
+        add("item.quarry.fe_quarry_block", "FE Quarry");
+        add("item.quarry.area_card", "Area Card");
 
         add("itemGroup.quarry.items", "Quarry");
         add("gui.quarry.inventory", "Inventory");
         add("gui.quarry.fuel", "Fuel");
+        add("gui.quarry.energy", "Energy");
+        add("gui.quarry.energy_per_block", "Energy/block:");
         add("gui.quarry.out", "Out");
         add("gui.quarry.speed", "Speed");
         add("gui.quarry.stop", "stop");
@@ -39,6 +44,8 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
 
         add("gui.quarry.message.quarry_from", "Quarry of");
         add("gui.quarry.message.is_locked", "is set to private and locked!");
+        add("gui.quarry.message.disabled", "FE Quarry is disabled in the server config.");
+        add("gui.quarry.disabled.tooltip", "Disabled in the server config");
 
         add("gui.quarry.admin", "Admin Access!");
         add("gui.quarry.others", "This is not your Quarry!");
@@ -51,11 +58,12 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.maxrange", "Max Range is %s blocks cubic.");
         add("gui.quarry.when_turned_off", "When turned off, the quarry");
         add("gui.quarry.will_consume", "will consume %s BurnTick(s) per second.");
+        add("gui.quarry.will_consume_fe", "will consume %s FE per second.");
         add("gui.quarry.changing_speed", "Changing the speed or mode does also");
         add("gui.quarry.affect_fuel", "affect the fuel consumption!");
         add("gui.quarry.use_config", "values changable in config");
         add("gui.quarry.speed.80", "at 80% speed");
-        add("gui.quarry.toggleholo", "click to toggle holograph display.");
+        add("gui.quarry.toggleholo", "click to toggle holograph display. §c(BETA!)");
 
         add("gui.quarry.owner", "Owner:");
         add("gui.quarry.security", "Safety:");
@@ -64,6 +72,7 @@ public class LanguageProvider extends net.neoforged.neoforge.common.data.Languag
         add("gui.quarry.no", "No");
 
         add("gui.quarry.holo.quarry", "QUARRY");
+        add("gui.quarry.holo.fe_quarry", "FE QUARRY");
         add("gui.quarry.holo.security", "Security");
         add("gui.quarry.holo.loop", "Loop");
         add("gui.quarry.holo.filter", "Filter");

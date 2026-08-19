@@ -3,19 +3,20 @@ package de.unhappycodings.quarry.common.event;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.block.QuarryBlock;
 import de.unhappycodings.quarry.common.blockentity.QuarryEntity;
+import de.unhappycodings.quarry.common.networking.toClient.ClientPayloadHandler;
+import de.unhappycodings.quarry.common.networking.toClient.QuarryClientBooleanPacket;
+import de.unhappycodings.quarry.common.networking.toClient.QuarryClientIntPacket;
+import de.unhappycodings.quarry.common.networking.toClient.QuarryClientModePacket;
 import de.unhappycodings.quarry.common.networking.toServer.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -25,13 +26,13 @@ import java.util.Objects;
 public class ModEvents {
 
     @SubscribeEvent
-    public static void onQuarryBlockDestroy(BlockEvent.BreakEvent event) {
+    public static void onQuarryBlockDestroy(BreakBlockEvent event) {
         Level level = event.getPlayer().level();
         BlockPos pos = event.getPos();
-        if (!level.getBlockState(pos).is(Quarry.QUARRY_BLOCK.get())) return;
+        if (!(level.getBlockState(pos).getBlock() instanceof QuarryBlock)) return;
         QuarryEntity quarry = (QuarryEntity) level.getBlockEntity(pos);
         Player player = event.getPlayer();
-        if ((!Objects.equals(quarry.getOwner(), player.getName().getString() + "@" + player.getStringUUID()) && quarry.getLocked()) && !player.hasPermissions(2)) {
+        if ((!Objects.equals(quarry.getOwner(), player.getName().getString() + "@" + player.getStringUUID()) && quarry.getLocked()) && !player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
             String owner = quarry.getOwner();
             if (owner.isEmpty()) owner = "undefined";
             event.setCanceled(true);
@@ -42,6 +43,23 @@ public class ModEvents {
     @SubscribeEvent // on the mod event bus
     public static void register(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar("1");
+
+        registrar.playToClient(
+                QuarryClientBooleanPacket.TYPE,
+                QuarryClientBooleanPacket.STREAM_CODEC,
+                ClientPayloadHandler::handleQuarryClientBooleanPacketOnMain
+        );
+        registrar.playToClient(
+                QuarryClientIntPacket.TYPE,
+                QuarryClientIntPacket.STREAM_CODEC,
+                ClientPayloadHandler::handleQuarryClientIntPacketOnMain
+        );
+        registrar.playToClient(
+                QuarryClientModePacket.TYPE,
+                QuarryClientModePacket.STREAM_CODEC,
+                ClientPayloadHandler::handleQuarryClientModePacketOnMain
+        );
+
         registrar.playToServer(
                 QuarryBooleanPacket.TYPE,
                 QuarryBooleanPacket.STREAM_CODEC,

@@ -7,14 +7,14 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
 
 public record AreaCardItemPacket(UUID player, ItemStack stack) implements CustomPacketPayload {
 
-    public static final Type<AreaCardItemPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("quarry", "areacarditempacket"));
+    public static final Type<AreaCardItemPacket> TYPE = new Type<>(Identifier.fromNamespaceAndPath("quarry", "areacarditempacket"));
 
     // Each pair of elements defines the stream codec of the element to encode/decode and the getter for the element to encode
     // 'name' will be encoded and decoded as a string

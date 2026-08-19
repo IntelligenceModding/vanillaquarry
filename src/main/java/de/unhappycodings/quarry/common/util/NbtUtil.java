@@ -19,7 +19,7 @@ public class NbtUtil {
 
         if (!tag.contains("x") || !tag.contains("y") || !tag.contains("z"))
             return BlockPos.ZERO;
-        return new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        return new BlockPos(tag.getInt("x").orElse(0), tag.getInt("y").orElse(0), tag.getInt("z").orElse(0));
     }
 
 }

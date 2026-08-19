@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  */
 public class SlotCondition {
 
-    public List<TagKey<?>> neededTags = new ArrayList<>();
+    public List<TagKey<Item>> neededTags = new ArrayList<>();
 
     public List<Item> neededItems = new ArrayList<>();
 
@@ -36,7 +36,7 @@ public class SlotCondition {
      * @param neededTags the tags which the item should have
      * @return the current instance
      */
-    public SlotCondition setNeededTags(List<TagKey<?>> neededTags) {
+    public SlotCondition setNeededTags(List<TagKey<Item>> neededTags) {
         this.neededTags = neededTags;
         return this;
     }
@@ -82,7 +82,7 @@ public class SlotCondition {
      * @param tag the tag which the item should have
      * @return the current instance
      */
-    public SlotCondition setNeededTag(TagKey<?> tag) {
+    public SlotCondition setNeededTag(TagKey<Item> tag) {
         neededTags.clear();
         neededTags.add(tag);
         return this;
@@ -97,8 +97,8 @@ public class SlotCondition {
     public boolean isValid(ItemStack stack) {
         boolean valid = true;
         if (!neededTags.isEmpty()) {
-            for (TagKey<?> tag : neededTags) {
-                if (stack.getTags().noneMatch(tag::equals)) valid = false;
+            for (TagKey<Item> tag : neededTags) {
+                if (!stack.is(tag)) valid = false;
             }
         }
         if (!neededItems.isEmpty()) {

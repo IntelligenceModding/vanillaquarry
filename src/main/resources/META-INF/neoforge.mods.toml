@@ -9,7 +9,7 @@ displayName = "Quarry"
 displayURL = "https://www.curseforge.com/minecraft/mc-mods/quarry"
 logoFile = "quarry-logo.png"
 authors = "UnhappyWithoutU"
-description = ''''''
+description = '''Simple yet powerful quarry in vanilla style. Now even FE Powered!'''
 
 [[mixins]]
 config="${mod_id}.mixins.json"

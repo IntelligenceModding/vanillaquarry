@@ -2,24 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:redstone_torch"
-    },
-    "b": {
-      "item": "minecraft:redstone"
-    },
-    "c": {
-      "item": "minecraft:observer"
-    },
-    "d": {
-      "item": "minecraft:repeater"
-    },
-    "e": {
-      "item": "minecraft:comparator"
-    },
-    "f": {
-      "item": "minecraft:hopper"
-    }
+    "a": "minecraft:redstone_torch",
+    "b": "minecraft:redstone",
+    "c": "minecraft:observer",
+    "d": "minecraft:repeater",
+    "e": "minecraft:comparator",
+    "f": "minecraft:hopper"
   },
   "pattern": [
     "  a",
@@ -27,7 +15,6 @@
     "def"
   ],
   "result": {
-    "count": 1,
     "id": "quarry:area_card"
   }
 }

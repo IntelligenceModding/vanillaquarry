@@ -6,12 +6,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public record QuarryChangedPacket(int packetType, BlockPos pos, ItemStack stack) implements CustomPacketPayload {
 
-    public static final Type<QuarryChangedPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("quarry", "changed"));
+    public static final Type<QuarryChangedPacket> TYPE = new Type<>(Identifier.fromNamespaceAndPath("quarry", "changed"));
 
     // Each pair of elements defines the stream codec of the element to encode/decode and the getter for the element to encode
     // 'name' will be encoded and decoded as a string

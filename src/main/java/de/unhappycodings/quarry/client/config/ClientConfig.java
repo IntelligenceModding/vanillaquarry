@@ -25,9 +25,26 @@ public class ClientConfig {
     private static void init(ModConfigSpec.Builder clientBuilder) {
         clientBuilder.push("General");
         enableQuarryDarkmode = clientBuilder.comment("Should the quarry gui screen be rendered in Dark Mode.").define("enable_quarry_darkmode", false);
-        enableQuarryHolograph = clientBuilder.comment("Should the quarry informations holograph be rendered?").define("enable_quarry_holograph", true);
+        enableQuarryHolograph = clientBuilder.comment("Should the quarry informations holograph be rendered?").define("enable_quarry_holograph", false);
         enableAreaCardCornerRendering = clientBuilder.comment("Render the with Area Card selected corners in world.").define("enable_area_card_corner_rendering", true);
         clientBuilder.pop();
+    }
+
+    public static void setQuarryDarkmode(boolean enabled) {
+        setAndSave(enableQuarryDarkmode, enabled);
+    }
+
+    public static void setQuarryHolograph(boolean enabled) {
+        setAndSave(enableQuarryHolograph, enabled);
+    }
+
+    public static void setAreaCardCornerRendering(boolean enabled) {
+        setAndSave(enableAreaCardCornerRendering, enabled);
+    }
+
+    private static <T> void setAndSave(ModConfigSpec.ConfigValue<T> value, T state) {
+        value.set(state);
+        value.save();
     }
 
     public static void loadConfigFile(ModConfigSpec config, String path) {

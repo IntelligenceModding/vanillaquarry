@@ -11,12 +11,17 @@ public class GermanLanguageProvider extends net.neoforged.neoforge.common.data.L
 
     @Override
     protected void addTranslations() {
-        add(Quarry.QUARRY_BLOCK.get(), "Quarry");
-        add(Quarry.AREA_CARD.get(), "Auswahlkarte");
+        add("block.quarry.quarry_block", "Quarry");
+        add("block.quarry.fe_quarry_block", "FE Quarry");
+        add("item.quarry.quarry_block", "Quarry");
+        add("item.quarry.fe_quarry_block", "FE Quarry");
+        add("item.quarry.area_card", "Auswahlkarte");
 
         add("itemGroup.quarry.items", "Quarry");
         add("gui.quarry.inventory", "Inventar");
         add("gui.quarry.fuel", "Brennst.");
+        add("gui.quarry.energy", "Energie");
+        add("gui.quarry.energy_per_block", "Energie/Block:");
         add("gui.quarry.out", "Ausgabe");
         add("gui.quarry.speed", "Geschwindigk.");
         add("gui.quarry.stop", "stop");
@@ -39,6 +44,8 @@ public class GermanLanguageProvider extends net.neoforged.neoforge.common.data.L
 
         add("gui.quarry.message.quarry_from", "Quarry von");
         add("gui.quarry.message.is_locked", "ist auf privat gesetzt und gesperrt!");
+        add("gui.quarry.message.disabled", "FE Quarry ist in der Server-Config deaktiviert.");
+        add("gui.quarry.disabled.tooltip", "In der Server-Config deaktiviert");
 
         add("gui.quarry.admin", "Admin Zugriff!");
         add("gui.quarry.others", "Dies ist nicht deine Quarry!");
@@ -51,6 +58,7 @@ public class GermanLanguageProvider extends net.neoforged.neoforge.common.data.L
         add("gui.quarry.maxrange", "Maximale Reichweite ist %s Blöcke. (Kubik)");
         add("gui.quarry.when_turned_off", "Im ausgeschalteten Zustand verbraucht");
         add("gui.quarry.will_consume", "die Quarry %s BurnTick(s) pro Sekunde.");
+        add("gui.quarry.will_consume_fe", "die Quarry %s FE pro Sekunde.");
         add("gui.quarry.changing_speed", "Ändern der Geschwindigkeit beeinflusst");
         add("gui.quarry.affect_fuel", "auch den Brennstoffverbrauch!");
         add("gui.quarry.use_config", "Werte änderbar in der Config");

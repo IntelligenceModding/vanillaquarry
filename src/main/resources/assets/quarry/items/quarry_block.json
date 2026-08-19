@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "quarry:block/quarry_block_off"
+  }
+}

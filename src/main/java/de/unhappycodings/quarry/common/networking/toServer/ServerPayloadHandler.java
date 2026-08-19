@@ -25,7 +25,7 @@ public class ServerPayloadHandler {
         BlockPos pos = data.pos();
 
         Player player = context.player();
-        BlockEntity machine = player.getCommandSenderWorld().getBlockEntity(pos);
+        BlockEntity machine = player.level().getBlockEntity(pos);
         if (!(machine instanceof QuarryEntity blockEntity)) return;
 
         if (type.contains("locked")) {
@@ -54,7 +54,7 @@ public class ServerPayloadHandler {
 
     public static void handleQuarryChangedPacketOnMain(QuarryChangedPacket data, final IPayloadContext context) {
         Player player = context.player();
-        Level level = player.getCommandSenderWorld();
+        Level level = player.level();
         QuarryEntity blockEntity = (QuarryEntity) level.getBlockEntity(data.pos());
         blockEntity.setChanged();
 
@@ -68,7 +68,7 @@ public class ServerPayloadHandler {
         int add = data.add();
 
         Player player = context.player();
-        BlockEntity machine = player.getCommandSenderWorld().getBlockEntity(pos);
+        BlockEntity machine = player.level().getBlockEntity(pos);
         if (!(machine instanceof QuarryEntity blockEntity)) return;
         if (type.contains("speed")) {
             if (add != 0) {
@@ -101,7 +101,7 @@ public class ServerPayloadHandler {
         int add = data.add();
 
         Player player = context.player();
-        BlockEntity machine = player.getCommandSenderWorld().getBlockEntity(pos);
+        BlockEntity machine = player.level().getBlockEntity(pos);
         if (!(machine instanceof QuarryEntity blockEntity)) return;
         if (add != -1) {
             int newMode = blockEntity.getMode() + add;
@@ -129,8 +129,8 @@ public class ServerPayloadHandler {
         boolean add = data.add();
 
         Player player = context.player();
-        Level level = player.getCommandSenderWorld();
-        BlockEntity machine = player.getCommandSenderWorld().getBlockEntity(pos);
+        Level level = player.level();
+        BlockEntity machine = player.level().getBlockEntity(pos);
         if (!(machine instanceof QuarryEntity)) return;
         if (level.getBlockState(pos).getValue(QuarryBlock.POWERED)) {
             level.setBlockAndUpdate(pos, level.getBlockState(pos).setValue(QuarryBlock.ACTIVE, add));

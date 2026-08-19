@@ -5,11 +5,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record QuarryClientModePacket(BlockPos pos, int add) implements CustomPacketPayload {
 
-    public static final Type<QuarryClientModePacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("quarry", "clientmode"));
+    public static final Type<QuarryClientModePacket> TYPE = new Type<>(Identifier.fromNamespaceAndPath("quarry", "clientmode"));
 
     // Each pair of elements defines the stream codec of the element to encode/decode and the getter for the element to encode
     // 'name' will be encoded and decoded as a string

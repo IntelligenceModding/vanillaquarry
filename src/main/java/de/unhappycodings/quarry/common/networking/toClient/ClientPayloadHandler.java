@@ -1,16 +1,15 @@
 package de.unhappycodings.quarry.common.networking.toClient;
 
 import de.unhappycodings.quarry.common.blockentity.QuarryEntity;
-import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClientPayloadHandler {
 
     public static void handleQuarryClientIntPacketOnMain(QuarryClientIntPacket data, final IPayloadContext context) {
-        if (Minecraft.getInstance().level == null) return;
-
-        BlockEntity machine = Minecraft.getInstance().level.getBlockEntity(data.pos());
+        Level level = context.player().level();
+        BlockEntity machine = level.getBlockEntity(data.pos());
         if (!(machine instanceof QuarryEntity blockEntity)) return;
         String type = data.packetType();
         int add = data.add();
@@ -21,17 +20,15 @@ public class ClientPayloadHandler {
     }
 
     public static void handleQuarryClientModePacketOnMain(QuarryClientModePacket data, final IPayloadContext context) {
-        if (Minecraft.getInstance().level == null) return;
-
-        BlockEntity machine = Minecraft.getInstance().level.getBlockEntity(data.pos());
+        Level level = context.player().level();
+        BlockEntity machine = level.getBlockEntity(data.pos());
         if (!(machine instanceof QuarryEntity blockEntity)) return;
         blockEntity.setMode(data.add());
     }
 
     public static void handleQuarryClientBooleanPacketOnMain(QuarryClientBooleanPacket data, final IPayloadContext context) {
-        if (Minecraft.getInstance().level == null) return;
-
-        BlockEntity machine = Minecraft.getInstance().level.getBlockEntity(data.pos());
+        Level level = context.player().level();
+        BlockEntity machine = level.getBlockEntity(data.pos());
         if (!(machine instanceof QuarryEntity blockEntity)) return;
         String type = data.packetType();
         boolean state = data.state();

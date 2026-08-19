@@ -4,8 +4,9 @@ import de.unhappycodings.quarry.client.gui.GuiUtil;
 import de.unhappycodings.quarry.client.gui.widgets.ModButton;
 import de.unhappycodings.quarry.common.container.base.BaseScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,35 +25,35 @@ public abstract class BaseWidget extends AbstractWidget {
     protected int topPos;
 
     public BaseWidget(int x, int y, int width, int height, BlockEntity tile, BaseScreen<?> screen) {
-        super(screen.getGuiLeft() + x, screen.getGuiTop() + y, width, height, Component.empty());
+        super(screen.getLeftPos() + x, screen.getTopPos() + y, width, height, Component.empty());
         this.tile = tile;
         this.screen = screen;
-        this.leftPos = screen.getGuiLeft();
-        this.topPos = screen.getGuiTop();
+        this.leftPos = screen.getLeftPos();
+        this.topPos = screen.getTopPos();
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int x, int y, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int x, int y, float partialTick) {
         GuiUtil.reset();
 
         for (BaseWidget child : children) {
-            child.render(graphics, x, y, partialTick);
+            child.extractRenderState(graphics, x, y, partialTick);
         }
     }
 
     @Override
-    public void onClick(double pMouseX, double pMouseY) {
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
         for (BaseWidget child : children) {
-            if (child instanceof ModButton) child.onClick(pMouseX, pMouseY);
+            if (child instanceof ModButton) child.onClick(event, doubleClick);
         }
     }
 
     @Override
-    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         for (BaseWidget child : children) {
-            if (child instanceof ModButton) child.mouseClicked(pMouseX, pMouseY, pButton);
+            if (child instanceof ModButton) child.mouseClicked(event, doubleClick);
         }
-        return super.mouseClicked(pMouseX, pMouseY, pButton);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override

@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -21,13 +22,16 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -36,11 +40,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.ProblemReporter;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -48,25 +58,30 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.IntPredicate;
 
 @EventBusSubscriber(modid = Quarry.MOD_ID)
 public class QuarryEntity extends BlockEntity implements MenuProvider {
-    public final ItemStackHandler inventory = new ItemStackHandler(14) {
+    public final SimpleContainer inventory = new SimpleContainer(14) {
 
         @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            if (!level.isClientSide()) {
+        public void setChanged() {
+            QuarryEntity.this.setChanged();
+            if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
@@ -79,131 +94,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     private final int SPEED_4 = 6; // 2
     private final int SPEED_5 = 4; // 2
     private final int SPEED_6 = 2; // 2
-    private final IItemHandlerModifiable topHandler = new IItemHandlerModifiable() {
-        @Override
-        public void setStackInSlot(int slot, ItemStack stack) {
-            inventory.setStackInSlot(slot, stack);
-        }
-
-        @Override
-        public int getSlots() {
-            return inventory.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot) {
-            return inventory.getStackInSlot(slot);
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot >= 0 && slot <= 5 && isItemValid(slot, stack)) {
-                return inventory.insertItem(slot, stack, simulate);
-            }
-            return stack;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return inventory.extractItem(slot, amount, simulate);
-        }
-
-        @Override
-        public int getSlotLimit(int slot) {
-            return inventory.getSlotLimit(slot);
-        }
-
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot >= 0 && slot <= 5) {
-                return stack.getBurnTime(RecipeType.SMELTING) > 0;
-            }
-
-            return inventory.isItemValid(slot, stack);
-        }
-    };
-    private final IItemHandlerModifiable downHandler = new IItemHandlerModifiable() {
-        @Override
-        public void setStackInSlot(int slot, ItemStack stack) {
-            inventory.setStackInSlot(slot, stack);
-        }
-
-        @Override
-        public int getSlots() {
-            return inventory.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot) {
-            return inventory.getStackInSlot(slot);
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return inventory.insertItem(slot, stack, simulate);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot >= 6 && slot <= 11) {
-                return inventory.extractItem(slot, amount, simulate);
-            }
-            return ItemStack.EMPTY;
-        }
-
-        @Override
-        public int getSlotLimit(int slot) {
-            return inventory.getSlotLimit(slot);
-        }
-
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot >= 6 && slot <= 11) {
-                return stack.getBurnTime(RecipeType.SMELTING) > 0;
-            }
-
-            return inventory.isItemValid(slot, stack);
-        }
-    };
-    private final IItemHandlerModifiable rightHandler = new IItemHandlerModifiable() {
-        @Override
-        public void setStackInSlot(int slot, ItemStack stack) {
-            inventory.setStackInSlot(slot, stack);
-        }
-
-        @Override
-        public int getSlots() {
-            return inventory.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot) {
-            return inventory.getStackInSlot(slot);
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot == 13 && stack.getItem() instanceof BlockItem) {
-                return inventory.insertItem(slot, stack, simulate);
-            }
-            return stack;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return inventory.extractItem(slot, amount, simulate);
-        }
-
-        @Override
-        public int getSlotLimit(int slot) {
-            return inventory.getSlotLimit(slot);
-        }
-
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == 13 && stack.getItem() instanceof BlockItem;
-        }
-    };
+    protected final ResourceHandler<ItemResource> topResourceHandler = new ItemContainerResourceAdapter(slot -> true, this::canInsertFuel);
+    protected final ResourceHandler<ItemResource> downResourceHandler = new ItemContainerResourceAdapter(slot -> slot >= 6 && slot <= 11, (slot, stack) -> false);
+    protected final ResourceHandler<ItemResource> rightResourceHandler = new ItemContainerResourceAdapter(slot -> true, (slot, stack) -> slot == 13 && stack.getItem() instanceof BlockItem);
     public LootParams.Builder lootcontextBuilder;
     public List<BlockPos> blockStateList;
     public Item[] filters = null;
@@ -212,7 +105,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     private boolean isVoid = false;
     private FakePlayer fakePlayer;
     private String owner;
-    private int burnTicks;
+    protected int burnTicks;
     private int ticks;
     private int speed;
     private int mode;
@@ -229,37 +122,22 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     public boolean skippingAir;
 
     public QuarryEntity(BlockPos pos, BlockState blockState) {
-        super(Quarry.QUARRY_ENTITY.get(), pos, blockState);
+        this(Quarry.QUARRY_ENTITY.get(), pos, blockState);
+    }
+
+    protected QuarryEntity(BlockEntityType<? extends QuarryEntity> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
     }
 
     @SubscribeEvent  // on the mod event bus
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Quarry.QUARRY_ENTITY.get(), (object, context) -> {
-
-            if (context == Direction.DOWN) return object.downHandler;
-            if (context == Direction.UP) return object.topHandler;
-            switch (object.getBlockState().getValue(QuarryBlock.FACING)) {
-                case NORTH -> {
-                    if (context == Direction.WEST) return object.rightHandler;
-                }
-                case EAST -> {
-                    if (context == Direction.NORTH) return object.rightHandler;
-                }
-                case SOUTH -> {
-                    if (context == Direction.EAST) return object.rightHandler;
-                }
-                default -> {
-                    if (context == Direction.SOUTH) return object.rightHandler;
-                }
-            }
-            if (context == null) return object.inventory;
-            return null;
-        });
-
+        event.registerBlockEntity(Capabilities.Item.BLOCK, Quarry.QUARRY_ENTITY.get(), QuarryEntity::getSidedResourceHandler);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, Quarry.FE_QUARRY_ENTITY.get(), QuarryEntity::getSidedResourceHandler);
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, Quarry.FE_QUARRY_ENTITY.get(), FEQuarryEntity::getEnergyHandler);
     }
 
     public void tick(Level level, BlockPos pos, BlockState state, QuarryEntity blockEntity) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
 
         // Fakeplayer handling
         initFakePlayer(level);
@@ -267,8 +145,8 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         // Eject / Pull functionality
         if (getEject() > 0 && level.getGameTime() % 2 == 0) handleEjectPull(pos, state, blockEntity);
 
-        // Refueling
-        handleRefueling(pos, state);
+        // Power handling
+        handlePower(pos, state);
 
         // Filter Updating
         ItemStack cardSlot = getItem(12, level, pos);
@@ -289,9 +167,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         updateModeModifiers();
 
         if (blockStateList == null || blockStateList.isEmpty()) refreshPositions(cardSlot, level);
-        float fuelModifier = CalcUtil.getNeededTicks(mode, speed);
+        float fuelModifier = CalcUtil.getNeededTicks(mode, speed, isEnergyPowered());
 
-        if (!blockStateList.isEmpty() && burnTime > fuelModifier) {
+        if (!blockStateList.isEmpty() && hasPowerFor(fuelModifier)) {
             if (!cardSlot.has(Quarry.LAST_BLOCK)) cardSlot.set(Quarry.LAST_BLOCK, 0);
 
             // If card end reached -> Item data reset and machine turn Off
@@ -381,12 +259,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
                 out = true;
             }
         }
-        IItemHandler quarryCapability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-        if (quarryCapability != null) {
-            if (above.hasBlockEntity()) exportImportAbove(blockEntity.topHandler, in, level, pos);
-            if (below.hasBlockEntity()) exportImportBelow(blockEntity.downHandler, out, level, pos);
-            if (right.hasBlockEntity()) exportImportRightSide(blockEntity.rightHandler, in, level, pos);
-        }
+        if (above.hasBlockEntity()) exportImportAbove(blockEntity.topResourceHandler, in, level, pos);
+        if (below.hasBlockEntity()) exportImportBelow(blockEntity.downResourceHandler, out, level, pos);
+        if (right.hasBlockEntity()) exportImportRightSide(blockEntity.rightResourceHandler, in, level, pos);
 
     }
 
@@ -397,6 +272,10 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
                 updateFilters(cardSlot, filters, level);
             }
         }
+    }
+
+    protected void handlePower(BlockPos pos, BlockState state) {
+        handleRefueling(pos, state);
     }
 
     private void handleRefueling(BlockPos pos, BlockState state) {
@@ -426,11 +305,11 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         if (drops.isEmpty()) {
             if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
                 setChanged(level, pos, state);
-                level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
                 level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), 3);
             }
             updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
-            burnTime -= (int) fuelModifier;
+            consumePower((int) fuelModifier);
             return true;
         }
         return false;
@@ -460,7 +339,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
         if (index > 0) updateCardNbt(cardSlot, blockIndex + index, currentBlock.getY());
 
-        burnTime -= (int) fuelModifier;
+        consumePower((int) fuelModifier);
     }
 
     private boolean isOutOfRangeOrInProtection(BlockPos currentBlock, BlockPos pos, ItemStack cardSlot, int blockIndex) {
@@ -481,7 +360,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         for (ItemStack drop : drops) {
             if (isVoid) {
                 updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
-                burnTime -= (int) fuelModifier;
+                consumePower((int) fuelModifier);
                 blockBroken = true;
                 inventoryFull = false;
                 break;
@@ -502,7 +381,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
                 if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
                     if (!filtered) insertItem(index, new ItemStack(drop.getItem(), drop.getCount()), level, pos);
-                    burnTime -= (int) fuelModifier;
+                    consumePower((int) fuelModifier);
                     blockBroken = true;
                 }
                 updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
@@ -546,116 +425,81 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
     public ItemStack getItem(int slot, Level level, BlockPos pos) {
 
-        IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-
-        if (capability != null) {
-            return capability.getStackInSlot(slot);
-        }
-
-        return ItemStack.EMPTY;
+        return inventory.getItem(slot);
     }
 
     public ItemStack insertItem(int slot, ItemStack stack, Level level, BlockPos pos) {
 
-        IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-
-        if (capability != null) {
-            return capability.insertItem(slot, stack, false);
-        }
-
-        return ItemStack.EMPTY;
+        return insertIntoSlot(slot, stack);
     }
 
     public ItemStack removeItem(int slot, int amount, Level level, BlockPos pos) {
 
-        IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-
-        if (capability != null) {
-            return capability.extractItem(slot, amount, false);
-        }
-
-        return ItemStack.EMPTY;
+        return inventory.removeItem(slot, amount);
     }
 
-    public ItemStackHandler getInventory() {
+    public SimpleContainer getInventory() {
         return inventory;
     }
 
-    private void exportImportRightSide(IItemHandler quarryHandler, boolean input, Level level, BlockPos pos) {
-        if (level == null) return;
+    private ItemStack insertIntoSlot(int slot, ItemStack stack) {
+        if (stack.isEmpty() || slot < 0 || slot >= inventory.getContainerSize()) return stack;
 
-        BlockEntity tileRight = switch (level.getBlockState(pos).getValue(QuarryBlock.FACING)) {
-            case NORTH -> level.getBlockEntity(pos.west());
-            case EAST -> level.getBlockEntity(pos.north());
-            case SOUTH -> level.getBlockEntity(pos.east());
-            default -> level.getBlockEntity(pos.south());
-        };
-
-        if (tileRight != null) {
-            IItemHandler capabilityRight = level.getCapability(Capabilities.ItemHandler.BLOCK, tileRight.getBlockPos(), Direction.DOWN);
-            if (input && capabilityRight != null) {
-                for (int i = 0; i < capabilityRight.getSlots(); i++) {
-                    ItemStack stack = capabilityRight.getStackInSlot(i);
-                    if (!(stack.getItem() instanceof BlockItem)) continue;
-                    if (quarryHandler.getStackInSlot(13).is(stack.getItem()) || quarryHandler.getStackInSlot(13).is(Items.AIR)) {
-                        if (quarryHandler.getStackInSlot(13).getCount() < quarryHandler.getStackInSlot(13).getMaxStackSize()) {
-                            quarryHandler.insertItem(13, new ItemStack(stack.getItem(), 1), false);
-                            capabilityRight.extractItem(i, 1, false);
-                            break;
-                        }
-                    }
-                }
-            }
+        ItemStack current = inventory.getItem(slot);
+        int limit = inventory.getMaxStackSize(stack);
+        if (current.isEmpty()) {
+            int inserted = Math.min(stack.getCount(), limit);
+            inventory.setItem(slot, stack.copyWithCount(inserted));
+            ItemStack remainder = stack.copy();
+            remainder.shrink(inserted);
+            return remainder;
         }
+
+        if (!ItemStack.isSameItemSameComponents(current, stack)) return stack;
+
+        int inserted = Math.min(stack.getCount(), limit - current.getCount());
+        if (inserted <= 0) return stack;
+
+        current.grow(inserted);
+        inventory.setChanged();
+        ItemStack remainder = stack.copy();
+        remainder.shrink(inserted);
+        return remainder;
     }
 
-    private void exportImportAbove(IItemHandler quarryHandler, boolean input, Level level, BlockPos pos) {
-        if (level == null) return;
-
-        BlockEntity tileAbove = level.getBlockEntity(pos.above());
-        if (tileAbove != null) {
-            IItemHandler capabilityAbove = level.getCapability(Capabilities.ItemHandler.BLOCK, tileAbove.getBlockPos(), Direction.DOWN);
-            if (input && capabilityAbove != null) {
-                for (int i = 0; i < capabilityAbove.getSlots(); i++) {
-                    ItemStack stack = capabilityAbove.getStackInSlot(i);
-                    if (QuarryContainer.burnables.contains(stack.getItem())) {
-                        int slot = hasInputSpace(new ItemStack(stack.getItem(), 1), level, pos);
-                        if (slot != -1 && slot != 99) {
-                            quarryHandler.insertItem(slot, new ItemStack(stack.getItem(), 1), false);
-                            capabilityAbove.extractItem(i, 1, false);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+    private boolean canInsertFuel(int slot, ItemStack stack) {
+        return usesFuelItems() && slot >= 0 && slot <= 5 && level != null && stack.getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0;
     }
 
-    private void exportImportBelow(IItemHandler quarryHandler, boolean output, Level level, BlockPos pos) {
-        if (level == null) return;
+    private void exportImportRightSide(ResourceHandler<ItemResource> quarryHandler, boolean input, Level level, BlockPos pos) {
+        if (!input) return;
 
-        BlockEntity tileBelow = level.getBlockEntity(pos.below());
-        if (tileBelow != null) {
-            IItemHandler capabilityBelow = level.getCapability(Capabilities.ItemHandler.BLOCK, tileBelow.getBlockPos(), Direction.UP);
-            if (output && capabilityBelow != null) {
-                boolean doBreak = false;
-                for (int i = 6; i <= 11; i++) {
-                    ItemStack stack = quarryHandler.getStackInSlot(i);
-                    for (int e = 0; e < capabilityBelow.getSlots(); e++) {
-                        ItemStack slotStack = capabilityBelow.getStackInSlot(e);
-                        if (!stack.is(Items.AIR)) {
-                            if (slotStack.isEmpty() || new ItemStack(stack.getItem(), 1).is(slotStack.getItem())) {
-                                if ((slotStack.getCount() + 1) <= stack.getMaxStackSize()) {
-                                    capabilityBelow.insertItem(e, new ItemStack(stack.getItem(), 1), false);
-                                    quarryHandler.extractItem(i, 1, false);
-                                    doBreak = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (doBreak) break;
-                }
+        Direction quarrySide = getRightSide(level.getBlockState(pos));
+        BlockPos sourcePos = pos.relative(quarrySide);
+        ResourceHandler<ItemResource> sourceHandler = level.getCapability(Capabilities.Item.BLOCK, sourcePos, quarrySide.getOpposite());
+        moveFirst(sourceHandler, quarryHandler);
+    }
+
+    private void exportImportAbove(ResourceHandler<ItemResource> quarryHandler, boolean input, Level level, BlockPos pos) {
+        if (!input) return;
+
+        ResourceHandler<ItemResource> sourceHandler = level.getCapability(Capabilities.Item.BLOCK, pos.above(), Direction.DOWN);
+        moveFirst(sourceHandler, quarryHandler);
+    }
+
+    private void exportImportBelow(ResourceHandler<ItemResource> quarryHandler, boolean output, Level level, BlockPos pos) {
+        if (!output) return;
+
+        ResourceHandler<ItemResource> targetHandler = level.getCapability(Capabilities.Item.BLOCK, pos.below(), Direction.UP);
+        moveFirst(quarryHandler, targetHandler);
+    }
+
+    private void moveFirst(ResourceHandler<ItemResource> source, ResourceHandler<ItemResource> target) {
+        if (source == null || target == null) return;
+
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (ResourceHandlerUtil.moveFirstStacking(source, target, resource -> !resource.isEmpty(), 1, transaction) != null) {
+                transaction.commit();
             }
         }
     }
@@ -665,7 +509,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
         for (int i = 0; i < 27; i++) {
             if (currentTag != null && currentTag.contains(i + "")) {
-                filters[i] = ItemStack.parse(level.registryAccess(), currentTag.getCompound(i + "")).get().getItem();
+                filters[i] = currentTag.read(i + "", ItemStack.CODEC).orElse(ItemStack.EMPTY).getItem();
             }
         }
     }
@@ -673,15 +517,19 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     @SuppressWarnings("deprecation")
     private void refuelQuarry(List<ItemStack> input, Level level, BlockPos pos) {
         for (int i = 0; i < input.size(); i++) {
-            if (input.get(i).getBurnTime(RecipeType.SMELTING) > 0) {
+            if (input.get(i).getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0) {
                 Item stack = input.get(i).getItem();
-                if (stack.hasCraftingRemainingItem()) {
-                    Item remainItem = stack.getCraftingRemainingItem();
-                    int output = hasOutputSpace(new ItemStack(remainItem, 1), level, pos);
-                    if (output == 0) return;
-                    if (output != 99) insertItem(output, new ItemStack(remainItem, 1), level, pos);
+                ItemStackTemplate craftingRemainder = stack.getCraftingRemainder();
+                if (craftingRemainder != null) {
+                    ItemStack remainStack = craftingRemainder.create();
+                    if (!remainStack.isEmpty()) {
+                        Item remainItem = remainStack.getItem();
+                        int output = hasOutputSpace(new ItemStack(remainItem, 1), level, pos);
+                        if (output == 0) return;
+                        if (output != 99) insertItem(output, new ItemStack(remainItem, 1), level, pos);
+                    }
                 }
-                totalBurnTime = burnTime + input.get(i).getBurnTime(RecipeType.SMELTING);
+                totalBurnTime = burnTime + input.get(i).getBurnTime(RecipeType.SMELTING, level.fuelValues());
                 burnTime = totalBurnTime;
                 removeItem(i, 1, level, pos);
                 break;
@@ -728,11 +576,11 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     private void breakBlock(BlockPos currentBlock, BlockState currentBlockState, Level level, BlockPos pos) {
         if (level == null) return;
 
-        level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+        level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
         if (getItem(13, level, pos).getItem() instanceof BlockItem blockItem) {
 
             removeItem(13, 1, level, pos);
-            level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, blockItem.getBlock().defaultBlockState().getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+            level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, blockItem.getBlock().defaultBlockState().getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
             level.setBlock(currentBlock, blockItem.getBlock().defaultBlockState(), Block.UPDATE_ALL);
         } else {
             level.levelEvent(fakePlayer, 2001, currentBlock, Block.getId(currentBlockState));
@@ -747,7 +595,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         for (BlockPos pos : positions) {
             if (level.getBlockState(pos).getFluidState().isSource() && !level.getBlockState(pos).hasProperty(BlockStateProperties.WATERLOGGED)) {
                 level.setBlock(pos, Blocks.COBBLESTONE.defaultBlockState(), 3);
-                level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, Blocks.COBBLESTONE.defaultBlockState().getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, Blocks.COBBLESTONE.defaultBlockState().getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
             }
         }
     }
@@ -787,7 +635,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
         if (!state.getBlock().canEntityDestroy(state, level, pos, player) || state.getDestroySpeed(level, pos) == -1)
             return false;
-        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
+        BreakBlockEvent event = new BreakBlockEvent(level, pos, state, player);
         NeoForge.EVENT_BUS.post(event);
         return !event.isCanceled();
     }
@@ -797,93 +645,65 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    // Optionally: Run some custom logic when the packet is received.
-    // The super/default implementation forwards to #loadAdditional.
-    @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
-        super.onDataPacket(connection, packet, registries);
-    }
-
     @NotNull
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag nbt = super.getUpdateTag(registries);
-        nbt.putInt("BurnTime", getBurnTime());
-        nbt.putInt("TotalBurnTime", getTotalBurnTime());
-        nbt.putInt("Speed", getSpeed());
-        nbt.putInt("Mode", getMode());
-        nbt.putInt("Eject", getEject());
-        nbt.putString("Owner", getOwner());
-        nbt.putBoolean("Locked", getLocked());
-        nbt.putBoolean("Filter", getFilter());
-        nbt.putBoolean("Loop", getLoop());
-        nbt.putBoolean("Skip", getSkip());
-        nbt.putBoolean("Replace", getReplace());
-        nbt.putBoolean("OutOfRange", outOfRange);
-        nbt.putBoolean("InventoryFull", inventoryFull);
-        nbt.putBoolean("SkippingAir", skippingAir);
-        nbt.put("Items", this.inventory.serializeNBT(registries));
-        return nbt;
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
-    @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        super.handleUpdateTag(tag, lookupProvider);
-        setBurnTime(tag.getInt("BurnTime"));
-        setTotalBurnTime(tag.getInt("TotalBurnTime"));
-        setSpeed(tag.getInt("Speed"));
-        setMode(tag.getInt("Mode"));
-        setEject(tag.getInt("Eject"));
-        setOwner(tag.getString("Owner"));
-        setLocked(tag.getBoolean("Locked"));
-        setFilter(tag.getBoolean("Filter"));
-        setLoop(tag.getBoolean("Loop"));
-        setSkip(tag.getBoolean("Skip"));
-        setReplace(tag.getBoolean("Replace"));
-        outOfRange = tag.getBoolean("OutOfRange");
-        inventoryFull = tag.getBoolean("InventoryFull");
-        skippingAir = tag.getBoolean("SkippingAir");
-        this.inventory.deserializeNBT(lookupProvider, tag.getCompound("Items"));
+        loadAdditional(TagValueInput.create(ProblemReporter.DISCARDING, lookupProvider, tag));
     }
 
     @Override
-    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.saveAdditional(nbt, registries);
-        nbt.putInt("Speed", speed);
-        nbt.putInt("Mode", mode);
-        nbt.putInt("Eject", eject);
-        nbt.putInt("BurnTime", burnTime);
-        nbt.putInt("TotalBurnTime", totalBurnTime);
-        nbt.putString("Owner", getOwner());
-        nbt.putBoolean("Locked", getLocked());
-        nbt.putBoolean("Filter", getFilter());
-        nbt.putBoolean("Loop", getLoop());
-        nbt.putBoolean("Skip", getSkip());
-        nbt.putBoolean("Replace", getReplace());
-        nbt.putBoolean("OutOfRange", outOfRange);
-        nbt.putBoolean("InventoryFull", inventoryFull);
-        nbt.putBoolean("SkippingAir", skippingAir);
-        nbt.put("Items", this.inventory.serializeNBT(registries));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        writeData(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
-        speed = nbt.getInt("Speed");
-        mode = nbt.getInt("Mode");
-        eject = nbt.getInt("Eject");
-        burnTime = nbt.getInt("BurnTime");
-        totalBurnTime = nbt.getInt("TotalBurnTime");
-        owner = nbt.getString("Owner");
-        locked = nbt.getBoolean("Locked");
-        filter = nbt.getBoolean("Filter");
-        loop = nbt.getBoolean("Loop");
-        skip = nbt.getBoolean("Skip");
-        replace = nbt.getBoolean("Replace");
-        outOfRange = nbt.getBoolean("OutOfRange");
-        inventoryFull = nbt.getBoolean("InventoryFull");
-        skippingAir = nbt.getBoolean("SkippingAir");
-        this.inventory.deserializeNBT(registries, nbt.getCompound("Items"));
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        readData(input);
+    }
+
+    private void writeData(ValueOutput output) {
+        output.putInt("Speed", speed);
+        output.putInt("Mode", mode);
+        output.putInt("Eject", eject);
+        output.putInt("BurnTime", burnTime);
+        output.putInt("TotalBurnTime", totalBurnTime);
+        output.putString("Owner", getOwner());
+        output.putBoolean("Locked", getLocked());
+        output.putBoolean("Filter", getFilter());
+        output.putBoolean("Loop", getLoop());
+        output.putBoolean("Skip", getSkip());
+        output.putBoolean("Replace", getReplace());
+        output.putBoolean("OutOfRange", outOfRange);
+        output.putBoolean("InventoryFull", inventoryFull);
+        output.putBoolean("SkippingAir", skippingAir);
+        ContainerHelper.saveAllItems(output.child("Items"), inventory.getItems());
+    }
+
+    private void readData(ValueInput input) {
+        speed = input.getIntOr("Speed", 0);
+        mode = input.getIntOr("Mode", 0);
+        eject = input.getIntOr("Eject", 0);
+        burnTime = input.getIntOr("BurnTime", 0);
+        totalBurnTime = input.getIntOr("TotalBurnTime", 0);
+        owner = input.getStringOr("Owner", "undefined");
+        locked = input.getBooleanOr("Locked", false);
+        filter = input.getBooleanOr("Filter", false);
+        loop = input.getBooleanOr("Loop", false);
+        skip = input.getBooleanOr("Skip", false);
+        replace = input.getBooleanOr("Replace", false);
+        outOfRange = input.getBooleanOr("OutOfRange", false);
+        inventoryFull = input.getBooleanOr("InventoryFull", false);
+        skippingAir = input.getBooleanOr("SkippingAir", false);
+        inventory.clearContent();
+        ContainerHelper.loadAllItems(input.childOrEmpty("Items"), inventory.getItems());
     }
 
     public LootParams.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch, boolean isFortune) {
@@ -896,7 +716,23 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     }
 
     public Holder<Enchantment> getEnchantment(Level level, ResourceKey<Enchantment> key) {
-        return level.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key);
+        return level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key);
+    }
+
+    protected ResourceHandler<ItemResource> getSidedResourceHandler(Direction side) {
+        if (side == Direction.UP) return topResourceHandler;
+        if (side == Direction.DOWN) return downResourceHandler;
+        if (side == getRightSide(getBlockState())) return rightResourceHandler;
+        return null;
+    }
+
+    protected Direction getRightSide(BlockState state) {
+        return switch (state.getValue(QuarryBlock.FACING)) {
+            case NORTH -> Direction.WEST;
+            case EAST -> Direction.NORTH;
+            case SOUTH -> Direction.EAST;
+            default -> Direction.SOUTH;
+        };
     }
 
     public void resetPositions() {
@@ -942,6 +778,43 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
     public void setTotalBurnTime(int totalBurnTime) {
         this.totalBurnTime = totalBurnTime;
+    }
+
+    public boolean isEnergyPowered() {
+        return false;
+    }
+
+    public int getEnergyStored() {
+        return 0;
+    }
+
+    public int getEnergyCapacity() {
+        return 0;
+    }
+
+    public long getStoredFuelTime() {
+        if (level == null) return getBurnTime();
+
+        long total = getBurnTime();
+        for (int i = 0; i <= 5; i++) {
+            ItemStack itemStack = getItem(i, level, getBlockPos());
+            for (int stackIndex = 0; stackIndex < itemStack.getCount(); stackIndex++) {
+                total += itemStack.getBurnTime(RecipeType.SMELTING, level.fuelValues());
+            }
+        }
+        return total;
+    }
+
+    protected boolean usesFuelItems() {
+        return true;
+    }
+
+    protected boolean hasPowerFor(float amount) {
+        return burnTime > amount;
+    }
+
+    protected void consumePower(int amount) {
+        burnTime = Math.max(0, burnTime - amount);
     }
 
     public String getOwner() {
@@ -1008,6 +881,97 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
         return new QuarryContainer(containerId, playerInventory, getBlockPos(), level);
+    }
+
+    private class ItemContainerResourceAdapter implements ResourceHandler<ItemResource> {
+        private final IntPredicate canExtract;
+        private final BiPredicate<Integer, ItemStack> canInsert;
+        private final SnapshotJournal<List<ItemStack>> journal = new SnapshotJournal<>() {
+            @Override
+            protected List<ItemStack> createSnapshot() {
+                List<ItemStack> snapshot = new ArrayList<>(inventory.getContainerSize());
+                for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+                    snapshot.add(inventory.getItem(slot).copy());
+                }
+                return snapshot;
+            }
+
+            @Override
+            protected void revertToSnapshot(List<ItemStack> snapshot) {
+                for (int slot = 0; slot < snapshot.size(); slot++) {
+                    inventory.setItem(slot, snapshot.get(slot).copy());
+                }
+            }
+        };
+
+        private ItemContainerResourceAdapter(IntPredicate canExtract, BiPredicate<Integer, ItemStack> canInsert) {
+            this.canExtract = canExtract;
+            this.canInsert = canInsert;
+        }
+
+        @Override
+        public int size() {
+            return inventory.getContainerSize();
+        }
+
+        @Override
+        public ItemResource getResource(int slot) {
+            ItemStack stack = inventory.getItem(slot);
+            return stack.isEmpty() ? ItemResource.EMPTY : ItemResource.of(stack);
+        }
+
+        @Override
+        public long getAmountAsLong(int slot) {
+            return inventory.getItem(slot).getCount();
+        }
+
+        @Override
+        public long getCapacityAsLong(int slot, ItemResource resource) {
+            if (!resource.isEmpty() && !isValid(slot, resource)) return 0;
+
+            if (resource.isEmpty()) return inventory.getMaxStackSize();
+            return inventory.getMaxStackSize(resource.toStack());
+        }
+
+        @Override
+        public boolean isValid(int slot, ItemResource resource) {
+            return !resource.isEmpty() && slot >= 0 && slot < inventory.getContainerSize() && canInsert.test(slot, resource.toStack());
+        }
+
+        @Override
+        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            if (resource.isEmpty() || amount <= 0 || !isValid(slot, resource)) return 0;
+
+            return runInTransaction(transaction, () -> {
+                ItemStack stack = resource.toStack(amount);
+                ItemStack remainder = insertIntoSlot(slot, stack);
+                return amount - remainder.getCount();
+            });
+        }
+
+        @Override
+        public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            if (resource.isEmpty() || amount <= 0) return 0;
+            if (slot < 0 || slot >= inventory.getContainerSize() || !canExtract.test(slot)) return 0;
+
+            ItemStack current = inventory.getItem(slot);
+            if (current.isEmpty() || !resource.matches(current)) return 0;
+
+            return runInTransaction(transaction, () -> inventory.removeItem(slot, amount).getCount());
+        }
+
+        private int runInTransaction(TransactionContext transaction, IntSupplier action) {
+            if (transaction == null) {
+                return action.getAsInt();
+            }
+
+            journal.updateSnapshots(transaction);
+            return action.getAsInt();
+        }
+    }
+
+    private interface IntSupplier {
+        int getAsInt();
     }
 
 }

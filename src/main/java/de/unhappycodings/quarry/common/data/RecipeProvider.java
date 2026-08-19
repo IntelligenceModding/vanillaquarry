@@ -6,21 +6,19 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.Items;
-import org.apache.http.impl.conn.SchemeRegistryFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
-    public RecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public RecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Quarry.QUARRY_BLOCK.get())
+    protected void buildRecipes() {
+        shaped(RecipeCategory.MISC, Quarry.QUARRY_BLOCK.get())
                 .define('a', Items.REDSTONE_TORCH)
                 .define('b', Items.REDSTONE)
                 .define('c', Items.REPEATER)
@@ -31,9 +29,20 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .define('h', Items.DIAMOND_PICKAXE)
                 .define('i', Items.DIAMOND_AXE)
                 .pattern("bfa").pattern("geh").pattern("cid")
-                .unlockedBy("has_item", has(Items.FURNACE)).save(recipeOutput,
+                .unlockedBy("has_item", has(Items.FURNACE)).save(output,
                         BuiltInRegistries.BLOCK.getKey(Quarry.QUARRY_BLOCK.get()) + "_crafted");
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Quarry.AREA_CARD.get(), 1)
+        shaped(RecipeCategory.MISC, Quarry.FE_QUARRY_BLOCK.get())
+                .define('q', Quarry.QUARRY_BLOCK.get())
+                .define('r', Items.REDSTONE_BLOCK)
+                .define('d', Items.REDSTONE)
+                .pattern("ddd").pattern("dqd").pattern("drd")
+                .unlockedBy("has_item", has(Quarry.QUARRY_BLOCK.get())).save(output,
+                        BuiltInRegistries.BLOCK.getKey(Quarry.FE_QUARRY_BLOCK.get()) + "_crafted");
+        shapeless(RecipeCategory.MISC, Quarry.QUARRY_BLOCK.get())
+                .requires(Quarry.FE_QUARRY_BLOCK.get())
+                .unlockedBy("has_item", has(Quarry.FE_QUARRY_BLOCK.get())).save(output,
+                        Quarry.MOD_ID + ":quarry_block_from_fe_quarry");
+        shaped(RecipeCategory.MISC, Quarry.AREA_CARD.get(), 1)
                 .define('a', Items.REDSTONE_TORCH)
                 .define('b', Items.REDSTONE)
                 .define('c', Items.OBSERVER)
@@ -41,8 +50,23 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .define('e', Items.COMPARATOR)
                 .define('f', Items.HOPPER)
                 .pattern("  a").pattern("bcb").pattern("def")
-                .unlockedBy("has_item", has(Items.OBSERVER)).save(recipeOutput,
+                .unlockedBy("has_item", has(Items.OBSERVER)).save(output,
                         BuiltInRegistries.ITEM.getKey(Quarry.AREA_CARD.get()) + "_crafted");
-        super.buildRecipes(recipeOutput);
+    }
+
+    public static class Runner extends net.minecraft.data.recipes.RecipeProvider.Runner {
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+            super(output, registries);
+        }
+
+        @Override
+        protected net.minecraft.data.recipes.RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new RecipeProvider(registries, output);
+        }
+
+        @Override
+        public String getName() {
+            return Quarry.MOD_ID + " recipes";
+        }
     }
 }

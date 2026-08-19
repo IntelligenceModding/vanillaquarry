@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.1.21'
+    id 'net.neoforged.gradle.userdev' version '7.1.38'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -18,19 +18,35 @@ sourceSets.main.resources {
 }
 
 repositories {
-    // Add here additional repositories if required by some of the dependencies below.
+    maven {
+        name = "BlameJared Maven"
+        url = "https://maven.blamejared.com/"
+        content {
+            includeGroup "mezz.jei"
+        }
+    }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+def devServerPort = '25566'
+def devServerAddress = "127.0.0.1:${devServerPort}"
 
 runs {
     configureEach {
-        systemProperty 'forge.logging.markers', 'REGISTRIES'
-        systemProperty 'forge.logging.console.level', 'debug'
+        systemProperty 'forge.logging.console.level', 'info'
+        systemProperty 'java.net.preferIPv4Stack', 'true'
 
         modSource project.sourceSets.main
     }
@@ -43,6 +59,8 @@ runs {
 
     server {
         systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        workingDirectory file('runs/server-dev')
+        arguments.addAll '--port', devServerPort
         argument '--nogui'
     }
 
@@ -50,9 +68,15 @@ runs {
         systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
     }
 
-    data {
+    clientData {
         arguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
+}
+
+tasks.register('runData') {
+    group = 'neogradle runs'
+    description = 'Runs clientData; NeoGradle 7.1 no longer provides a data run type.'
+    dependsOn tasks.named('runClientData')
 }
 
 configurations {
@@ -65,9 +89,15 @@ dependencies {
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+
+    // Dev-only runtime mods for testing FE compatibility.
+    localRuntime "maven.modrinth:pipez:${pipez_version}"
+    localRuntime "maven.modrinth:powah:${powah_version}"
+    localRuntime "maven.modrinth:cloth-config:${cloth_config_version}"
+    localRuntime "maven.modrinth:guideme:${guideme_version}"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
@@ -111,7 +141,7 @@ publishing {
     }
     repositories {
         maven {
-            url "file://${project.projectDir}/repo"
+            url = uri("${project.projectDir}/repo")
         }
     }
 }

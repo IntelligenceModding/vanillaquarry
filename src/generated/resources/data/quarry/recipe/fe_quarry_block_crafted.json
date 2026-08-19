@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": "minecraft:redstone",
+    "q": "quarry:quarry_block",
+    "r": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "ddd",
+    "dqd",
+    "drd"
+  ],
+  "result": {
+    "id": "quarry:fe_quarry_block"
+  }
+}

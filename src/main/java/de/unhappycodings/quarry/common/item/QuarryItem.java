@@ -8,40 +8,41 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.block.Block;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class QuarryItem extends BlockItem {
 
-    public QuarryItem() {
-        super(Quarry.QUARRY_BLOCK.get(), new Properties().stacksTo(1));
+    public QuarryItem(Block block, Item.Properties properties) {
+        super(block, properties.stacksTo(1));
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         if (stack.getComponents().isEmpty()) return;
         CompoundTag tag = (CompoundTag) DataComponentMap.CODEC.encodeStart(NbtOps.INSTANCE, stack.getComponents()).result().get();
         if (tag.isEmpty()) return;
 
-        CompoundTag quarryTag = tag.getCompound("minecraft:block_entity_data");
+        CompoundTag quarryTag = tag.getCompoundOrEmpty("minecraft:block_entity_data");
         if (quarryTag.contains("Owner")) {
             String owner = "undefined";
-            String ownerString = quarryTag.getString("Owner");
+            String ownerString = quarryTag.getStringOr("Owner", "");
             if (!ownerString.isEmpty())
                 owner = ownerString.replace("@", " (") + (ownerString.equals("undefined") ? "" : ")");
-            tooltipComponents.add(Component.translatable("gui.quarry.owner").withStyle(yellow()).append(" ").append(owner));
-            tooltipComponents.add(Component.translatable("gui.quarry.security").withStyle(yellow()).append(" ").append(quarryTag.getBoolean("Locked") ?
+            tooltipComponents.accept(Component.translatable("gui.quarry.owner").withStyle(yellow()).append(" ").append(owner));
+            tooltipComponents.accept(Component.translatable("gui.quarry.security").withStyle(yellow()).append(" ").append(quarryTag.getBooleanOr("Locked", false) ?
                     Component.translatable("gui.quarry.lock.private").withStyle(red()) : Component.translatable("gui.quarry.lock.public").withStyle(green())));
-            tooltipComponents.add(Component.translatable("gui.quarry.fueled").withStyle(yellow()).append(" ").append(quarryTag.getInt("BurnTime") > 0 ?
+            tooltipComponents.accept(Component.translatable("gui.quarry.fueled").withStyle(yellow()).append(" ").append(quarryTag.getIntOr("BurnTime", 0) > 0 ?
                     Component.translatable("gui.quarry.yes").withStyle(green()) : Component.translatable("gui.quarry.no").withStyle(red())));
 
         }
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipComponents, tooltipFlag);
     }
 
     public Style yellow() {

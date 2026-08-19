@@ -1,6 +1,5 @@
 package de.unhappycodings.quarry.common.container;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.client.gui.GuiUtil;
@@ -14,12 +13,14 @@ import de.unhappycodings.quarry.common.util.NbtUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
@@ -27,7 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -35,12 +36,15 @@ import java.util.List;
 import java.util.Objects;
 
 public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
-    public final ResourceLocation GHOST_OVERLAY = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/filter_overlay.png");
-    public final ResourceLocation GHOST_OVERLAY_DARK = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/filter_overlay_dark.png");
-    public final ResourceLocation POS = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/pos.png");
-    public final ResourceLocation RADIUS = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/radius.png");
-    public final ResourceLocation CHUNK = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/chunk.png");
-    public final ResourceLocation FILTER = ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/filter.png");
+    private static final int TEXT_COLOR = 0xFF141414;
+    private static final int LIGHT_TEXT_COLOR = 0xFFE0E0E0;
+    private static final int ERROR_COLOR = 0xFFFE67DE;
+    public final Identifier GHOST_OVERLAY = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/filter_overlay.png");
+    public final Identifier GHOST_OVERLAY_DARK = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/slot/filter_overlay_dark.png");
+    public final Identifier POS = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/pos.png");
+    public final Identifier RADIUS = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/radius.png");
+    public final Identifier CHUNK = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/chunk.png");
+    public final Identifier FILTER = Identifier.fromNamespaceAndPath(Quarry.MOD_ID, "textures/gui/button/filter.png");
     public ModButton darkmodeMouseButton;
     public ModButton resetMouseButton;
     public ModButton posMouseButton;
@@ -87,7 +91,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}};
 
     public AreaCardScreen(AreaCardContainer screenContainer, Inventory inv, Component titleIn) {
-        super(screenContainer, inv, titleIn);
+        super(screenContainer, inv, titleIn, 176, 187);
         this.container = screenContainer;
 
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
@@ -96,8 +100,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics graphics, int x, int y, float partialTicks) {
-        super.render(graphics, x, y, partialTicks);
+    public void extractRenderState(@Nonnull GuiGraphicsExtractor graphics, int x, int y, float partialTicks) {
+        super.extractRenderState(graphics, x, y, partialTicks);
         if (Minecraft.getInstance().player == null) return;
 
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
@@ -105,7 +109,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             if (editBox != null) {
                 boolean state = stack.getOrDefault(Quarry.SELECTION, 0) == 0;
                 if (state)
-                    editBox.render(graphics, x, y, partialTicks);
+                    editBox.extractRenderState(graphics, x, y, partialTicks);
                 editBox.active = state;
             }
         }
@@ -113,41 +117,41 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             if (editBox != null) {
                 boolean state = stack.getOrDefault(Quarry.SELECTION, 0) == 2;
                 if (state)
-                    editBox.render(graphics, x, y, partialTicks);
+                    editBox.extractRenderState(graphics, x, y, partialTicks);
                 editBox.active = state;
             }
         }
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int x, int y) {
-        super.renderBg(graphics, partialTicks, x, y);
+    public void extractBackground(GuiGraphicsExtractor graphics, int x, int y, float partialTicks) {
+        super.extractBackground(graphics, x, y, partialTicks);
         if (Minecraft.getInstance().player == null) return;
 
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
 
         // left side
-        graphics.blit(getTexture(), leftPos - 32, topPos + 12, 224, 56, 32, 88); // left
-        graphics.blit(getTexture(), leftPos + getSizeX(), topPos + 12, 191, 68, 32, 48); // right
+        graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos - 32, topPos + 12, 224, 56, 32, 88, 256, 256); // left
+        graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + getSizeX(), topPos + 12, 191, 68, 32, 48, 256, 256); // right
 
         // indicators
-        graphics.blit(getTexture(), leftPos - 27, topPos + 21, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 0 ? 1 : 0), 57, 1, 10); // pos
-        graphics.blit(getTexture(), leftPos - 27, topPos + 41, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 1 ? 1 : 0), 57, 1, 10); // radius
-        graphics.blit(getTexture(), leftPos - 27, topPos + 61, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 2 ? 1 : 0), 57, 1, 10); // chunk
-        graphics.blit(getTexture(), leftPos - 27, topPos + 81, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 3 ? 1 : 0), 57, 1, 10); // eject
+        graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos - 27, topPos + 21, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 0 ? 1 : 0), 57, 1, 10, 256, 256); // pos
+        graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos - 27, topPos + 41, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 1 ? 1 : 0), 57, 1, 10, 256, 256); // radius
+        graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos - 27, topPos + 61, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 2 ? 1 : 0), 57, 1, 10, 256, 256); // chunk
+        graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos - 27, topPos + 81, 202 - (stack.getOrDefault(Quarry.SELECTION, 0) == 3 ? 1 : 0), 57, 1, 10, 256, 256); // eject
 
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 1) {
-            graphics.blit(getTexture(), leftPos + (getSizeX() / 2) - 39, topPos + 67, 177, 150, 78, 14);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + (getSizeX() / 2) - 39, topPos + 67, 177, 150, 78, 14, 256, 256);
         }
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 2) {
-            graphics.blit(getTexture(), leftPos + 17, topPos + 52, 177, 150, 78, 14); // Count output field
-            graphics.blit(getTexture(), leftPos + 115, topPos + 25, 198, 0, 56, 56); // Chunk visualisation
-            graphics.blit(getTexture(), leftPos + 15, topPos + 70, 176, 165, 80, 15); // Coordinates field
+            graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + 17, topPos + 52, 177, 150, 78, 14, 256, 256); // Count output field
+            graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + 115, topPos + 25, 198, 0, 56, 56, 256, 256); // Chunk visualisation
+            graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + 15, topPos + 70, 176, 165, 80, 15, 256, 256); // Coordinates field
 
             for (int i = 0; i < 17; i++) {
                 for (int e = 0; e < 17; e++) {
                     if (posList[i][e] <= chunkRadius) {
-                        graphics.blit(getTexture(), (int) (leftPos + 118 + ((double) e * 3)), (int) (topPos + 28 + ((double) i * 3)), 198, 57, 2, 2);
+                        graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), (int) (leftPos + 118 + ((double) e * 3)), (int) (topPos + 28 + ((double) i * 3)), 198, 57, 2, 2, 256, 256);
                     }
                 }
             }
@@ -155,23 +159,23 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 3) {
 
             for (int i = 0; i < 27; i++) {
-                graphics.blit(getTexture(), leftPos + 7 + (i % 9) * 18, (int) (topPos + 27 + Math.floor(i / 9D) * 18), 0, 187, 18, 18); // Count output field
+                graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + 7 + (i % 9) * 18, (int) (topPos + 27 + Math.floor(i / 9D) * 18), 0, 187, 18, 18, 256, 256); // Count output field
                 renderGhostOverlay(graphics, filters[i].getDefaultInstance(), leftPos + 7 + (i % 9) * 18 + 1, (int) (topPos + 27 + Math.floor((double) i / 9) * 18 + 1), !isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9D) * 18) + 1, 16, 16, x, y));
             }
         }
     }
 
     @Override
-    protected void renderLabels(@Nonnull GuiGraphics graphics, int pMouseX, int pMouseY) {
+    protected void extractLabels(@Nonnull GuiGraphicsExtractor graphics, int pMouseX, int pMouseY) {
         if (Minecraft.getInstance().player == null) return;
 
         ItemStack stack = Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND);
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 0) {
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.pos_1").getString(), 30, 25, 1315860, false);
-            graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.areacard.pos_2").getString(), 96, 25, 1315860, false);
-            graphics.drawString(Minecraft.getInstance().font, Component.literal("X").getString(), 84, 41, 1315860, false);
-            graphics.drawString(Minecraft.getInstance().font, Component.literal("Y").getString(), 84, 57, 1315860, false);
-            graphics.drawString(Minecraft.getInstance().font, Component.literal("Z").getString(), 84, 74, 1315860, false);
+            graphics.text(Minecraft.getInstance().font, Component.translatable("gui.areacard.pos_1").getString(), 30, 25, TEXT_COLOR, false);
+            graphics.text(Minecraft.getInstance().font, Component.translatable("gui.areacard.pos_2").getString(), 96, 25, TEXT_COLOR, false);
+            graphics.text(Minecraft.getInstance().font, Component.literal("X").getString(), 84, 41, TEXT_COLOR, false);
+            graphics.text(Minecraft.getInstance().font, Component.literal("Y").getString(), 84, 57, TEXT_COLOR, false);
+            graphics.text(Minecraft.getInstance().font, Component.literal("Z").getString(), 84, 74, TEXT_COLOR, false);
             if (!init1) {
                 BlockPos pos = BlockPos.ZERO;
                 if (stack.has(Quarry.POS_1))
@@ -192,9 +196,9 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             }
         }
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 1) {
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.areacard.around"), getSizeX() / 2, 34, 1315860, false);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(blockRadius)), 88, 52, 1315860, false);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal("#").append(String.valueOf(blockCount)), 88, 70, ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632, true);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.areacard.around"), getSizeX() / 2, 34, TEXT_COLOR, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(blockRadius)), 88, 52, TEXT_COLOR, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal("#").append(String.valueOf(blockCount)), 88, 70, ClientConfig.enableQuarryDarkmode.get() ? ARGB.color(0xFF, 0x94, 0x94, 0x94) : LIGHT_TEXT_COLOR, true);
             if (!init4) {
                 BlockPos pos1 = BlockPos.ZERO;
                 if (stack.has(Quarry.POS_1))
@@ -221,9 +225,9 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 }
             }
             int count = ((chunkRadius * 2 + 1) * (chunkRadius * 2 + 1)) * (16 * 16 * multiplicator);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.areacard.framing").getString(), getSizeX() / 3, 23, 1315860, false);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(chunkRadius)).getString(), 56, 37, 1315860, false);
-            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(valid ? "#" : "").append(String.valueOf(valid ? count : Component.translatable("gui.areacard.illegal").getString())).getString(), 55, 55, valid ? ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632 : 16670302, true);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("gui.areacard.framing").getString(), getSizeX() / 3, 23, TEXT_COLOR, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(String.valueOf(chunkRadius)).getString(), 56, 37, TEXT_COLOR, false);
+            drawCenteredString(graphics, Minecraft.getInstance().font, Component.literal(valid ? "#" : "").append(String.valueOf(valid ? count : Component.translatable("gui.areacard.illegal").getString())).getString(), 55, 55, valid ? ClientConfig.enableQuarryDarkmode.get() ? ARGB.color(0xFF, 0x94, 0x94, 0x94) : LIGHT_TEXT_COLOR : ERROR_COLOR, true);
             if (!init3) {
                 BlockPos pos1 = BlockPos.ZERO;
                 if (stack.has(Quarry.POS_1))
@@ -251,7 +255,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                         list.add(Component.translatable("gui.areacard.selection.filter.unset"));
                         list.add(Component.translatable("gui.areacard.selection.filter.set").withStyle(ChatFormatting.YELLOW));
                     }
-                    graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+                    graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
                 }
             }
         }
@@ -265,7 +269,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                 list.add(Component.translatable("gui.quarry.darkmode.white"));
                 list.add(Component.translatable("gui.quarry.darkmode.white.switch").withStyle(ChatFormatting.YELLOW));
             }
-            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
         }
 
         if (resetMouseButton.isMouseOver(pMouseX, pMouseY)) {
@@ -275,62 +279,59 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             list.add(Component.translatable("gui.quarry.reset.desc").withStyle(ChatFormatting.YELLOW));
             list.add(Component.translatable("gui.quarry.reset.desc_1").withStyle(ChatFormatting.YELLOW));
 
-            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
         }
 
         if (posMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.areacard.selection.position"));
             list.add(Component.translatable("gui.areacard.selection.position.description").withStyle(ChatFormatting.YELLOW));
-            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
         }
 
         if (radiusMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.areacard.selection.radius"));
             list.add(Component.translatable("gui.areacard.selection.radius.description").withStyle(ChatFormatting.YELLOW));
-            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
         }
 
         if (chunkMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.areacard.selection.chunk"));
             list.add(Component.translatable("gui.areacard.selection.chunk.description").withStyle(ChatFormatting.YELLOW));
-            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
         }
 
         if (filterMouseButton.isMouseOver(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.areacard.filter"));
             list.add(Component.translatable("gui.areacard.selection.filter.description").withStyle(ChatFormatting.YELLOW));
-            graphics.renderComponentTooltip(Minecraft.getInstance().font, list, pMouseX - leftPos, pMouseY - topPos);
+            graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
         }
 
 
         // Main Text
-        drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("item.quarry.area_card").getString(), getSizeX() / 2, 6, 1315860, false);
-        graphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.quarry.inventory").getString(), 8, 93, 1315860, false);
+        drawCenteredString(graphics, Minecraft.getInstance().font, Component.translatable("item.quarry.area_card").getString(), getSizeX() / 2, 6, TEXT_COLOR, false);
+        graphics.text(Minecraft.getInstance().font, Component.translatable("gui.quarry.inventory").getString(), 8, 93, TEXT_COLOR, false);
 
     }
 
-    public void drawCenteredString(GuiGraphics graphics, Font font, String text, int x, int y, int color, boolean shadow) {
-        graphics.drawString(font, text, x - font.width(text) / 2, y, color, shadow);
+    public void drawCenteredString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int color, boolean shadow) {
+        graphics.text(font, text, x - font.width(text) / 2, y, color, shadow);
     }
 
-    public void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color, boolean shadow) {
-        graphics.drawString(font, text, x - font.width(text) / 2, y, color, shadow);
+    public void drawCenteredString(GuiGraphicsExtractor graphics, Font font, Component text, int x, int y, int color, boolean shadow) {
+        graphics.text(font, text, x - font.width(text) / 2, y, color, shadow);
     }
 
-    public void renderGhostOverlay(GuiGraphics graphics, ItemStack item, int x, int y, boolean normal) {
-        graphics.pose().pushPose();
-        graphics.renderItem(item, x, y);
-        RenderSystem.setShaderColor(1, 1, 1, 0.65f);
-        RenderSystem.enableBlend();
-        RenderSystem.disableDepthTest();
+    public void renderGhostOverlay(GuiGraphicsExtractor graphics, ItemStack item, int x, int y, boolean normal) {
+        graphics.pose().pushMatrix();
+        graphics.item(item, x, y);
         //stack.translate(0,0,10);
-        graphics.blit(normal ? Quarry.BLANK : (ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY), x, y, 0, 0, 16, 16, 16, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, normal ? Quarry.BLANK : (ClientConfig.enableQuarryDarkmode.get() ? GHOST_OVERLAY_DARK : GHOST_OVERLAY), x, y, 0, 0, 16, 16, 16, 16, 256, 256);
         GuiUtil.reset();
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
     @Override
@@ -342,7 +343,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             if (Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND).is(Quarry.AREA_CARD.get()))
                 saveFilter(Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND));
         } else {
-            PacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND)));
+            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND)));
         }
         super.onClose();
     }
@@ -383,7 +384,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     @Override
-    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         // focus textboxes on click
         for (ModEditBox editBox : positionInputs) {
             editBox.setFocused(false);
@@ -401,7 +402,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
         }
         // add and remove filters ability
         for (int i = 0; i < 27; i++) {
-            if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9D) * 18) + 1, 16, 16, pMouseX, pMouseY)) {
+            if (isHovering(7 + (i % 9) * 18 + 1, (int) (27 + Math.floor(i / 9D) * 18) + 1, 16, 16, event.x(), event.y())) {
                 ItemStack mouse = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (Minecraft.getInstance().player.containerMenu.getCarried() == ItemStack.EMPTY) {
                     filters[i] = ItemStack.EMPTY.getItem();
@@ -412,7 +413,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             }
         }
 
-        return super.mouseClicked(pMouseX, pMouseY, pButton);
+        return super.mouseClicked(event, doubleClick);
     }
 
     protected void addElements() {
@@ -524,14 +525,14 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     @Override
-    public void resize(@Nonnull Minecraft pMinecraft, int pWidth, int pHeight) {
+    public void resize(int pWidth, int pHeight) {
         ArrayList<String> posValues = new ArrayList<>();
         ArrayList<String> heightValues = new ArrayList<>();
         for (ModEditBox editBox : positionInputs)
             posValues.add(editBox.getValue());
         for (ModEditBox editBox : heightInputs)
             heightValues.add(editBox.getValue());
-        this.init(pMinecraft, pWidth, pHeight);
+        this.init(pWidth, pHeight);
         int i = 0;
         for (ModEditBox editBox : positionInputs) {
             editBox.setValue(posValues.get(i));
@@ -577,7 +578,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                             stack.set(Quarry.FILTERS, filters);
                         stack.set(Quarry.LAST_BLOCK, 0);
                         stack.set(Quarry.get("pos" + e), tag);
-                        PacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+                        ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
                     }
                 }
             }
@@ -593,7 +594,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             tag.putInt("y", getOffsetPos(-blockRadius).getY());
             tag.putInt("z", getOffsetPos(-blockRadius).getZ());
             stack.set(Quarry.POS_2, tag);
-            PacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
         }
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 2) {
             CompoundTag tag = new CompoundTag();
@@ -614,7 +615,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             tag.putInt("y", Math.max(Integer.parseInt(down.getValue()), -64));
             tag.putInt("z", pos2.getZ());
             stack.set(Quarry.POS_2, tag);
-            PacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
         }
     }
 
@@ -647,7 +648,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
         for (int i = 0; i < 27; i++) {
             if (currentTag != null && currentTag.contains(i + "")) {
-                filters[i] = ItemStack.parse(level.registryAccess(), currentTag.getCompound(i + "")).get().getItem();
+                filters[i] = currentTag.read(i + "", ItemStack.CODEC).orElse(ItemStack.EMPTY).getItem();
             }
         }
     }
@@ -659,12 +660,12 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             for (int i = 0; i < filters.length; i++) {
                 Item filter = filters[i];
                 if (!filter.getDefaultInstance().is(Items.AIR))
-                    tag.put(i + "", filter.getDefaultInstance().save(getMenu().level.registryAccess()));
+                    tag.store(i + "", ItemStack.CODEC, filter.getDefaultInstance());
             }
 
             stack.set(Quarry.FILTERS, tag);
 
-            PacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
         }
     }
 
@@ -693,17 +694,17 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     public void setDarkModeConfigValue(boolean state) {
-        ClientConfig.enableQuarryDarkmode.set(state);
+        ClientConfig.setQuarryDarkmode(state);
     }
 
     public void refreshDarkmode() {
         refreshWidgets();
 
         for (ModEditBox editBox : positionInputs)
-            editBox.setTextColor(ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632);
+            editBox.setTextColor(ClientConfig.enableQuarryDarkmode.get() ? ARGB.color(0xFF, 0x94, 0x94, 0x94) : LIGHT_TEXT_COLOR);
 
         for (ModEditBox heightInput : heightInputs) {
-            heightInput.setTextColor(ClientConfig.enableQuarryDarkmode.get() ? FastColor.ARGB32.color(0xFF, 0x94, 0x94, 0x94) : 14737632);
+            heightInput.setTextColor(ClientConfig.enableQuarryDarkmode.get() ? ARGB.color(0xFF, 0x94, 0x94, 0x94) : LIGHT_TEXT_COLOR);
         }
 
     }
@@ -724,11 +725,11 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
     }
 
     @Override
-    public ResourceLocation getTexture() {
+    public Identifier getTexture() {
         if (!getDarkModeConfigValue()) refreshDarkmode();
         String texture = "textures/gui/area_card_gui.png";
         if (getDarkModeConfigValue()) texture = "textures/gui/area_card_gui_dark.png";
-        return ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, texture);
+        return Identifier.fromNamespaceAndPath(Quarry.MOD_ID, texture);
     }
 
 }

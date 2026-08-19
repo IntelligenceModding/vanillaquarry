@@ -1,6 +1,5 @@
 package de.unhappycodings.quarry.common.blockentity.renderer;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -14,37 +13,35 @@ import de.unhappycodings.quarry.common.util.TextUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
-public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
+public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, QuarryEntityRenderer.State> {
 
-    private final int YELLOW = 0xFFFF00;
-    private final int WHITE = 0xFFFFFF;
-    private final int RED = 0xFF0000;
-    private final int GREEN = 0x00FF00;
-    private final int ORANGE = 0xFF8800;
-    private boolean blink;
-    private long lastBlink = 0;
+    private static final int YELLOW = 0xFFFFFF00;
+    private static final int WHITE = 0xFFFFFFFF;
+    private static final int RED = 0xFFFF0000;
+    private static final int GREEN = 0xFF00FF00;
+    private static final int ORANGE = 0xFFFF8800;
+    private static final int PANE = 0x88000000;
+    private static final int FULL_BRIGHT = 15728880;
 
     public QuarryEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -64,22 +61,10 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
 
         StringBuilder sb = new StringBuilder();
 
-        if (Math.floor(weeks) > 0) {
-            sb.append((int) Math.floor(weeks)).append("w ");
-        }
-
-        if (Math.floor(days) > 0) {
-            sb.append((int) Math.floor(days)).append("d ");
-        }
-
-        if (Math.floor(hours) > 0) {
-            sb.append((int) Math.floor(hours)).append("h ");
-        }
-
-        if (Math.floor(minutes) > 0 && Math.floor(weeks) < 1) {
-            sb.append((int) Math.floor(minutes)).append("m ");
-        }
-
+        if (Math.floor(weeks) > 0) sb.append((int) Math.floor(weeks)).append("w ");
+        if (Math.floor(days) > 0) sb.append((int) Math.floor(days)).append("d ");
+        if (Math.floor(hours) > 0) sb.append((int) Math.floor(hours)).append("h ");
+        if (Math.floor(minutes) > 0 && Math.floor(weeks) < 1) sb.append((int) Math.floor(minutes)).append("m ");
         if ((Math.floor(seconds) > 0 || sb.isEmpty()) && Math.floor(days) < 1 && Math.floor(weeks) < 1) {
             sb.append(Math.round(seconds * 10) / 10f).append("s");
         }
@@ -90,9 +75,9 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
     public static int lerpColor3(int color1, int color2, int color3, float percent) {
         percent = Math.max(0f, Math.min(100f, percent));
 
-        int start, end;
+        int start;
+        int end;
         float t;
-
         if (percent <= 50f) {
             start = color1;
             end = color2;
@@ -121,107 +106,95 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
-    public float map(float value, float oldMin, float oldMax, float newMin, float newMax) {
-        return ((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + newMin;
+    @Override
+    public State createRenderState() {
+        return new State();
     }
 
     @Override
-    public void render(QuarryEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        if (ClientConfig.enableQuarryHolograph.get()) {
-            BlockState state = blockEntity.getBlockState();
-            Direction facing = state.getValue(QuarryBlock.FACING);
+    public void extractRenderState(QuarryEntity blockEntity, State state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
+        state.render = ClientConfig.enableQuarryHolograph.get();
+        if (!state.render) return;
 
-            poseStack.pushPose();
+        BlockState blockState = blockEntity.getBlockState();
+        state.facing = blockState.getValue(QuarryBlock.FACING);
+        state.energy = blockEntity.isEnergyPowered();
+        state.owner = blockEntity.getOwner().split("@")[0];
+        state.locked = blockEntity.getLocked();
+        state.loop = blockEntity.getLoop();
+        state.filter = blockEntity.getFilter();
+        state.eject = blockEntity.getEject() > 0;
+        state.skip = blockEntity.getSkip();
+        state.replace = blockEntity.getReplace();
+        state.active = blockState.getValue(QuarryBlock.ACTIVE);
+        state.outOfRange = blockEntity.outOfRange;
+        state.inventoryFull = blockEntity.inventoryFull;
+        state.skippingAir = blockEntity.skippingAir;
+        state.modeText = getMode(blockEntity.getMode());
+        state.percentage = 0;
+        state.lastBlock = 0;
+        state.remainingFuel = "";
+        state.remainingWork = "";
 
-            // Render transparent background pane
-            poseStack.translate(0.5 + (facing == Direction.NORTH ? 0.5f : facing == Direction.SOUTH ? -0.5f : 0) + facing.getStepX() * 0.5, 1.0, 0.5 + (facing == Direction.EAST ? 0.5f : facing == Direction.WEST ? -0.5f : 0) + facing.getStepZ() * 0.5);
-            renderTransparentPane(facing, poseStack, buffer, packedLight, packedOverlay);
-            poseStack.popPose();
+        ItemStack stack = blockEntity.getInventory().getItem(12);
+        state.hasCard = stack.is(Quarry.AREA_CARD.get());
+        if (!state.hasCard) return;
 
-            poseStack.pushPose();
-            RenderSystem.disableCull();
+        int blockCount = CalcUtil.getBlockAmount(NbtUtil.getPos(stack.get(Quarry.POS_1)), NbtUtil.getPos(stack.get(Quarry.POS_2)));
+        state.lastBlock = stack.has(Quarry.LAST_BLOCK) ? stack.get(Quarry.LAST_BLOCK) : 0;
+        state.percentage = blockCount <= 0 ? 0 : (float) state.lastBlock / (float) blockCount * 100f;
+        state.blink = blockEntity.getLevel() != null && blockEntity.getLevel().getGameTime() / 10 % 2 == 0;
 
-            // Translate back to the blocks front
-            poseStack.translate(0.5 + facing.getStepX() * 0.5, 1.0, 0.5 + facing.getStepZ() * 0.5);
+        if (blockEntity.getLevel() == null || blockCount <= 0) return;
 
-            // Rotate rendering based on the facing direction
-            handleRotate(poseStack, facing);
+        float runsPerSec = 20f / blockEntity.getTicksForSpeed(blockEntity.getSpeed());
+        state.remainingFuel = formatTime(blockEntity.getStoredFuelTime() / (runsPerSec * CalcUtil.getNeededTicks(blockEntity.getMode(), blockEntity.getSpeed(), blockEntity.isEnergyPowered())));
+        state.remainingWork = formatTime((blockCount - state.lastBlock) / runsPerSec);
+    }
 
-            poseStack.pushPose();
-            poseStack.translate(0, 0.5, 0.01);
-            poseStack.scale(0.005f, -0.005f, 0.005f);
+    @Override
+    public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        if (!state.render) return;
 
-            drawCenteredText(100, 40, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.quarry"), 55)).withColor(WHITE).withStyle(ChatFormatting.UNDERLINE), poseStack, buffer);
-            drawCenteredText(100, 55, Component.literal(blockEntity.getOwner().split("@")[0]).withColor(WHITE), poseStack, buffer);
+        poseStack.pushPose();
+        poseStack.translate(0.5 + state.facing.getStepX() * 0.5, 1.0, 0.5 + state.facing.getStepZ() * 0.5);
+        handleRotate(poseStack, state.facing);
+        poseStack.translate(0, 0.5, 0.01);
+        poseStack.scale(0.005f, -0.005f, 0.005f);
 
-            // Render settings text as loop filter etc
-            renderSettings(blockEntity, poseStack, buffer);
+        drawCenteredText(submitNodeCollector, poseStack, 100, 40, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable(state.energy ? "gui.quarry.holo.fe_quarry" : "gui.quarry.holo.quarry"), 55)).withColor(WHITE).withStyle(ChatFormatting.UNDERLINE), WHITE);
+        drawCenteredText(submitNodeCollector, poseStack, 100, 55, Component.literal(state.owner).withColor(WHITE), WHITE);
+        renderSettings(state, poseStack, submitNodeCollector);
 
-            ItemStack stack = blockEntity.getInventory().getStackInSlot(12);
+        if (state.hasCard) {
+            int statusColor = !state.active ? RED : state.outOfRange || state.inventoryFull || state.skippingAir ? ORANGE : GREEN;
+            String statusKey = !state.active ? "gui.quarry.holo.stop" : state.outOfRange ? "gui.quarry.holo.outofrange" : state.inventoryFull ? "gui.quarry.holo.invfull" : state.skippingAir ? "gui.quarry.holo.skipping" : "gui.quarry.holo.mining";
+            Component status = Component.literal(TextUtil.truncateWithEllipsis(getTranslatable(statusKey), 80))
+                    .withStyle(state.blink && ((state.outOfRange || state.inventoryFull) && state.active) ? ChatFormatting.UNDERLINE : ChatFormatting.RESET)
+                    .withColor(statusColor);
 
-            if (stack.is(Quarry.AREA_CARD.get())) {
-                // Get values to variables
-                int blockCount = CalcUtil.getBlockAmount(NbtUtil.getPos(stack.get(Quarry.POS_1)), NbtUtil.getPos(stack.get(Quarry.POS_2)));
-                int lastBlock = stack.has(Quarry.LAST_BLOCK) ? stack.get(Quarry.LAST_BLOCK) : 0;
-                float percentage = (float) lastBlock / (float) blockCount * 100f;
-                long gameTime = blockEntity.getLevel().getGameTime();
-                if (gameTime - lastBlink >= 10) {
-                    blink = !blink;
-                    lastBlink = gameTime;
-                }
-
-                boolean active = blockEntity.getBlockState().getValue(QuarryBlock.ACTIVE);
-
-                boolean outOfRange = blockEntity.outOfRange;
-                boolean inventoryFull = blockEntity.inventoryFull;
-                boolean skippingAir = blockEntity.skippingAir;
-
-                drawText(40, 108, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable(!active ? "gui.quarry.holo.stop" : outOfRange ? "gui.quarry.holo.outofrange" : inventoryFull ? "gui.quarry.holo.invfull" : skippingAir ? "gui.quarry.holo.skipping" : "gui.quarry.holo.mining"), 80)).withStyle(blink && ((outOfRange || inventoryFull) && active) ? ChatFormatting.UNDERLINE : ChatFormatting.RESET).withColor(!active ? RED : outOfRange || inventoryFull || skippingAir ? ORANGE : GREEN), poseStack, buffer);
-                drawRightboundText(160, 108, Component.literal(getMode(blockEntity.getMode())), poseStack, buffer);
-
-                drawText(40, 118, Component.literal(Math.round(percentage * 100.0) / 100.0 + "%").withColor(lerpColor3(Color.RED.getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), percentage)), poseStack, buffer);
-                drawCenteredText(100, 118, Component.literal("#" + lastBlock).withColor(WHITE), poseStack, buffer);
-                drawRightboundText(160, 118, Component.literal("100%").withColor(GREEN), poseStack, buffer);
-
-                // Calculate burntime based on all burnables in fuel slots
-                List<ItemStack> fuelSlots = new ArrayList<>();
-                for (int i = 0; i <= 5; i++)
-                    fuelSlots.add(blockEntity.getItem(i, blockEntity.getLevel(), blockEntity.getBlockPos()));
-
-                long totalBurnTime = blockEntity.getBurnTime();
-                for (ItemStack itemStack : fuelSlots)
-                    for (int i = 0; i < itemStack.getCount(); i++)
-                        totalBurnTime += itemStack.getBurnTime(RecipeType.SMELTING);
-
-                // Render remaining fuel and work time
-                renderRemainingTime(blockEntity, poseStack, totalBurnTime, blockCount - lastBlock, buffer);
-
-                // Render bar of mine progress
-                renderProgressBar(poseStack, percentage, buffer);
-            } else {
-                // Render bar of mine progress
-                renderProgressBar(poseStack, 0, buffer);
-            }
-
-            poseStack.popPose();
-            RenderSystem.enableCull();
-            poseStack.popPose();
-
+            drawText(submitNodeCollector, poseStack, 40, 108, status, statusColor);
+            drawRightboundText(submitNodeCollector, poseStack, 160, 108, Component.literal(state.modeText).withColor(WHITE), WHITE);
+            drawText(submitNodeCollector, poseStack, 40, 118, Component.literal(Math.round(state.percentage * 100.0) / 100.0 + "%").withColor(lerpColor3(Color.RED.getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), state.percentage)), lerpColor3(Color.RED.getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), state.percentage));
+            drawCenteredText(submitNodeCollector, poseStack, 100, 118, Component.literal("#" + state.lastBlock).withColor(WHITE), WHITE);
+            drawRightboundText(submitNodeCollector, poseStack, 160, 118, Component.literal("100%").withColor(GREEN), GREEN);
+            renderRemainingTime(state, poseStack, submitNodeCollector);
         }
 
+        renderProgressBar(poseStack, state.percentage, submitNodeCollector);
+        poseStack.popPose();
     }
 
-    void renderRemainingTime(QuarryEntity blockEntity, PoseStack poseStack, long totalBurnTime, int blocksRemain, MultiBufferSource buffer) {
-        float runsPerSec = 20f / blockEntity.getTicksForSpeed(blockEntity.getSpeed()); // 20 ticks
-
-        drawCenteredText(100, 145, Component.literal(getTranslatable("gui.quarry.holo.estimate")).withColor(WHITE), poseStack, buffer);
-        drawText(40, 155, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.fuel"), 40)).withColor(WHITE), poseStack, buffer);
-        drawRightboundText(160, 155, Component.literal(formatTime(totalBurnTime / (runsPerSec * CalcUtil.getNeededTicks(blockEntity.getMode(), blockEntity.getSpeed())))).withColor(WHITE), poseStack, buffer);
-        drawText(40, 165, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.work"), 40)).withColor(WHITE), poseStack, buffer);
-        drawRightboundText(160, 165, Component.literal(formatTime(blocksRemain / runsPerSec)).withColor(WHITE), poseStack, buffer);
+    private static void renderRemainingTime(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
+        drawCenteredText(submitNodeCollector, poseStack, 100, 145, Component.literal(getTranslatable("gui.quarry.holo.estimate")).withColor(WHITE), WHITE);
+        drawText(submitNodeCollector, poseStack, 40, 155, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.fuel"), 40)).withColor(WHITE), WHITE);
+        drawRightboundText(submitNodeCollector, poseStack, 160, 155, Component.literal(state.remainingFuel).withColor(WHITE), WHITE);
+        drawText(submitNodeCollector, poseStack, 40, 165, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.work"), 40)).withColor(WHITE), WHITE);
+        drawRightboundText(submitNodeCollector, poseStack, 160, 165, Component.literal(state.remainingWork).withColor(WHITE), WHITE);
     }
 
-    private void handleRotate(PoseStack poseStack, Direction facing) {
+    private static void handleRotate(PoseStack poseStack, Direction facing) {
         switch (facing) {
             case SOUTH -> {
             }
@@ -231,48 +204,24 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
         }
     }
 
-    private void renderTransparentPane(Direction facing, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(ResourceLocation.fromNamespaceAndPath(Quarry.MOD_ID, "block/quarry_background"));
-
-        handleRotate(poseStack, facing);
-        poseStack.translate(0, 0, 0.005);
-
-        VertexConsumer consumer = buffer.getBuffer(RenderType.translucentMovingBlock());
-        PoseStack.Pose pose = poseStack.last();
-        Matrix4f matrix = pose.pose();
-
-        float u0 = sprite.getU0();
-        float u1 = sprite.getU1();
-        float v0 = sprite.getV0();
-        float v1 = sprite.getV1();
-
-        consumer.addVertex(matrix, 0, 0, 0).setColor(255, 255, 255, 255).setUv(u0, v1).setLight(packedLight).setOverlay(packedOverlay).setNormal(pose, 0, 1, 0);
-        consumer.addVertex(matrix, 1, 0, 0).setColor(255, 255, 255, 255).setUv(u1, v1).setLight(packedLight).setOverlay(packedOverlay).setNormal(pose, 0, 1, 0);
-        consumer.addVertex(matrix, 1, 1, 0).setColor(255, 255, 255, 255).setUv(u1, v0).setLight(packedLight).setOverlay(packedOverlay).setNormal(pose, 0, 1, 0);
-        consumer.addVertex(matrix, 0, 1, 0).setColor(255, 255, 255, 255).setUv(u0, v0).setLight(packedLight).setOverlay(packedOverlay).setNormal(pose, 0, 1, 0);
-    }
-
-    private void renderProgressBar(PoseStack poseStack, float percentage, MultiBufferSource buffer) {
+    private static void renderProgressBar(PoseStack poseStack, float percentage, SubmitNodeCollector submitNodeCollector) {
         poseStack.pushPose();
         poseStack.scale(0.5f, 0.5f, 0.5f);
         poseStack.translate(-60, 30, 0);
-
-        renderBar(buffer, poseStack, -58, 30, 235, 10, percentage, true, false);
-
+        submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.textBackground(), (pose, buffer) -> renderBar(pose, buffer, -58, 30, 235, 10, percentage, true));
         poseStack.popPose();
     }
 
-    private void renderSettings(QuarryEntity blockEntity, PoseStack poseStack, MultiBufferSource buffer) {
-        drawText(40, 70, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.security"), 60)).withColor(blockEntity.getLocked() ? YELLOW : GREEN), poseStack, buffer);
-        drawText(40, 80, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.loop"), 60)).withColor(blockEntity.getLoop() ? GREEN : RED), poseStack, buffer);
-        drawText(40, 90, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.filter"), 60)).withColor(blockEntity.getFilter() ? GREEN : RED), poseStack, buffer);
-        drawRightboundText(160, 70, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.inout"), 60)).withColor(blockEntity.getEject() > 0 ? GREEN : RED), poseStack, buffer);
-        drawRightboundText(160, 80, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.skip"), 60)).withColor(blockEntity.getSkip() ? GREEN : RED), poseStack, buffer);
-        drawRightboundText(160, 90, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.replace"), 60)).withColor(blockEntity.getReplace() ? GREEN : RED), poseStack, buffer);
-
+    private static void renderSettings(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
+        drawText(submitNodeCollector, poseStack, 40, 70, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.security"), 60)).withColor(state.locked ? YELLOW : GREEN), state.locked ? YELLOW : GREEN);
+        drawText(submitNodeCollector, poseStack, 40, 80, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.loop"), 60)).withColor(state.loop ? GREEN : RED), state.loop ? GREEN : RED);
+        drawText(submitNodeCollector, poseStack, 40, 90, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.filter"), 60)).withColor(state.filter ? GREEN : RED), state.filter ? GREEN : RED);
+        drawRightboundText(submitNodeCollector, poseStack, 160, 70, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.inout"), 60)).withColor(state.eject ? GREEN : RED), state.eject ? GREEN : RED);
+        drawRightboundText(submitNodeCollector, poseStack, 160, 80, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.skip"), 60)).withColor(state.skip ? GREEN : RED), state.skip ? GREEN : RED);
+        drawRightboundText(submitNodeCollector, poseStack, 160, 90, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.replace"), 60)).withColor(state.replace ? GREEN : RED), state.replace ? GREEN : RED);
     }
 
-    private String getTranslatable(String key) {
+    private static String getTranslatable(String key) {
         return Component.translatable(key).getString();
     }
 
@@ -283,39 +232,34 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
         return new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 2, pos.getY() + 3, pos.getZ() + 2);
     }
 
-    private void renderBar(MultiBufferSource buffer, PoseStack poseStack, int x, int y, int width, int height, float value, boolean outline, boolean center) {
-        VertexConsumer fill = buffer.getBuffer(RenderType.debugQuads());
+    private static void renderBar(PoseStack.Pose pose, VertexConsumer vertex, int x, int y, int width, int height, float value, boolean outline) {
         float filledWidth = width / 100f * value;
-        Matrix4f matrix = poseStack.last().pose();
 
-        if (center) {
-            int halfW = width / 2;
-            draw(matrix, fill, x + halfW, y, (int) (filledWidth / 2), height, value < 50 ? Color.RED.getRGB() : value > 75 ? Color.GREEN.getRGB() : Color.ORANGE.getRGB());
-            draw(matrix, fill, (int) (x + halfW - filledWidth / 2), y, (int) (filledWidth / 2), height, value < 50 ? Color.RED.getRGB() : value > 75 ? Color.GREEN.getRGB() : Color.ORANGE.getRGB());
-        } else {
-
-            for (int i = 0; i < filledWidth; i++)
-                draw(matrix, fill, x + i, y, 1, height, lerpColor3(Color.RED.getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), map(i, 0, width, 0, 100)));
+        for (int i = 0; i < filledWidth; i++) {
+            drawQuad(pose, vertex, x + i, y, 1, height, lerpColor3(Color.RED.getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), map(i, 0, width, 0, 100)));
         }
 
         if (outline) {
             int frameSpace = 2;
-            draw(matrix, fill, x - frameSpace, y - frameSpace, width + (frameSpace * 2), 1, Color.WHITE.getRGB()); // Top
-            draw(matrix, fill, x - frameSpace, y + height + frameSpace - 1, width + (frameSpace * 2), 1, Color.WHITE.getRGB()); // Bottom
-            draw(matrix, fill, x - frameSpace, y - frameSpace, 1, height + (frameSpace * 2), Color.WHITE.getRGB()); // Left
-            draw(matrix, fill, x + width + frameSpace - 1, y - frameSpace + 1, 1, height + (frameSpace * 2) - 1, Color.WHITE.getRGB()); // Right
+            drawQuad(pose, vertex, x - frameSpace, y - frameSpace, width + frameSpace * 2, 1, WHITE);
+            drawQuad(pose, vertex, x - frameSpace, y + height + frameSpace - 1, width + frameSpace * 2, 1, WHITE);
+            drawQuad(pose, vertex, x - frameSpace, y - frameSpace, 1, height + frameSpace * 2, WHITE);
+            drawQuad(pose, vertex, x + width + frameSpace - 1, y - frameSpace + 1, 1, height + frameSpace * 2 - 1, WHITE);
         }
-
     }
 
-    private void draw(Matrix4f matrix, VertexConsumer vertex, int x, int y, int w, int h, int color) {
-        vertex.addVertex(matrix, x, y + h, 0.001f).setColor(color);
-        vertex.addVertex(matrix, x + w, y + h, 0.001f).setColor(color);
-        vertex.addVertex(matrix, x + w, y, 0.001f).setColor(color);
-        vertex.addVertex(matrix, x, y, 0.001f).setColor(color);
+    private static float map(float value, float oldMin, float oldMax, float newMin, float newMax) {
+        return ((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + newMin;
     }
 
-    private String getMode(int mode) {
+    private static void drawQuad(PoseStack.Pose pose, VertexConsumer vertex, int x, int y, int w, int h, int color) {
+        vertex.addVertex(pose, x, y + h, 0.001f).setColor(color).setLight(FULL_BRIGHT);
+        vertex.addVertex(pose, x + w, y + h, 0.001f).setColor(color).setLight(FULL_BRIGHT);
+        vertex.addVertex(pose, x + w, y, 0.001f).setColor(color).setLight(FULL_BRIGHT);
+        vertex.addVertex(pose, x, y, 0.001f).setColor(color).setLight(FULL_BRIGHT);
+    }
+
+    private static String getMode(int mode) {
         return switch (mode) {
             case 0 -> Component.translatable("gui.quarry.mode.default").getString();
             case 1 -> Component.translatable("gui.quarry.mode.efficient").getString();
@@ -326,24 +270,41 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity> {
         };
     }
 
-    private void drawText(int x, int y, Component text, PoseStack poseStack, MultiBufferSource buffer) {
-        Font font = Minecraft.getInstance().font;
-        font.drawInBatch(text, x - 100, y - 100, 0xFFFFFF, false, poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
-
+    private static void drawText(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int x, int y, Component text, int color) {
+        submitNodeCollector.submitText(poseStack, x - 100, y - 100, text.getVisualOrderText(), false, Font.DisplayMode.NORMAL, FULL_BRIGHT, color, 0, 0);
     }
 
-    private void drawRightboundText(int x, int y, Component text, PoseStack poseStack, MultiBufferSource buffer) {
-        Font font = Minecraft.getInstance().font;
-        int textWidth = font.width(text);
-
-        drawText(-textWidth + x, y, text, poseStack, buffer);
+    private static void drawRightboundText(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int x, int y, Component text, int color) {
+        int textWidth = Minecraft.getInstance().font.width(text);
+        drawText(submitNodeCollector, poseStack, -textWidth + x, y, text, color);
     }
 
-    private void drawCenteredText(int x, int y, Component text, PoseStack poseStack, MultiBufferSource buffer) {
-        Font font = Minecraft.getInstance().font;
-        int textWidth = font.width(text);
-
-        drawText(-textWidth / 2 + x, y, text, poseStack, buffer);
+    private static void drawCenteredText(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int x, int y, Component text, int color) {
+        int textWidth = Minecraft.getInstance().font.width(text);
+        drawText(submitNodeCollector, poseStack, -textWidth / 2 + x, y, text, color);
     }
 
+    public static class State extends BlockEntityRenderState {
+        private boolean render;
+        private Direction facing = Direction.NORTH;
+        private String owner = "";
+        private String modeText = "";
+        private String remainingFuel = "";
+        private String remainingWork = "";
+        private boolean energy;
+        private boolean locked;
+        private boolean loop;
+        private boolean filter;
+        private boolean eject;
+        private boolean skip;
+        private boolean replace;
+        private boolean active;
+        private boolean outOfRange;
+        private boolean inventoryFull;
+        private boolean skippingAir;
+        private boolean hasCard;
+        private boolean blink;
+        private float percentage;
+        private int lastBlock;
+    }
 }
