@@ -49,7 +49,7 @@ public abstract class BaseContainer extends AbstractContainerMenu {
         if (!sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem().copy();
 
-        if (playerIn.level().isClientSide() && Minecraft.getInstance().screen instanceof AreaCardScreen screen) {
+        if (playerIn.level().isClientSide() && Minecraft.getInstance().gui.screen() instanceof AreaCardScreen screen) {
             if (playerIn.getItemInHand(InteractionHand.MAIN_HAND).is(Quarry.AREA_CARD.get()) && !sourceStack.is(Quarry.AREA_CARD.get()) && playerIn.level().isClientSide()) {
                 ItemStack areaCard = playerIn.getItemInHand(InteractionHand.MAIN_HAND);
                 Item[] filters = screen.filters;

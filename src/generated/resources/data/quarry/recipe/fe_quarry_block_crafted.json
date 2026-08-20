@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "d": "minecraft:redstone",
     "q": "quarry:quarry_block",

@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -603,8 +604,8 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             BlockPos chunkMiddle = Minecraft.getInstance().player.chunkPosition().getMiddleBlockPosition(0);
             BlockPos pos1 = chunkMiddle.offset(offset1, 0, offset1);
             BlockPos pos2 = chunkMiddle.offset(offset2, 0, offset2);
-            Minecraft.getInstance().level.setBlock(pos1, Blocks.RED_WOOL.defaultBlockState(), 3);
-            Minecraft.getInstance().level.setBlock(pos2, Blocks.RED_WOOL.defaultBlockState(), 3);
+            Minecraft.getInstance().level.setBlock(pos1, Blocks.WOOL.pick(DyeColor.RED).defaultBlockState(), 3);
+            Minecraft.getInstance().level.setBlock(pos2, Blocks.WOOL.pick(DyeColor.RED).defaultBlockState(), 3);
 
             tag.putInt("x", pos1.getX());
             tag.putInt("y", Math.min(Integer.parseInt(top.getValue()), 320));

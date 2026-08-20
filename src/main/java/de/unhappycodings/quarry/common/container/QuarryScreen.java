@@ -338,9 +338,11 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     @Override
-    protected void slotClicked(@Nonnull Slot pSlot, int pSlotId, int pMouseButton, @Nonnull ContainerInput pType) {
+    protected void slotClicked(Slot pSlot, int pSlotId, int pMouseButton, @Nonnull ContainerInput pType) {
         super.slotClicked(pSlot, pSlotId, pMouseButton, pType);
         sendChangedPacket();
+        if (pSlot == null) return;
+
         if (pSlot.getContainerSlot() == 12) {
             ItemStack stack = pSlot.getItem().isEmpty() ? Items.STONE.getDefaultInstance() : pSlot.getItem();
 
