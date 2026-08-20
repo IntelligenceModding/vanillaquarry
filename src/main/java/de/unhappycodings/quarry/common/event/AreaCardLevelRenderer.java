@@ -6,6 +6,7 @@ import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.client.config.ClientConfig;
 import de.unhappycodings.quarry.common.item.AreaCard;
 import de.unhappycodings.quarry.common.util.NbtUtil;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -20,19 +21,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import org.joml.Matrix4fc;
-import org.joml.Vector4f;
 
 public class AreaCardLevelRenderer {
-    private static final int CELL_BORDER = ARGB.color(255, 0, 155, 155);
-    private static final int YELLOW = ARGB.color(255, 255, 255, 0);
-    private static final int CHUNK_BORDER = ARGB.colorFromFloat(0.5F, 1.0F, 0.0F, 0.0F);
-    private static final int MAJOR_LINES = ARGB.colorFromFloat(1.0F, 0.25F, 0.25F, 1.0F);
-    private static final float THIN_WIDTH = 1.0F;
-    private static final float THICK_WIDTH = 4.0F;
+    private static final int CHUNK_BORDER = ARGB.colorFromFloat(0.8F, 1.0F, 0.0F, 0.0F);
+    private static final float CHUNK_MARKER_WIDTH = 1.0F;
 
-    public static void renderSquareAboveWorldCentre(RenderLevelStageEvent.AfterTranslucentBlocks event) {
+    public static void renderSquareAboveWorldCentre(LevelRenderContext context) {
         if (!ClientConfig.enableAreaCardCornerRendering.get()) return;
 
         Minecraft minecraft = Minecraft.getInstance();
@@ -42,29 +36,29 @@ public class AreaCardLevelRenderer {
         ItemStack item = player.getItemBySlot(EquipmentSlot.MAINHAND);
         if (item.isEmpty() || !(item.getItem() instanceof AreaCard)) return;
 
-        renderChunkLines(event);
+        renderChunkLines(context);
 
         BlockPos pos1 = NbtUtil.getPos(item.get(Quarry.POS_1));
         if (pos1 == null || !item.has(Quarry.POS_1)) return;
 
         BlockPos pos2 = NbtUtil.getPos(item.get(Quarry.POS_2));
         if (pos2 != null && item.has(Quarry.POS_2)) {
-            renderAreaOutline(event, pos1, pos2);
+            renderAreaOutline(context, pos1, pos2);
             return;
         }
 
         double reach = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getValue();
         HitResult hitResult = player.pick(reach * 2, 0.0F, false);
         if (hitResult.getType() == HitResult.Type.BLOCK) {
-            renderAreaOutline(event, pos1, ((BlockHitResult) hitResult).getBlockPos());
+            renderAreaOutline(context, pos1, ((BlockHitResult) hitResult).getBlockPos());
         }
     }
 
-    private static void renderAreaOutline(RenderLevelStageEvent event, BlockPos pos1, BlockPos pos2) {
+    private static void renderAreaOutline(LevelRenderContext context, BlockPos pos1, BlockPos pos2) {
         Minecraft minecraft = Minecraft.getInstance();
-        MultiBufferSource bufferSource = minecraft.renderBuffers().bufferSource();
+        MultiBufferSource bufferSource = context.bufferSource();
         Vec3 cameraPosition = minecraft.gameRenderer.getMainCamera().position();
-        PoseStack poseStack = event.getPoseStack();
+        PoseStack poseStack = context.poseStack();
 
         poseStack.pushPose();
         PoseStack.Pose pose = poseStack.last();
@@ -143,16 +137,16 @@ public class AreaCardLevelRenderer {
         poseStack.popPose();
     }
 
-    private static void renderChunkLines(RenderLevelStageEvent event) {
+    private static void renderChunkLines(LevelRenderContext context) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
 
         Entity entity = minecraft.gameRenderer.getMainCamera().entity();
         if (entity == null) return;
 
-        MultiBufferSource bufferSource = minecraft.renderBuffers().bufferSource();
+        MultiBufferSource bufferSource = context.bufferSource();
         Vec3 cameraPosition = minecraft.gameRenderer.getMainCamera().position();
-        PoseStack poseStack = event.getPoseStack();
+        PoseStack poseStack = context.poseStack();
 
         poseStack.pushPose();
         PoseStack.Pose pose = poseStack.last();
@@ -162,113 +156,23 @@ public class AreaCardLevelRenderer {
         SectionPos cameraSection = SectionPos.of(entity.blockPosition());
         double xstart = cameraSection.minBlockX();
         double zstart = cameraSection.minBlockZ();
-        Matrix4fc modelViewMatrix = event.getModelViewMatrix();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.linesTranslucent());
 
         for (int x = -16; x <= 32; x += 16) {
             for (int z = -16; z <= 32; z += 16) {
-                drawVanillaDebugLine(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart + x, minY, zstart + z, xstart + x, maxY, zstart + z, CHUNK_BORDER, THICK_WIDTH);
+                drawArgbLine(vertexConsumer, pose, cameraPosition, xstart + x, minY, zstart + z, xstart + x, maxY, zstart + z, CHUNK_BORDER, CHUNK_MARKER_WIDTH);
             }
         }
-//      DISABLED FOR TESTING
-//        for (int x = 2; x < 16; x += 2) {
-//            int color = x % 4 == 0 ? CELL_BORDER : YELLOW;
-//            drawVanillaDebugLine(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart + x, minY, zstart, xstart + x, maxY, zstart, color, THIN_WIDTH);
-//            drawVanillaDebugLine(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart + x, minY, zstart + 16.0, xstart + x, maxY, zstart + 16.0, color, THIN_WIDTH);
-//        }
-//
-//        for (int z = 2; z < 16; z += 2) {
-//            int color = z % 4 == 0 ? CELL_BORDER : YELLOW;
-//            drawVanillaDebugLine(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart, minY, zstart + z, xstart, maxY, zstart + z, color, THIN_WIDTH);
-//            drawVanillaDebugLine(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart + 16.0, minY, zstart + z, xstart + 16.0, maxY, zstart + z, color, THIN_WIDTH);
-//        }
-//
-//        for (int y = minecraft.level.getMinY(); y <= minecraft.level.getMaxY() + 1; y += 2) {
-//            int color = y % 8 == 0 ? CELL_BORDER : YELLOW;
-//            drawChunkRing(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart, y, zstart, color, THIN_WIDTH);
-//        }
-//
-//        for (int x = 0; x <= 16; x += 16) {
-//            for (int z = 0; z <= 16; z += 16) {
-//                drawVanillaDebugLine(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart + x, minY, zstart + z, xstart + x, maxY, zstart + z, MAJOR_LINES, THICK_WIDTH);
-//            }
-//        }
-//
-//        drawSectionCuboid(vertexConsumer, pose, cameraPosition, modelViewMatrix, cameraSection);
-//
-//        for (int y = minecraft.level.getMinY(); y <= minecraft.level.getMaxY() + 1; y += 16) {
-//            drawChunkRing(vertexConsumer, pose, cameraPosition, modelViewMatrix, xstart, y, zstart, MAJOR_LINES, THICK_WIDTH);
-//        }
 
         poseStack.popPose();
     }
 
-    private static void drawChunkRing(VertexConsumer buffer, PoseStack.Pose pose, Vec3 camera, Matrix4fc modelViewMatrix, double xstart, double y, double zstart, int color, float width) {
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, xstart, y, zstart, xstart, y, zstart + 16.0, color, width);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, xstart, y, zstart + 16.0, xstart + 16.0, y, zstart + 16.0, color, width);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, xstart + 16.0, y, zstart + 16.0, xstart + 16.0, y, zstart, color, width);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, xstart + 16.0, y, zstart, xstart, y, zstart, color, width);
-    }
-
-    private static void drawSectionCuboid(VertexConsumer buffer, PoseStack.Pose pose, Vec3 camera, Matrix4fc modelViewMatrix, SectionPos section) {
-        double minX = section.minBlockX();
-        double minY = section.minBlockY();
-        double minZ = section.minBlockZ();
-        double maxX = section.maxBlockX() + 1;
-        double maxY = section.maxBlockY() + 1;
-        double maxZ = section.maxBlockZ() + 1;
-
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, minX, minY, minZ, maxX, minY, minZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, maxX, minY, minZ, maxX, minY, maxZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, maxX, minY, maxZ, minX, minY, maxZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, minX, minY, maxZ, minX, minY, minZ, MAJOR_LINES, THIN_WIDTH);
-
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, minX, maxY, minZ, maxX, maxY, minZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, maxX, maxY, minZ, maxX, maxY, maxZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, maxX, maxY, maxZ, minX, maxY, maxZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, minX, maxY, maxZ, minX, maxY, minZ, MAJOR_LINES, THIN_WIDTH);
-
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, minX, minY, minZ, minX, maxY, minZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, maxX, minY, minZ, maxX, maxY, minZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, maxX, minY, maxZ, maxX, maxY, maxZ, MAJOR_LINES, THIN_WIDTH);
-        drawVanillaDebugLine(buffer, pose, camera, modelViewMatrix, minX, minY, maxZ, minX, maxY, maxZ, MAJOR_LINES, THIN_WIDTH);
-    }
-
-    private static void drawVanillaDebugLine(VertexConsumer buffer, PoseStack.Pose pose, Vec3 camera, Matrix4fc modelViewMatrix, double x1, double y1, double z1, double x2, double y2, double z2, int color, float width) {
-        Vector4f start = new Vector4f((float) (x1 - camera.x), (float) (y1 - camera.y), (float) (z1 - camera.z), 1.0F);
-        Vector4f end = new Vector4f((float) (x2 - camera.x), (float) (y2 - camera.y), (float) (z2 - camera.z), 1.0F);
-        Vector4f startViewSpace = new Vector4f();
-        Vector4f endViewSpace = new Vector4f();
-        Vector4f intersectionInWorld = new Vector4f();
-
-        start.mul(modelViewMatrix, startViewSpace);
-        end.mul(modelViewMatrix, endViewSpace);
-
-        boolean startIsBehindCamera = startViewSpace.z > -0.05F;
-        boolean endIsBehindCamera = endViewSpace.z > -0.05F;
-        if (startIsBehindCamera && endIsBehindCamera) return;
-
-        if (startIsBehindCamera || endIsBehindCamera) {
-            float denom = endViewSpace.z - startViewSpace.z;
-            if (Math.abs(denom) < 1.0E-9F) return;
-
-            float intersection = Math.clamp((-0.05F - startViewSpace.z) / denom, 0.0F, 1.0F);
-            start.lerp(end, intersection, intersectionInWorld);
-            if (startIsBehindCamera) {
-                start.set(intersectionInWorld);
-            } else {
-                end.set(intersectionInWorld);
-            }
-        }
-
-        buffer.addVertex(pose, start.x, start.y, start.z)
-                .setNormal(pose, end.x - start.x, end.y - start.y, end.z - start.z)
-                .setColor(color)
-                .setLineWidth(width);
-        buffer.addVertex(pose, end.x, end.y, end.z)
-                .setNormal(pose, end.x - start.x, end.y - start.y, end.z - start.z)
-                .setColor(color)
-                .setLineWidth(width);
+    private static void drawArgbLine(VertexConsumer buffer, PoseStack.Pose pose, Vec3 camera, double x1, double y1, double z1, double x2, double y2, double z2, int color, float width) {
+        float a = ((color >> 24) & 0xFF) / 255.0F;
+        float r = ((color >> 16) & 0xFF) / 255.0F;
+        float g = ((color >> 8) & 0xFF) / 255.0F;
+        float b = (color & 0xFF) / 255.0F;
+        drawLine(buffer, pose, camera, x1, y1, z1, x2, y2, z2, r, g, b, width, a);
     }
 
     private static void drawLine(VertexConsumer buffer, PoseStack.Pose pose, Vec3 camera, double x1, double y1, double z1, double x2, double y2, double z2, float r, float g, float b, float width, float a) {

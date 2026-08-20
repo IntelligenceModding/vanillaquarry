@@ -1,22 +1,13 @@
 package de.unhappycodings.quarry.common.data;
 
-import de.unhappycodings.quarry.Quarry;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
-@EventBusSubscriber(modid = Quarry.MOD_ID)
-public class DataProvider {
+public class DataProvider implements DataGeneratorEntrypoint {
 
-    @SubscribeEvent
-    public static void onClientDataGen(GatherDataEvent.Client event) {
-        event.addProvider(new LanguageProvider(event.getGenerator(), "en_us"));
-        event.addProvider(new GermanLanguageProvider(event.getGenerator(), "de_de"));
-        event.addProvider(new RecipeProvider.Runner(event.getGenerator().getPackOutput(), event.getLookupProvider()));
-    }
-
-    @SubscribeEvent
-    public static void onServerDataGen(GatherDataEvent.Server event) {
-        event.addProvider(new RecipeProvider.Runner(event.getGenerator().getPackOutput(), event.getLookupProvider()));
+    @Override
+    public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
+        FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
+        pack.addProvider(RecipeProvider.Runner::new);
     }
 }

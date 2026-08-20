@@ -110,25 +110,43 @@ public class CalcUtil {
     }
 
     public static float getNeededTicks(int mode, int speed) {
-        return getNeededTicks(mode, speed, false);
+        int fuelModifier = switch (mode) {
+            case 1 -> CommonConfig.quarryEfficientModeConsumption.get();
+            case 2 -> CommonConfig.quarryFortuneModeConsumption.get();
+            case 3 -> CommonConfig.quarrySilkTouchModeConsumption.get();
+            case 4 -> CommonConfig.quarryVoidModeConsumption.get();
+            default -> CommonConfig.quarryDefaultModeConsumption.get();
+        };
+        switch (speed) {
+            case 0 -> fuelModifier *= CommonConfig.quarrySpeedOneModifier.get();
+            case 1 -> fuelModifier *= CommonConfig.quarrySpeedTwoModifier.get();
+            case 2 -> fuelModifier *= CommonConfig.quarrySpeedThreeModifier.get();
+            case 3 -> fuelModifier *= CommonConfig.quarrySpeedFourModifier.get();
+            case 4 -> fuelModifier *= CommonConfig.quarrySpeedFiveModifier.get();
+            case 5 -> fuelModifier *= CommonConfig.quarrySpeedSixModifier.get();
+            case 6 -> fuelModifier *= CommonConfig.quarrySpeedSevenModifier.get();
+        }
+        return fuelModifier;
     }
 
     public static float getNeededTicks(int mode, int speed, boolean energyPowered) {
+        if (!energyPowered) return getNeededTicks(mode, speed);
+
         int fuelModifier = switch (mode) {
-            case 1 -> energyPowered ? CommonConfig.feQuarryEfficientModeConsumption.get() : CommonConfig.quarryEfficientModeConsumption.get();
-            case 2 -> energyPowered ? CommonConfig.feQuarryFortuneModeConsumption.get() : CommonConfig.quarryFortuneModeConsumption.get();
-            case 3 -> energyPowered ? CommonConfig.feQuarrySilkTouchModeConsumption.get() : CommonConfig.quarrySilkTouchModeConsumption.get();
-            case 4 -> energyPowered ? CommonConfig.feQuarryVoidModeConsumption.get() : CommonConfig.quarryVoidModeConsumption.get();
-            default -> energyPowered ? CommonConfig.feQuarryDefaultModeConsumption.get() : CommonConfig.quarryDefaultModeConsumption.get();
+            case 1 -> CommonConfig.energyQuarryEfficientModeConsumption.get();
+            case 2 -> CommonConfig.energyQuarryFortuneModeConsumption.get();
+            case 3 -> CommonConfig.energyQuarrySilkTouchModeConsumption.get();
+            case 4 -> CommonConfig.energyQuarryVoidModeConsumption.get();
+            default -> CommonConfig.energyQuarryDefaultModeConsumption.get();
         };
         switch (speed) {
-            case 0 -> fuelModifier *= energyPowered ? CommonConfig.feQuarrySpeedOneModifier.get() : CommonConfig.quarrySpeedOneModifier.get();
-            case 1 -> fuelModifier *= energyPowered ? CommonConfig.feQuarrySpeedTwoModifier.get() : CommonConfig.quarrySpeedTwoModifier.get();
-            case 2 -> fuelModifier *= energyPowered ? CommonConfig.feQuarrySpeedThreeModifier.get() : CommonConfig.quarrySpeedThreeModifier.get();
-            case 3 -> fuelModifier *= energyPowered ? CommonConfig.feQuarrySpeedFourModifier.get() : CommonConfig.quarrySpeedFourModifier.get();
-            case 4 -> fuelModifier *= energyPowered ? CommonConfig.feQuarrySpeedFiveModifier.get() : CommonConfig.quarrySpeedFiveModifier.get();
-            case 5 -> fuelModifier *= energyPowered ? CommonConfig.feQuarrySpeedSixModifier.get() : CommonConfig.quarrySpeedSixModifier.get();
-            case 6 -> fuelModifier *= energyPowered ? CommonConfig.feQuarrySpeedSevenModifier.get() : CommonConfig.quarrySpeedSevenModifier.get();
+            case 0 -> fuelModifier *= CommonConfig.energyQuarrySpeedOneModifier.get();
+            case 1 -> fuelModifier *= CommonConfig.energyQuarrySpeedTwoModifier.get();
+            case 2 -> fuelModifier *= CommonConfig.energyQuarrySpeedThreeModifier.get();
+            case 3 -> fuelModifier *= CommonConfig.energyQuarrySpeedFourModifier.get();
+            case 4 -> fuelModifier *= CommonConfig.energyQuarrySpeedFiveModifier.get();
+            case 5 -> fuelModifier *= CommonConfig.energyQuarrySpeedSixModifier.get();
+            case 6 -> fuelModifier *= CommonConfig.energyQuarrySpeedSevenModifier.get();
         }
         return fuelModifier;
     }

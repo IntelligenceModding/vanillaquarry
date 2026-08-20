@@ -1,13 +1,17 @@
 package de.unhappycodings.quarry.common.networking.toClient;
 
 import de.unhappycodings.quarry.common.blockentity.QuarryEntity;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClientPayloadHandler {
 
-    public static void handleQuarryClientIntPacketOnMain(QuarryClientIntPacket data, final IPayloadContext context) {
+    public static void handleQuarryClientIntPacketOnMain(QuarryClientIntPacket data, final ClientPlayNetworking.Context context) {
+        context.client().execute(() -> handleQuarryClientIntPacket(data, context));
+    }
+
+    private static void handleQuarryClientIntPacket(QuarryClientIntPacket data, final ClientPlayNetworking.Context context) {
         Level level = context.player().level();
         BlockEntity machine = level.getBlockEntity(data.pos());
         if (!(machine instanceof QuarryEntity blockEntity)) return;
@@ -19,14 +23,22 @@ public class ClientPayloadHandler {
             blockEntity.setEject(add);
     }
 
-    public static void handleQuarryClientModePacketOnMain(QuarryClientModePacket data, final IPayloadContext context) {
+    public static void handleQuarryClientModePacketOnMain(QuarryClientModePacket data, final ClientPlayNetworking.Context context) {
+        context.client().execute(() -> handleQuarryClientModePacket(data, context));
+    }
+
+    private static void handleQuarryClientModePacket(QuarryClientModePacket data, final ClientPlayNetworking.Context context) {
         Level level = context.player().level();
         BlockEntity machine = level.getBlockEntity(data.pos());
         if (!(machine instanceof QuarryEntity blockEntity)) return;
         blockEntity.setMode(data.add());
     }
 
-    public static void handleQuarryClientBooleanPacketOnMain(QuarryClientBooleanPacket data, final IPayloadContext context) {
+    public static void handleQuarryClientBooleanPacketOnMain(QuarryClientBooleanPacket data, final ClientPlayNetworking.Context context) {
+        context.client().execute(() -> handleQuarryClientBooleanPacket(data, context));
+    }
+
+    private static void handleQuarryClientBooleanPacket(QuarryClientBooleanPacket data, final ClientPlayNetworking.Context context) {
         Level level = context.player().level();
         BlockEntity machine = level.getBlockEntity(data.pos());
         if (!(machine instanceof QuarryEntity blockEntity)) return;

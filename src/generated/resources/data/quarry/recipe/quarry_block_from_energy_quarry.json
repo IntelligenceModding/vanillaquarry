@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "quarry:fe_quarry_block"
+    "quarry:energy_quarry_block"
   ],
   "result": {
     "id": "quarry:quarry_block"

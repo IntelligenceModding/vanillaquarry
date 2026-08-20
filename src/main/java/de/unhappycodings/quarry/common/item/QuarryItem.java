@@ -38,7 +38,8 @@ public class QuarryItem extends BlockItem {
             tooltipComponents.accept(Component.translatable("gui.quarry.owner").withStyle(yellow()).append(" ").append(owner));
             tooltipComponents.accept(Component.translatable("gui.quarry.security").withStyle(yellow()).append(" ").append(quarryTag.getBooleanOr("Locked", false) ?
                     Component.translatable("gui.quarry.lock.private").withStyle(red()) : Component.translatable("gui.quarry.lock.public").withStyle(green())));
-            tooltipComponents.accept(Component.translatable("gui.quarry.fueled").withStyle(yellow()).append(" ").append(quarryTag.getIntOr("BurnTime", 0) > 0 ?
+            long storedPower = quarryTag.contains("Energy") ? quarryTag.getLongOr("Energy", 0L) : quarryTag.getIntOr("BurnTime", 0);
+            tooltipComponents.accept(Component.translatable("gui.quarry.fueled").withStyle(yellow()).append(" ").append(storedPower > 0 ?
                     Component.translatable("gui.quarry.yes").withStyle(green()) : Component.translatable("gui.quarry.no").withStyle(red())));
 
         }

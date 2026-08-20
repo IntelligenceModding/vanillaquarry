@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
-		"1": "quarry:block/fe_quarry_block",
+		"1": "quarry:block/energy_quarry_block",
 		"particle": "minecraft:block/stone"
 	},
 	"elements": [
@@ -62,7 +62,7 @@
 			"to": [7, 15, 3],
 			"rotation": {"angle": 0, "axis": "y", "origin": [-9, 4, 0]},
 			"faces": {
-				"north": {"uv": [7.75, 6, 8, 7.25], "texture": "#1"},
+				"north": {"uv": [7.75, 6, 8.5, 7.25], "texture": "#1"},
 				"east": {"uv": [7, 8.25, 7.5, 10.5], "texture": "#1"},
 				"south": {"uv": [0, 7, 2, 9.25], "texture": "#1"},
 				"west": {"uv": [7.5, 8.25, 8, 10.5], "texture": "#1"},

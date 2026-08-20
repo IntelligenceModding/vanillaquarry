@@ -29,7 +29,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -111,9 +111,9 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
                 case 3 -> list.add(Component.translatable("gui.quarry.mode.silktouch"));
                 default -> list.add(Component.translatable("gui.quarry.mode.void"));
             }
-            list.add(Component.translatable("gui.quarry.consumption").append(" " + totalBurnTicks + " ").append(energyPowered ? "FE" : "ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.translatable("gui.quarry.consumption").append(" " + totalBurnTicks + " ").append(energyPowered ? "Energy" : "ticks").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             if (energyPowered) {
-                list.add(Component.literal(blockEntity.getEnergyCapacity() + " FE: " + (new DecimalFormat("##.##").format(blockEntity.getEnergyCapacity() / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.quarry.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                list.add(Component.literal(blockEntity.getEnergyCapacity() + " Energy: " + (new DecimalFormat("##.##").format(blockEntity.getEnergyCapacity() / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.quarry.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             } else {
                 list.add(Component.translatable("gui.quarry.coal").append(" " + (new DecimalFormat("##.##").format(1600 / totalBurnTicks).replace(",", ".")) + " ").append(Component.translatable("gui.quarry.blocks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             }
@@ -124,7 +124,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         if (energyPowered && isMouseOverEnergyBar(pMouseX, pMouseY)) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable("gui.quarry.energy"));
-            list.add(Component.literal(blockEntity.getEnergyStored() + "/" + blockEntity.getEnergyCapacity() + " FE").withStyle(ChatFormatting.YELLOW));
+            list.add(Component.literal(blockEntity.getEnergyStored() + "/" + blockEntity.getEnergyCapacity() + " Energy").withStyle(ChatFormatting.YELLOW));
             graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, pMouseX, pMouseY);
         }
         if (infoMouseButton.isMouseOver(pMouseX, pMouseY)) {
@@ -132,11 +132,11 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
             list.add(Component.translatable("gui.quarry.informations"));
             list.add(Component.translatable("gui.quarry.toggleholo").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
-            list.add(Component.literal("#" + getBurnTime() + "/" + getTotalBurnTime() + (energyPowered ? " FE" : " ticks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            list.add(Component.literal("#" + getBurnTime() + "/" + getTotalBurnTime() + (energyPowered ? " Energy" : " ticks")).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal(""));
             list.add(Component.translatable("gui.quarry.when_turned_off").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
-            int idleConsumption = energyPowered ? CommonConfig.feQuarryIdleConsumption.get() : CommonConfig.quarryIdleConsumption.get();
-            list.add(Component.translatable(energyPowered ? "gui.quarry.will_consume_fe" : "gui.quarry.will_consume", String.valueOf(idleConsumption)).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+            int idleConsumption = energyPowered ? CommonConfig.energyQuarryIdleConsumption.get() : CommonConfig.quarryIdleConsumption.get();
+            list.add(Component.translatable(energyPowered ? "gui.quarry.will_consume_Energy" : "gui.quarry.will_consume", String.valueOf(idleConsumption)).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.changing_speed").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             list.add(Component.translatable("gui.quarry.affect_fuel").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
@@ -283,7 +283,6 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + getSizeX() + 25, topPos + 61, 177 + (blockEntity.getSkip() ? 4 : 0), 20, 1, 10, 256, 256); // skip air
         graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos + getSizeX() + 25, topPos + 81, 177 + (blockEntity.getReplace() ? 4 : 0), 20, 1, 10, 256, 256); // replace fluids
 
-        // render power storage
         if (blockEntity.isEnergyPowered()) {
             renderEnergyBar(graphics, blockEntity);
         } else {
@@ -337,14 +336,58 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         addRenderableWidget(modeMouseButton);
     }
 
+    private boolean isMouseOverEnergyBar(int mouseX, int mouseY) {
+        return mouseX >= leftPos + 12 && mouseX <= leftPos + 48 && mouseY >= topPos + 29 && mouseY <= topPos + 83;
+    }
+
+    private void renderEnergyBar(GuiGraphicsExtractor graphics, QuarryEntity blockEntity) {
+        int x = leftPos + 12;
+        int y = topPos + 29;
+        int width = 36;
+        int height = 54;
+        int stored = blockEntity.getEnergyStored();
+        int capacity = Math.max(1, blockEntity.getEnergyCapacity());
+        int innerX = x + 5;
+        int innerY = y + 5;
+        int innerWidth = width - 10;
+        int innerHeight = height - 10;
+        int filled = (int) Math.min(innerHeight, ((long) stored * innerHeight) / capacity);
+        int fillTop = innerY + innerHeight - filled;
+
+        graphics.fill(x, y, x + width, y + height + 17, getDarkModeConfigValue() ? 0xFF535353 : 0xFFC6C6C6);
+        graphics.fill(x, y, x + width, y + height, getDarkModeConfigValue() ? 0xFF1D1D1D : 0xFFE6E0DE);
+        graphics.outline(x, y, width, height, 0xFF111111);
+        graphics.outline(x + 1, y + 1, width - 2, height - 2, 0xFF8B1E18);
+        graphics.fill(x + 2, y + 2, x + width - 2, y + 4, 0xFFE17B6F);
+        graphics.fill(x + 2, y + height - 4, x + width - 2, y + height - 2, 0xFF4A0E0A);
+        graphics.fill(x + 2, y + 4, x + 4, y + height - 4, 0xFFB8483C);
+        graphics.fill(x + width - 4, y + 4, x + width - 2, y + height - 4, 0xFF3B0D0A);
+        graphics.fill(innerX, innerY, innerX + innerWidth, innerY + innerHeight, 0xFF151111);
+
+        if (filled > 0) {
+            graphics.fill(innerX, fillTop, innerX + innerWidth, innerY + innerHeight, 0xFFB41518);
+            graphics.fill(innerX + 2, fillTop, innerX + innerWidth - 2, innerY + innerHeight, 0xFFE42528);
+            graphics.fill(innerX + 5, fillTop, innerX + innerWidth - 5, innerY + innerHeight, 0xFFE23D40);
+        }
+
+        for (int markerY = innerY + 1; markerY < innerY + innerHeight; markerY += 2) {
+            graphics.fill(innerX, markerY, innerX + innerWidth, markerY + 1, 0xFF2B1414);
+            if (markerY >= fillTop) {
+                graphics.fill(innerX, markerY, innerX + innerWidth, markerY + 1, 0xFFA51318);
+            }
+        }
+    }
+
     @Override
-    protected void slotClicked(@Nonnull Slot pSlot, int pSlotId, int pMouseButton, @Nonnull ContainerInput pType) {
+    protected void slotClicked(Slot pSlot, int pSlotId, int pMouseButton, @Nonnull ContainerInput pType) {
         super.slotClicked(pSlot, pSlotId, pMouseButton, pType);
         sendChangedPacket();
+        if (pSlot == null) return;
+
         if (pSlot.getContainerSlot() == 12) {
             ItemStack stack = pSlot.getItem().isEmpty() ? Items.STONE.getDefaultInstance() : pSlot.getItem();
 
-            ClientPacketDistributor.sendToServer(new QuarryChangedPacket(stack.is(Quarry.AREA_CARD.get()) ? 1 : 2, getMenu().getTile().getBlockPos(), stack));
+            ClientPlayNetworking.send(new QuarryChangedPacket(stack.is(Quarry.AREA_CARD.get()) ? 1 : 2, getMenu().getTile().getBlockPos(), stack));
         }
     }
 
@@ -375,7 +418,7 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
     }
 
     public void sendChangedPacket() {
-        ClientPacketDistributor.sendToServer(new QuarryChangedPacket(0, this.getMenu().getTile().getBlockPos(), new ItemStack(Items.STONE)));
+        ClientPlayNetworking.send(new QuarryChangedPacket(0, this.getMenu().getTile().getBlockPos(), new ItemStack(Items.STONE)));
     }
 
     public void cycleLocked() {
@@ -384,32 +427,32 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         LocalPlayer player = Minecraft.getInstance().player;
         QuarryEntity entity = this.getMenu().getTile();
         if ((Objects.equals(entity.getOwner(), player.getName().getString() + "@" + player.getStringUUID())) || player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
-            ClientPacketDistributor.sendToServer(new QuarryBooleanPacket(entity.getBlockPos(), false, "locked"));
+            ClientPlayNetworking.send(new QuarryBooleanPacket(entity.getBlockPos(), false, "locked"));
         sendChangedPacket();
     }
 
     private void changeMode(boolean reverse) {
-        ClientPacketDistributor.sendToServer(new QuarryModePacket(this.getMenu().getTile().getBlockPos(), reverse ? 10 : 1));
+        ClientPlayNetworking.send(new QuarryModePacket(this.getMenu().getTile().getBlockPos(), reverse ? 10 : 1));
         sendChangedPacket();
     }
 
     private void changeSpeed(byte state) {
-        ClientPacketDistributor.sendToServer(new QuarryIntPacket(this.getMenu().getTile().getBlockPos(), state, "speed"));
+        ClientPlayNetworking.send(new QuarryIntPacket(this.getMenu().getTile().getBlockPos(), state, "speed"));
         sendChangedPacket();
     }
 
     private void changeEject(byte state) {
-        ClientPacketDistributor.sendToServer(new QuarryIntPacket(this.getMenu().getTile().getBlockPos(), state, "eject"));
+        ClientPlayNetworking.send(new QuarryIntPacket(this.getMenu().getTile().getBlockPos(), state, "eject"));
         sendChangedPacket();
     }
 
     private void changePower(boolean state) {
-        ClientPacketDistributor.sendToServer(new QuarryPowerPacket(this.getMenu().getTile().getBlockPos(), state));
+        ClientPlayNetworking.send(new QuarryPowerPacket(this.getMenu().getTile().getBlockPos(), state));
         sendChangedPacket();
     }
 
     public void cycleBoolean(String type) {
-        ClientPacketDistributor.sendToServer(new QuarryBooleanPacket(this.getMenu().getTile().getBlockPos(), false, type));
+        ClientPlayNetworking.send(new QuarryBooleanPacket(this.getMenu().getTile().getBlockPos(), false, type));
         sendChangedPacket();
     }
 
@@ -452,45 +495,4 @@ public class QuarryScreen extends BaseScreen<QuarryContainer> {
         return (container.getTile().getBurnTime() * 13) / total;
     }
 
-    private boolean isMouseOverEnergyBar(int mouseX, int mouseY) {
-        return mouseX >= leftPos + 13 && mouseX <= leftPos + 49 && mouseY >= topPos + 30 && mouseY <= topPos + 84;
-    }
-
-    private void renderEnergyBar(GuiGraphicsExtractor graphics, QuarryEntity blockEntity) {
-        int x = leftPos + 12;
-        int y = topPos + 29;
-        int width = 36;
-        int height = 54;
-        int stored = blockEntity.getEnergyStored();
-        int capacity = Math.max(1, blockEntity.getEnergyCapacity());
-        int innerX = x + 5;
-        int innerY = y + 5;
-        int innerWidth = width - 10;
-        int innerHeight = height - 10;
-        int filled = (int) Math.min(innerHeight, ((long) stored * innerHeight) / capacity);
-        int fillTop = innerY + innerHeight - filled;
-
-        graphics.fill(x, y, x + width, y + height + 17, getDarkModeConfigValue() ? 0xFF535353 : 0xFFC6C6C6);
-        graphics.fill(x, y, x + width, y + height, getDarkModeConfigValue() ? 0xFF1D1D1D : 0xFFE6E0DE);
-        graphics.outline(x, y, width, height, 0xFF111111);
-        graphics.outline(x + 1, y + 1, width - 2, height - 2, 0xFF8B1E18);
-        graphics.fill(x + 2, y + 2, x + width - 2, y + 4, 0xFFE17B6F);
-        graphics.fill(x + 2, y + height - 4, x + width - 2, y + height - 2, 0xFF4A0E0A);
-        graphics.fill(x + 2, y + 4, x + 4, y + height - 4, 0xFFB8483C);
-        graphics.fill(x + width - 4, y + 4, x + width - 2, y + height - 4, 0xFF3B0D0A);
-        graphics.fill(innerX, innerY, innerX + innerWidth, innerY + innerHeight, 0xFF151111);
-
-        if (filled > 0) {
-            graphics.fill(innerX, fillTop, innerX + innerWidth, innerY + innerHeight, 0xFFB41518);
-            graphics.fill(innerX + 2, fillTop, innerX + innerWidth - 2, innerY + innerHeight, 0xFFE42528);
-            graphics.fill(innerX + 5, fillTop, innerX + innerWidth - 5, innerY + innerHeight, 0xFFE23D40);
-        }
-
-        for (int markerY = innerY + 1; markerY < innerY + innerHeight; markerY += 2) {
-            graphics.fill(innerX, markerY, innerX + innerWidth, markerY + 1, 0xFF2B1414);
-            if (markerY >= fillTop) {
-                graphics.fill(innerX, markerY, innerX + innerWidth, markerY + 1, 0xFFA51318);
-            }
-        }
-    }
 }

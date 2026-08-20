@@ -17,7 +17,7 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     }
 
     @Override
-    protected void buildRecipes() {
+    public void buildRecipes() {
         shaped(RecipeCategory.MISC, Quarry.QUARRY_BLOCK.get())
                 .define('a', Items.REDSTONE_TORCH)
                 .define('b', Items.REDSTONE)
@@ -31,17 +31,17 @@ public class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .pattern("bfa").pattern("geh").pattern("cid")
                 .unlockedBy("has_item", has(Items.FURNACE)).save(output,
                         BuiltInRegistries.BLOCK.getKey(Quarry.QUARRY_BLOCK.get()) + "_crafted");
-        shaped(RecipeCategory.MISC, Quarry.FE_QUARRY_BLOCK.get())
+        shaped(RecipeCategory.MISC, Quarry.ENERGY_QUARRY_BLOCK.get())
                 .define('q', Quarry.QUARRY_BLOCK.get())
                 .define('r', Items.REDSTONE_BLOCK)
                 .define('d', Items.REDSTONE)
                 .pattern("ddd").pattern("dqd").pattern("drd")
                 .unlockedBy("has_item", has(Quarry.QUARRY_BLOCK.get())).save(output,
-                        BuiltInRegistries.BLOCK.getKey(Quarry.FE_QUARRY_BLOCK.get()) + "_crafted");
+                        BuiltInRegistries.BLOCK.getKey(Quarry.ENERGY_QUARRY_BLOCK.get()) + "_crafted");
         shapeless(RecipeCategory.MISC, Quarry.QUARRY_BLOCK.get())
-                .requires(Quarry.FE_QUARRY_BLOCK.get())
-                .unlockedBy("has_item", has(Quarry.FE_QUARRY_BLOCK.get())).save(output,
-                        Quarry.MOD_ID + ":quarry_block_from_fe_quarry");
+                .requires(Quarry.ENERGY_QUARRY_BLOCK.get())
+                .unlockedBy("has_item", has(Quarry.ENERGY_QUARRY_BLOCK.get())).save(output,
+                        Quarry.MOD_ID + ":quarry_block_from_energy_quarry");
         shaped(RecipeCategory.MISC, Quarry.AREA_CARD.get(), 1)
                 .define('a', Items.REDSTONE_TORCH)
                 .define('b', Items.REDSTONE)

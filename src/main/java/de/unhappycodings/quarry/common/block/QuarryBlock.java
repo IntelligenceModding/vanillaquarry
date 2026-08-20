@@ -7,6 +7,7 @@ import de.unhappycodings.quarry.common.container.QuarryContainer;
 import de.unhappycodings.quarry.common.networking.toServer.QuarryBooleanPacket;
 import de.unhappycodings.quarry.common.networking.toServer.QuarryIntPacket;
 import de.unhappycodings.quarry.common.networking.toServer.QuarryModePacket;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -44,7 +45,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,13 +81,29 @@ public class QuarryBlock extends BaseEntityBlock {
                 .requiresCorrectToolForDrops()
                 .strength(3.0F, 6.0F)
                 .sound(SoundType.DEEPSLATE)
+                .lightLevel(state -> state.getValue(POWERED) ? 15 : 0)
                 .isRedstoneConductor((blockState, blockGetter, blockPos) -> false);
     }
 
     @Override
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof QuarryEntity)
-            return new SimpleMenuProvider((windowId, playerInv, player) -> new QuarryContainer(windowId, playerInv, pos, level), Component.translatable(state.getBlock().getDescriptionId()));
+            return new ExtendedMenuProvider<BlockPos>() {
+                @Override
+                public BlockPos getScreenOpeningData(ServerPlayer player) {
+                    return pos;
+                }
+
+                @Override
+                public Component getDisplayName() {
+                    return Component.translatable(state.getBlock().getDescriptionId());
+                }
+
+                @Override
+                public QuarryContainer createMenu(int windowId, net.minecraft.world.entity.player.Inventory playerInv, Player player) {
+                    return new QuarryContainer(windowId, playerInv, pos, level);
+                }
+            };
 
         return null;
     }
@@ -124,12 +141,12 @@ public class QuarryBlock extends BaseEntityBlock {
         MenuProvider namedContainerProvider = this.getMenuProvider(state, level, pos);
         if (namedContainerProvider != null) {
             if (level.isClientSide()) {
-                ClientPacketDistributor.sendToServer(new QuarryIntPacket(pos, (byte) 0, "speed"));
-                ClientPacketDistributor.sendToServer(new QuarryModePacket(pos, (byte) -1));
-                ClientPacketDistributor.sendToServer(new QuarryBooleanPacket(pos, true, "locked"));
+                ClientPlayNetworking.send(new QuarryIntPacket(pos, (byte) 0, "speed"));
+                ClientPlayNetworking.send(new QuarryModePacket(pos, (byte) -1));
+                ClientPlayNetworking.send(new QuarryBooleanPacket(pos, true, "locked"));
             }
             if (player instanceof ServerPlayer serverPlayerEntity) {
-                serverPlayerEntity.openMenu(namedContainerProvider, pos);
+                serverPlayerEntity.openMenu(namedContainerProvider);
 
             }
         }
@@ -181,18 +198,20 @@ public class QuarryBlock extends BaseEntityBlock {
     @Override
     public void animateTick(BlockState pState, @Nonnull Level pLevel, @Nonnull BlockPos pPos, @Nonnull RandomSource pRandom) {
         if (pState.getValue(POWERED)) {
+            boolean energy = pState.is(Quarry.ENERGY_QUARRY_BLOCK.get());
             double d0 = (double) pPos.getX() + 0.5D;
             double d1 = pPos.getY();
             double d2 = (double) pPos.getZ() + 0.5D;
-            if (pRandom.nextDouble() < 0.1D) {
-                pLevel.playLocalSound(d0, d1, d2, SoundEvents.BLASTFURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
-            } else if (pRandom.nextDouble() < 0.2D) {
-                pLevel.playLocalSound(d0, d1, d2, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+            if (!energy) {
+                if (pRandom.nextDouble() < 0.1D) {
+                    pLevel.playLocalSound(d0, d1, d2, SoundEvents.BLASTFURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+                } else if (pRandom.nextDouble() < 0.2D) {
+                    pLevel.playLocalSound(d0, d1, d2, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+                }
             }
 
             Direction direction = pState.getValue(FACING);
             Direction.Axis directionAxis = direction.getAxis();
-            boolean energy = pState.is(Quarry.FE_QUARRY_BLOCK);
             double d4 = pRandom.nextDouble() * 0.6D - 0.3D;
             double d5 = directionAxis == Direction.Axis.X ? (double) direction.getStepX() * 0.4D : d4;
             double d6 = pRandom.nextDouble() * 9.0D / 16.0D;
@@ -226,11 +245,6 @@ public class QuarryBlock extends BaseEntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED, WORKING, ACTIVE, FACING);
-    }
-
-    @Override
-    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
-        return state.getValue(POWERED) ? 15 : 0;
     }
 
     @Nonnull

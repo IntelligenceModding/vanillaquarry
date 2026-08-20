@@ -16,9 +16,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.event.EventHooks;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -33,23 +31,21 @@ public class QuarryContainer extends BaseContainer {
         super(Quarry.QUARRY_CONTAINER.get(), id, inventory, pos, level);
         layoutPlayerInventorySlots(8, 122);
         if (tileEntity != null) {
-            boolean energyPowered = tileEntity.isEnergyPowered();
             Container handler = tileEntity.inventory;
             if (handler != null) {
-                if (!energyPowered) {
-                    for (Map.Entry<ResourceKey<Item>, Item> entry : BuiltInRegistries.ITEM.entrySet()) {
-                        if (entry.getValue().getBurnTime(new ItemStack(entry.getValue(), 1), RecipeType.SMELTING, level.fuelValues()) > 0) {
-                            burnables.add(entry.getValue());
-                        }
+                for (Map.Entry<ResourceKey<Item>, Item> entry : BuiltInRegistries.ITEM.entrySet()) {
+                    if (level.fuelValues().burnDuration(new ItemStack(entry.getValue(), 1)) > 0) {
+                        burnables.add(entry.getValue());
                     }
-
-                    addSlot(new BaseSlot(handler, inventory, 0, 13, 30, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
-                    addSlot(new BaseSlot(handler, inventory, 1, 31, 30, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
-                    addSlot(new BaseSlot(handler, inventory, 2, 13, 48, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
-                    addSlot(new BaseSlot(handler, inventory, 3, 31, 48, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
-                    addSlot(new BaseSlot(handler, inventory, 4, 13, 66, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
-                    addSlot(new BaseSlot(handler, inventory, 5, 31, 66, BaseSlot.GHOST_OVERLAY, stack -> burnables.contains(stack.getItem())).addGhostListOverlays(burnables));
                 }
+                boolean acceptsFuelItems = tileEntity.acceptsFuelItems();
+
+                addFuelSlot(handler, inventory, 0, 13, 30, acceptsFuelItems);
+                addFuelSlot(handler, inventory, 1, 31, 30, acceptsFuelItems);
+                addFuelSlot(handler, inventory, 2, 13, 48, acceptsFuelItems);
+                addFuelSlot(handler, inventory, 3, 31, 48, acceptsFuelItems);
+                addFuelSlot(handler, inventory, 4, 13, 66, acceptsFuelItems);
+                addFuelSlot(handler, inventory, 5, 31, 66, acceptsFuelItems);
 
                 addSlot(new SlotInputHandler(handler, 6, 129, 30, new SlotCondition().setNeededItem(Items.AIR))); //Output
                 addSlot(new SlotInputHandler(handler, 7, 147, 30, new SlotCondition().setNeededItem(Items.AIR))); //Output
@@ -66,6 +62,13 @@ public class QuarryContainer extends BaseContainer {
         }
     }
 
+    private void addFuelSlot(Container handler, Inventory inventory, int index, int x, int y, boolean acceptsFuelItems) {
+        BaseSlot slot = new BaseSlot(handler, inventory, index, x, y, BaseSlot.GHOST_OVERLAY, stack -> acceptsFuelItems && burnables.contains(stack.getItem()))
+                .addGhostListOverlays(acceptsFuelItems ? burnables : List.of());
+        slot.setEnabled(acceptsFuelItems);
+        addSlot(slot);
+    }
+
     public QuarryEntity getTile() {
         return this.tileEntity;
     }
@@ -77,6 +80,6 @@ public class QuarryContainer extends BaseContainer {
 
     @Override
     protected int getTeInventorySlotCount() {
-        return tileEntity != null && tileEntity.isEnergyPowered() ? 8 : 14;
+        return 14;
     }
 }

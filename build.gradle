@@ -1,29 +1,29 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.1.38'
-}
-
-tasks.named('wrapper', Wrapper).configure {
-    distributionType = Wrapper.DistributionType.BIN
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
 }
 
 version = mod_version
 group = mod_group_id
 
-sourceSets.main.resources {
-    srcDir('src/generated/resources')
-    exclude("**/*.bbmodel") // BlockBench project files
-    exclude("src/generated/**/.cache") // datagen cache files
+base {
+    archivesName = mod_id
 }
 
 repositories {
+    mavenCentral()
     maven {
-        name = "BlameJared Maven"
+        name = "Fabric"
+        url = "https://maven.fabricmc.net/"
+    }
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        name = "BlameJared"
         url = "https://maven.blamejared.com/"
-        content {
-            includeGroup "mezz.jei"
-        }
     }
     maven {
         name = "Modrinth"
@@ -34,108 +34,89 @@ repositories {
     }
 }
 
-base {
-    archivesName = mod_id
+sourceSets.main.resources {
+    srcDir('src/generated/resources')
+    exclude("**/*.bbmodel")
+    exclude("src/generated/**/.cache")
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+loom {
+    runs {
+        client {
+            client()
+            name = "Fabric Client"
+            vmArg "-Djava.net.preferIPv4Stack=true"
+            programArgs "--username", "UnhappyWithoutU", "--uuid", "407db9d7-7c5f-4fd4-82b2-a800bdff0b39", "--width", "1920", "--height", "1080"
+        }
 
-def devServerPort = '25566'
-def devServerAddress = "127.0.0.1:${devServerPort}"
+        server {
+            server()
+            name = "Fabric Server"
+            vmArg "-Djava.net.preferIPv4Stack=true"
+            runDir "runs/server-dev"
+            programArgs "--port", "25566", "--nogui"
+        }
 
-runs {
-    configureEach {
-        systemProperty 'forge.logging.console.level', 'info'
-        systemProperty 'java.net.preferIPv4Stack', 'true'
-
-        modSource project.sourceSets.main
+        datagen {
+            client()
+            name = "Fabric Datagen"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.modid=${mod_id}"
+            vmArg "-Dfabric-api.datagen.output-dir=${file('src/generated/resources').absolutePath}"
+            vmArg "-Dfabric-api.datagen.strict-validation"
+        }
     }
-
-    client {
-        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-
-        arguments.addAll "--username", "UnhappyWithoutU", "--uuid", "407db9d7-7c5f-4fd4-82b2-a800bdff0b39", "--width", "1920", "--height", "1080"
-    }
-
-    server {
-        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        workingDirectory file('runs/server-dev')
-        arguments.addAll '--port', devServerPort
-        argument '--nogui'
-    }
-
-    gameTestServer {
-        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-    }
-
-    clientData {
-        arguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-    }
-}
-
-tasks.register('runData') {
-    group = 'neogradle runs'
-    description = 'Runs clientData; NeoGradle 7.1 no longer provides a data run type.'
-    dependsOn tasks.named('runClientData')
-}
-
-configurations {
-    runtimeClasspath.extendsFrom localRuntime
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${neo_version}"
-
-    // Example optional mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-
-    // Dev-only runtime mods for testing FE compatibility.
-    localRuntime "maven.modrinth:pipez:${pipez_version}"
-    localRuntime "maven.modrinth:powah:${powah_version}"
-    localRuntime "maven.modrinth:cloth-config:${cloth_config_version}"
-    localRuntime "maven.modrinth:guideme:${guideme_version}"
-
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
-
-    // Example mod dependency using a file as dependency
-    // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
-
-    // Example project dependency using a sister or child project:
-    // implementation project(":myproject")
-
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    include implementation("teamreborn:energy:${reborn_energy_version}")
+    implementation "com.terraformersmc:modmenu:${modmenu_version}"
+    localRuntime "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+    localRuntime "maven.modrinth:3eMENr4V:${techreborn_modrinth_version_id}"
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
 
 tasks.withType(ProcessResources).configureEach {
-    var replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-    ]
-    inputs.properties replaceProperties
+    inputs.property "version", project.version
+    inputs.property "mod_id", mod_id
+    inputs.property "mod_name", mod_name
+    inputs.property "mod_license", mod_license
+    inputs.property "minecraft_version", minecraft_version
+    inputs.property "loader_version", loader_version
+    inputs.property "fabric_api_version", fabric_api_version
+    inputs.property "reborn_energy_version", reborn_energy_version
 
-    filesMatching(['META-INF/neoforge.mods.toml']) {
-        expand replaceProperties
+    filesMatching("fabric.mod.json") {
+        expand(
+                version: project.version,
+                mod_id: mod_id,
+                mod_name: mod_name,
+                mod_license: mod_license,
+                minecraft_version: minecraft_version,
+                loader_version: loader_version,
+                fabric_api_version: fabric_api_version,
+                reborn_energy_version: reborn_energy_version
+        )
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
 }
 
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
+            artifactId = mod_id
             from components.java
         }
     }
@@ -143,16 +124,5 @@ publishing {
         maven {
             url = uri("${project.projectDir}/repo")
         }
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
-
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
     }
 }

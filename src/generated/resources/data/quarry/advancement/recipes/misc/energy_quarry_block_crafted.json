@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "quarry:fe_quarry_block"
+            "items": "quarry:quarry_block"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "quarry:quarry_block_from_fe_quarry"
+        "recipe": "quarry:energy_quarry_block_crafted"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "quarry:quarry_block_from_fe_quarry"
+      "quarry:energy_quarry_block_crafted"
     ]
   }
 }

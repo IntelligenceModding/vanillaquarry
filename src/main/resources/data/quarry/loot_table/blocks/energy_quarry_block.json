@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "quarry:fe_quarry_block"
+          "name": "quarry:energy_quarry_block"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "quarry:blocks/fe_quarry_block"
+  "random_sequence": "quarry:blocks/energy_quarry_block"
 }

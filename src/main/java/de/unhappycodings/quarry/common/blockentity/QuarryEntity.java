@@ -1,16 +1,27 @@
 package de.unhappycodings.quarry.common.blockentity;
 
-import com.mojang.authlib.GameProfile;
 import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.block.QuarryBlock;
 import de.unhappycodings.quarry.common.config.CommonConfig;
 import de.unhappycodings.quarry.common.container.QuarryContainer;
 import de.unhappycodings.quarry.common.util.CalcUtil;
 import de.unhappycodings.quarry.common.util.NbtUtil;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -33,7 +44,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -51,30 +63,15 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.ProblemReporter;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.util.FakePlayer;
-import net.neoforged.neoforge.common.util.FakePlayerFactory;
-import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.IntPredicate;
 
-@EventBusSubscriber(modid = Quarry.MOD_ID)
 public class QuarryEntity extends BlockEntity implements MenuProvider {
     public final SimpleContainer inventory = new SimpleContainer(14) {
 
@@ -94,16 +91,15 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     private final int SPEED_4 = 6; // 2
     private final int SPEED_5 = 4; // 2
     private final int SPEED_6 = 2; // 2
-    protected final ResourceHandler<ItemResource> topResourceHandler = new ItemContainerResourceAdapter(slot -> true, this::canInsertFuel);
-    protected final ResourceHandler<ItemResource> downResourceHandler = new ItemContainerResourceAdapter(slot -> slot >= 6 && slot <= 11, (slot, stack) -> false);
-    protected final ResourceHandler<ItemResource> rightResourceHandler = new ItemContainerResourceAdapter(slot -> true, (slot, stack) -> slot == 13 && stack.getItem() instanceof BlockItem);
+    protected final Storage<ItemVariant> topResourceHandler = new ItemContainerStorageAdapter(slot -> true, this::canInsertFuel);
+    protected final Storage<ItemVariant> downResourceHandler = new ItemContainerStorageAdapter(slot -> slot >= 6 && slot <= 11, (slot, stack) -> false);
+    protected final Storage<ItemVariant> rightResourceHandler = new ItemContainerStorageAdapter(slot -> true, (slot, stack) -> slot == 13 && stack.getItem() instanceof BlockItem);
     public LootParams.Builder lootcontextBuilder;
     public List<BlockPos> blockStateList;
     public Item[] filters = null;
     private boolean isFortune = false;
     private boolean isSilktouch = false;
     private boolean isVoid = false;
-    private FakePlayer fakePlayer;
     private String owner;
     protected int burnTicks;
     private int ticks;
@@ -129,18 +125,8 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         super(type, pos, blockState);
     }
 
-    @SubscribeEvent  // on the mod event bus
-    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.Item.BLOCK, Quarry.QUARRY_ENTITY.get(), QuarryEntity::getSidedResourceHandler);
-        event.registerBlockEntity(Capabilities.Item.BLOCK, Quarry.FE_QUARRY_ENTITY.get(), QuarryEntity::getSidedResourceHandler);
-        event.registerBlockEntity(Capabilities.Energy.BLOCK, Quarry.FE_QUARRY_ENTITY.get(), FEQuarryEntity::getEnergyHandler);
-    }
-
     public void tick(Level level, BlockPos pos, BlockState state, QuarryEntity blockEntity) {
         if (level.isClientSide()) return;
-
-        // Fakeplayer handling
-        initFakePlayer(level);
 
         // Eject / Pull functionality
         if (getEject() > 0 && level.getGameTime() % 2 == 0) handleEjectPull(pos, state, blockEntity);
@@ -154,7 +140,6 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
         // Core Logic
         if (!state.getValue(QuarryBlock.ACTIVE)) return;
-        fakePlayer.tick();
 
         if (state.getValue(QuarryBlock.WORKING))
             level.setBlockAndUpdate(pos, state.setValue(QuarryBlock.WORKING, false));
@@ -223,13 +208,6 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         }
 
         ticks = 0;
-    }
-
-    private void initFakePlayer(Level level) {
-        if (fakePlayer != null) return;
-        if (!(level instanceof ServerLevel sl)) return;
-
-        fakePlayer = FakePlayerFactory.get(sl, new GameProfile(UUID.fromString("6e483f02-30db-4454-b612-3a167614b576"), "vanillaquarry"));
     }
 
     private BlockState getRightBlock(Level level, BlockPos pos, BlockState state) {
@@ -303,9 +281,9 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
     private boolean handleDropsEmptyCheck(List<ItemStack> drops, BlockState currentBlockState, BlockPos currentBlock, BlockPos pos, BlockState state, int blockIndex, float fuelModifier, ItemStack cardSlot) {
         if (drops.isEmpty()) {
-            if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
+            if (allowedToBreak(currentBlockState, level, currentBlock)) {
                 setChanged(level, pos, state);
-                level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                level.playSound(null, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
                 level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), 3);
             }
             updateCardNbt(cardSlot, blockIndex + 1, currentBlock.getY());
@@ -379,7 +357,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
                     }
                 }
 
-                if (allowedToBreak(currentBlockState, level, currentBlock, fakePlayer)) {
+                if (allowedToBreak(currentBlockState, level, currentBlock)) {
                     if (!filtered) insertItem(index, new ItemStack(drop.getItem(), drop.getCount()), level, pos);
                     consumePower((int) fuelModifier);
                     blockBroken = true;
@@ -468,37 +446,37 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean canInsertFuel(int slot, ItemStack stack) {
-        return usesFuelItems() && slot >= 0 && slot <= 5 && level != null && stack.getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0;
+        return usesFuelItems() && slot >= 0 && slot <= 5 && level != null && level.fuelValues().burnDuration(stack) > 0;
     }
 
-    private void exportImportRightSide(ResourceHandler<ItemResource> quarryHandler, boolean input, Level level, BlockPos pos) {
+    private void exportImportRightSide(Storage<ItemVariant> quarryHandler, boolean input, Level level, BlockPos pos) {
         if (!input) return;
 
         Direction quarrySide = getRightSide(level.getBlockState(pos));
         BlockPos sourcePos = pos.relative(quarrySide);
-        ResourceHandler<ItemResource> sourceHandler = level.getCapability(Capabilities.Item.BLOCK, sourcePos, quarrySide.getOpposite());
+        Storage<ItemVariant> sourceHandler = ItemStorage.SIDED.find(level, sourcePos, quarrySide.getOpposite());
         moveFirst(sourceHandler, quarryHandler);
     }
 
-    private void exportImportAbove(ResourceHandler<ItemResource> quarryHandler, boolean input, Level level, BlockPos pos) {
+    private void exportImportAbove(Storage<ItemVariant> quarryHandler, boolean input, Level level, BlockPos pos) {
         if (!input) return;
 
-        ResourceHandler<ItemResource> sourceHandler = level.getCapability(Capabilities.Item.BLOCK, pos.above(), Direction.DOWN);
+        Storage<ItemVariant> sourceHandler = ItemStorage.SIDED.find(level, pos.above(), Direction.DOWN);
         moveFirst(sourceHandler, quarryHandler);
     }
 
-    private void exportImportBelow(ResourceHandler<ItemResource> quarryHandler, boolean output, Level level, BlockPos pos) {
+    private void exportImportBelow(Storage<ItemVariant> quarryHandler, boolean output, Level level, BlockPos pos) {
         if (!output) return;
 
-        ResourceHandler<ItemResource> targetHandler = level.getCapability(Capabilities.Item.BLOCK, pos.below(), Direction.UP);
+        Storage<ItemVariant> targetHandler = ItemStorage.SIDED.find(level, pos.below(), Direction.UP);
         moveFirst(quarryHandler, targetHandler);
     }
 
-    private void moveFirst(ResourceHandler<ItemResource> source, ResourceHandler<ItemResource> target) {
+    private void moveFirst(Storage<ItemVariant> source, Storage<ItemVariant> target) {
         if (source == null || target == null) return;
 
-        try (Transaction transaction = Transaction.openRoot()) {
-            if (ResourceHandlerUtil.moveFirstStacking(source, target, resource -> !resource.isEmpty(), 1, transaction) != null) {
+        try (Transaction transaction = Transaction.openOuter()) {
+            if (StorageUtil.move(source, target, resource -> !resource.isBlank(), 1, transaction) > 0) {
                 transaction.commit();
             }
         }
@@ -517,7 +495,8 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     @SuppressWarnings("deprecation")
     private void refuelQuarry(List<ItemStack> input, Level level, BlockPos pos) {
         for (int i = 0; i < input.size(); i++) {
-            if (input.get(i).getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0) {
+            int fuelTicks = level.fuelValues().burnDuration(input.get(i));
+            if (fuelTicks > 0) {
                 Item stack = input.get(i).getItem();
                 ItemStackTemplate craftingRemainder = stack.getCraftingRemainder();
                 if (craftingRemainder != null) {
@@ -529,7 +508,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
                         if (output != 99) insertItem(output, new ItemStack(remainItem, 1), level, pos);
                     }
                 }
-                totalBurnTime = burnTime + input.get(i).getBurnTime(RecipeType.SMELTING, level.fuelValues());
+                totalBurnTime = burnTime + fuelTicks;
                 burnTime = totalBurnTime;
                 removeItem(i, 1, level, pos);
                 break;
@@ -576,14 +555,14 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     private void breakBlock(BlockPos currentBlock, BlockState currentBlockState, Level level, BlockPos pos) {
         if (level == null) return;
 
-        level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+        level.playSound(null, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, currentBlockState.getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
         if (getItem(13, level, pos).getItem() instanceof BlockItem blockItem) {
 
             removeItem(13, 1, level, pos);
-            level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, blockItem.getBlock().defaultBlockState().getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+            level.playSound(null, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, blockItem.getBlock().defaultBlockState().getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
             level.setBlock(currentBlock, blockItem.getBlock().defaultBlockState(), Block.UPDATE_ALL);
         } else {
-            level.levelEvent(fakePlayer, 2001, currentBlock, Block.getId(currentBlockState));
+            level.levelEvent(null, 2001, currentBlock, Block.getId(currentBlockState));
             level.setBlock(currentBlock, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         }
     }
@@ -595,7 +574,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         for (BlockPos pos : positions) {
             if (level.getBlockState(pos).getFluidState().isSource() && !level.getBlockState(pos).hasProperty(BlockStateProperties.WATERLOGGED)) {
                 level.setBlock(pos, Blocks.COBBLESTONE.defaultBlockState(), 3);
-                level.playSound(fakePlayer, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, Blocks.COBBLESTONE.defaultBlockState().getSoundType(level, currentBlock, fakePlayer).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                level.playSound(null, currentBlock.getX() + 0.5, currentBlock.getY() + 0.5, currentBlock.getZ() + 0.5, Blocks.COBBLESTONE.defaultBlockState().getSoundType().getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
             }
         }
     }
@@ -630,14 +609,8 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         return 0;
     }
 
-    private boolean allowedToBreak(BlockState state, Level level, BlockPos pos, Player player) {
-        if (level == null) return false;
-
-        if (!state.getBlock().canEntityDestroy(state, level, pos, player) || state.getDestroySpeed(level, pos) == -1)
-            return false;
-        BreakBlockEvent event = new BreakBlockEvent(level, pos, state, player);
-        NeoForge.EVENT_BUS.post(event);
-        return !event.isCanceled();
+    private boolean allowedToBreak(BlockState state, Level level, BlockPos pos) {
+        return level != null && state.getDestroySpeed(level, pos) != -1;
     }
 
     @Override
@@ -667,6 +640,45 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         readData(input);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+        ItemContainerContents container = components.get(DataComponents.CONTAINER);
+        if (container != null) {
+            container.copyInto(inventory.getItems());
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(inventory.getItems()));
+
+        if (level == null) return;
+
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
+        writeBlockEntityData(output);
+        output.discard("Items");
+        if (!output.isEmpty()) {
+            BlockEntity.addEntityType(output, getType());
+            builder.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(getType(), output.buildResult()));
+        }
+    }
+
+    @Override
+    public void removeComponentsFromTag(ValueOutput output) {
+        super.removeComponentsFromTag(output);
+        discardBlockEntityComponentData(output);
+    }
+
+    protected void writeBlockEntityData(ValueOutput output) {
+        writeData(output);
+    }
+
+    protected void discardBlockEntityComponentData(ValueOutput output) {
+        discardComponentData(output);
     }
 
     private void writeData(ValueOutput output) {
@@ -706,6 +718,24 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         ContainerHelper.loadAllItems(input.childOrEmpty("Items"), inventory.getItems());
     }
 
+    private static void discardComponentData(ValueOutput output) {
+        output.discard("Speed");
+        output.discard("Mode");
+        output.discard("Eject");
+        output.discard("BurnTime");
+        output.discard("TotalBurnTime");
+        output.discard("Owner");
+        output.discard("Locked");
+        output.discard("Filter");
+        output.discard("Loop");
+        output.discard("Skip");
+        output.discard("Replace");
+        output.discard("OutOfRange");
+        output.discard("InventoryFull");
+        output.discard("SkippingAir");
+        output.discard("Items");
+    }
+
     public LootParams.Builder getBuilder(Level level, BlockPos pos, boolean isSilktouch, boolean isFortune) {
         ItemStack stack = new ItemStack(Items.STICK);
         if (isSilktouch) stack.enchant(getEnchantment(level, Enchantments.SILK_TOUCH), 1);
@@ -719,7 +749,7 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         return level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key);
     }
 
-    protected ResourceHandler<ItemResource> getSidedResourceHandler(Direction side) {
+    public Storage<ItemVariant> getSidedStorage(Direction side) {
         if (side == Direction.UP) return topResourceHandler;
         if (side == Direction.DOWN) return downResourceHandler;
         if (side == getRightSide(getBlockState())) return rightResourceHandler;
@@ -780,6 +810,27 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         this.totalBurnTime = totalBurnTime;
     }
 
+    public long getStoredFuelTime() {
+        if (level == null) return getBurnTime();
+
+        long total = getBurnTime();
+        for (int i = 0; i <= 5; i++) {
+            ItemStack itemStack = getItem(i, level, getBlockPos());
+            for (int stackIndex = 0; stackIndex < itemStack.getCount(); stackIndex++) {
+                total += level.fuelValues().burnDuration(itemStack);
+            }
+        }
+        return total;
+    }
+
+    protected boolean usesFuelItems() {
+        return true;
+    }
+
+    public boolean acceptsFuelItems() {
+        return usesFuelItems();
+    }
+
     public boolean isEnergyPowered() {
         return false;
     }
@@ -790,23 +841,6 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
 
     public int getEnergyCapacity() {
         return 0;
-    }
-
-    public long getStoredFuelTime() {
-        if (level == null) return getBurnTime();
-
-        long total = getBurnTime();
-        for (int i = 0; i <= 5; i++) {
-            ItemStack itemStack = getItem(i, level, getBlockPos());
-            for (int stackIndex = 0; stackIndex < itemStack.getCount(); stackIndex++) {
-                total += itemStack.getBurnTime(RecipeType.SMELTING, level.fuelValues());
-            }
-        }
-        return total;
-    }
-
-    protected boolean usesFuelItems() {
-        return true;
     }
 
     protected boolean hasPowerFor(float amount) {
@@ -883,95 +917,102 @@ public class QuarryEntity extends BlockEntity implements MenuProvider {
         return new QuarryContainer(containerId, playerInventory, getBlockPos(), level);
     }
 
-    private class ItemContainerResourceAdapter implements ResourceHandler<ItemResource> {
+    private class ItemContainerStorageAdapter implements Storage<ItemVariant> {
         private final IntPredicate canExtract;
         private final BiPredicate<Integer, ItemStack> canInsert;
-        private final SnapshotJournal<List<ItemStack>> journal = new SnapshotJournal<>() {
-            @Override
-            protected List<ItemStack> createSnapshot() {
-                List<ItemStack> snapshot = new ArrayList<>(inventory.getContainerSize());
-                for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-                    snapshot.add(inventory.getItem(slot).copy());
-                }
-                return snapshot;
-            }
+        private final List<SingleSlotStorage<ItemVariant>> slots = new ArrayList<>();
 
-            @Override
-            protected void revertToSnapshot(List<ItemStack> snapshot) {
-                for (int slot = 0; slot < snapshot.size(); slot++) {
-                    inventory.setItem(slot, snapshot.get(slot).copy());
-                }
-            }
-        };
-
-        private ItemContainerResourceAdapter(IntPredicate canExtract, BiPredicate<Integer, ItemStack> canInsert) {
+        private ItemContainerStorageAdapter(IntPredicate canExtract, BiPredicate<Integer, ItemStack> canInsert) {
             this.canExtract = canExtract;
             this.canInsert = canInsert;
+            for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+                slots.add(new SlotStorage(slot));
+            }
         }
 
         @Override
-        public int size() {
-            return inventory.getContainerSize();
+        public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+            if (resource.isBlank() || maxAmount <= 0) return 0;
+            return StorageUtil.insertStacking(slots, resource, maxAmount, transaction);
         }
 
         @Override
-        public ItemResource getResource(int slot) {
-            ItemStack stack = inventory.getItem(slot);
-            return stack.isEmpty() ? ItemResource.EMPTY : ItemResource.of(stack);
+        public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+            if (resource.isBlank() || maxAmount <= 0) return 0;
+
+            long extracted = 0;
+            for (SingleSlotStorage<ItemVariant> slot : slots) {
+                extracted += slot.extract(resource, maxAmount - extracted, transaction);
+                if (extracted >= maxAmount) break;
+            }
+            return extracted;
         }
 
         @Override
-        public long getAmountAsLong(int slot) {
-            return inventory.getItem(slot).getCount();
+        public Iterator<StorageView<ItemVariant>> iterator() {
+            return new ArrayList<StorageView<ItemVariant>>(slots).iterator();
         }
 
-        @Override
-        public long getCapacityAsLong(int slot, ItemResource resource) {
-            if (!resource.isEmpty() && !isValid(slot, resource)) return 0;
+        private class SlotStorage extends SnapshotParticipant<ItemStack> implements SingleSlotStorage<ItemVariant> {
+            private final int slot;
 
-            if (resource.isEmpty()) return inventory.getMaxStackSize();
-            return inventory.getMaxStackSize(resource.toStack());
-        }
-
-        @Override
-        public boolean isValid(int slot, ItemResource resource) {
-            return !resource.isEmpty() && slot >= 0 && slot < inventory.getContainerSize() && canInsert.test(slot, resource.toStack());
-        }
-
-        @Override
-        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            if (resource.isEmpty() || amount <= 0 || !isValid(slot, resource)) return 0;
-
-            return runInTransaction(transaction, () -> {
-                ItemStack stack = resource.toStack(amount);
-                ItemStack remainder = insertIntoSlot(slot, stack);
-                return amount - remainder.getCount();
-            });
-        }
-
-        @Override
-        public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            if (resource.isEmpty() || amount <= 0) return 0;
-            if (slot < 0 || slot >= inventory.getContainerSize() || !canExtract.test(slot)) return 0;
-
-            ItemStack current = inventory.getItem(slot);
-            if (current.isEmpty() || !resource.matches(current)) return 0;
-
-            return runInTransaction(transaction, () -> inventory.removeItem(slot, amount).getCount());
-        }
-
-        private int runInTransaction(TransactionContext transaction, IntSupplier action) {
-            if (transaction == null) {
-                return action.getAsInt();
+            private SlotStorage(int slot) {
+                this.slot = slot;
             }
 
-            journal.updateSnapshots(transaction);
-            return action.getAsInt();
-        }
-    }
+            @Override
+            public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+                if (resource.isBlank() || maxAmount <= 0 || !canInsert.test(slot, resource.toStack())) return 0;
 
-    private interface IntSupplier {
-        int getAsInt();
+                updateSnapshots(transaction);
+                ItemStack stack = resource.toStack((int) Math.min(maxAmount, Integer.MAX_VALUE));
+                ItemStack remainder = insertIntoSlot(slot, stack);
+                return stack.getCount() - remainder.getCount();
+            }
+
+            @Override
+            public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+                if (resource.isBlank() || maxAmount <= 0 || !canExtract.test(slot)) return 0;
+
+                ItemStack current = inventory.getItem(slot);
+                if (current.isEmpty() || !resource.matches(current)) return 0;
+
+                updateSnapshots(transaction);
+                return inventory.removeItem(slot, (int) Math.min(maxAmount, current.getCount())).getCount();
+            }
+
+            @Override
+            public boolean isResourceBlank() {
+                return inventory.getItem(slot).isEmpty();
+            }
+
+            @Override
+            public ItemVariant getResource() {
+                ItemStack stack = inventory.getItem(slot);
+                return stack.isEmpty() ? ItemVariant.blank() : ItemVariant.of(stack);
+            }
+
+            @Override
+            public long getAmount() {
+                return inventory.getItem(slot).getCount();
+            }
+
+            @Override
+            public long getCapacity() {
+                ItemStack stack = inventory.getItem(slot);
+                return stack.isEmpty() ? inventory.getMaxStackSize() : inventory.getMaxStackSize(stack);
+            }
+
+            @Override
+            protected ItemStack createSnapshot() {
+                return inventory.getItem(slot).copy();
+            }
+
+            @Override
+            protected void readSnapshot(ItemStack snapshot) {
+                inventory.setItem(slot, snapshot.copy());
+            }
+        }
     }
 
 }

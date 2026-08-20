@@ -33,7 +33,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 
-public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, QuarryEntityRenderer.State> {
+public class QuarryEntityRenderer<T extends QuarryEntity> implements BlockEntityRenderer<T, QuarryEntityRenderer.State> {
 
     private static final int YELLOW = 0xFFFFFF00;
     private static final int WHITE = 0xFFFFFFFF;
@@ -112,14 +112,14 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, Q
     }
 
     @Override
-    public void extractRenderState(QuarryEntity blockEntity, State state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+    public void extractRenderState(T blockEntity, State state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
         state.render = ClientConfig.enableQuarryHolograph.get();
         if (!state.render) return;
 
         BlockState blockState = blockEntity.getBlockState();
         state.facing = blockState.getValue(QuarryBlock.FACING);
-        state.energy = blockEntity.isEnergyPowered();
+        state.energyPowered = blockEntity.isEnergyPowered();
         state.owner = blockEntity.getOwner().split("@")[0];
         state.locked = blockEntity.getLocked();
         state.loop = blockEntity.getLoop();
@@ -149,7 +149,7 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, Q
         if (blockEntity.getLevel() == null || blockCount <= 0) return;
 
         float runsPerSec = 20f / blockEntity.getTicksForSpeed(blockEntity.getSpeed());
-        state.remainingFuel = formatTime(blockEntity.getStoredFuelTime() / (runsPerSec * CalcUtil.getNeededTicks(blockEntity.getMode(), blockEntity.getSpeed(), blockEntity.isEnergyPowered())));
+        state.remainingFuel = formatTime(blockEntity.getStoredFuelTime() / (runsPerSec * CalcUtil.getNeededTicks(blockEntity.getMode(), blockEntity.getSpeed(), state.energyPowered)));
         state.remainingWork = formatTime((blockCount - state.lastBlock) / runsPerSec);
     }
 
@@ -163,7 +163,7 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, Q
         poseStack.translate(0, 0.5, 0.01);
         poseStack.scale(0.005f, -0.005f, 0.005f);
 
-        drawCenteredText(submitNodeCollector, poseStack, 100, 40, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable(state.energy ? "gui.quarry.holo.fe_quarry" : "gui.quarry.holo.quarry"), 55)).withColor(WHITE).withStyle(ChatFormatting.UNDERLINE), WHITE);
+        drawCenteredText(submitNodeCollector, poseStack, 100, 40, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.quarry"), 55)).withColor(WHITE).withStyle(ChatFormatting.UNDERLINE), WHITE);
         drawCenteredText(submitNodeCollector, poseStack, 100, 55, Component.literal(state.owner).withColor(WHITE), WHITE);
         renderSettings(state, poseStack, submitNodeCollector);
 
@@ -188,7 +188,7 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, Q
 
     private static void renderRemainingTime(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
         drawCenteredText(submitNodeCollector, poseStack, 100, 145, Component.literal(getTranslatable("gui.quarry.holo.estimate")).withColor(WHITE), WHITE);
-        drawText(submitNodeCollector, poseStack, 40, 155, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.fuel"), 40)).withColor(WHITE), WHITE);
+        drawText(submitNodeCollector, poseStack, 40, 155, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable(state.energyPowered ? "gui.quarry.holo.energy" : "gui.quarry.holo.fuel"), 40)).withColor(WHITE), WHITE);
         drawRightboundText(submitNodeCollector, poseStack, 160, 155, Component.literal(state.remainingFuel).withColor(WHITE), WHITE);
         drawText(submitNodeCollector, poseStack, 40, 165, Component.literal(TextUtil.truncateWithEllipsis(getTranslatable("gui.quarry.holo.work"), 40)).withColor(WHITE), WHITE);
         drawRightboundText(submitNodeCollector, poseStack, 160, 165, Component.literal(state.remainingWork).withColor(WHITE), WHITE);
@@ -226,7 +226,6 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, Q
     }
 
     @NotNull
-    @Override
     public AABB getRenderBoundingBox(QuarryEntity blockEntity) {
         BlockPos pos = blockEntity.getBlockPos();
         return new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 2, pos.getY() + 3, pos.getZ() + 2);
@@ -291,7 +290,6 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, Q
         private String modeText = "";
         private String remainingFuel = "";
         private String remainingWork = "";
-        private boolean energy;
         private boolean locked;
         private boolean loop;
         private boolean filter;
@@ -302,6 +300,7 @@ public class QuarryEntityRenderer implements BlockEntityRenderer<QuarryEntity, Q
         private boolean outOfRange;
         private boolean inventoryFull;
         private boolean skippingAir;
+        private boolean energyPowered;
         private boolean hasCard;
         private boolean blink;
         private float percentage;

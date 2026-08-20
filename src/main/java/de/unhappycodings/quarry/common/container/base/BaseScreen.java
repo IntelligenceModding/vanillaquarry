@@ -1,11 +1,13 @@
 package de.unhappycodings.quarry.common.container.base;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 
 import javax.annotation.Nonnull;
 
@@ -32,4 +34,20 @@ public abstract class BaseScreen<T extends BaseContainer> extends AbstractContai
     public abstract int getSizeY();
 
     public abstract Identifier getTexture();
+
+    public int getLeftPos() {
+        return leftPos;
+    }
+
+    public int getTopPos() {
+        return topPos;
+    }
+
+    protected Slot getHoveredSlot() {
+        return hoveredSlot;
+    }
+
+    protected Minecraft getMinecraft() {
+        return minecraft;
+    }
 }

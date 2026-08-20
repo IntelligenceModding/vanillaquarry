@@ -17,7 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -70,7 +70,7 @@ public abstract class BaseContainer extends AbstractContainerMenu {
         ItemStack copyOfSourceStack = sourceStack.copy();
         if (playerIn.level().isClientSide() && (sourceStack.is(Quarry.AREA_CARD.get()) || sourceStack.is(Items.AIR))) {
 
-            ClientPacketDistributor.sendToServer(new QuarryChangedPacket(sourceStack.is(Quarry.AREA_CARD.get()) ? 1 : 2, tileEntity.getBlockPos(), copyOfSourceStack));
+            ClientPlayNetworking.send(new QuarryChangedPacket(sourceStack.is(Quarry.AREA_CARD.get()) ? 1 : 2, tileEntity.getBlockPos(), copyOfSourceStack));
         }
 
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {

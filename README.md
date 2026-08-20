@@ -20,7 +20,7 @@
 
 *This Minecraft Forge Mod adds a vanilla styled quarry to the game.*
 
-*Fuel or FE powered with many useful features!*
+*Fuel or Energy powered with many useful features!*
 
 <p style="color:red">
     NEW! <br>

@@ -91,6 +91,7 @@ public class BaseSlot extends Slot {
     }
 
     public void renderGhostOverlay(GuiGraphicsExtractor graphics, int x, int y) {
+        if (!isActive()) return;
         if (getGhostOverlayItem() != null && getGhostOverlayItem().length > 0) {
             nextGhostItemTick++;
 

@@ -4,6 +4,7 @@ import de.unhappycodings.quarry.Quarry;
 import de.unhappycodings.quarry.common.block.QuarryBlock;
 import de.unhappycodings.quarry.common.container.AreaCardContainer;
 import de.unhappycodings.quarry.common.util.NbtUtil;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
-public class AreaCard extends Item implements MenuProvider {
+public class AreaCard extends Item implements ExtendedMenuProvider<BlockPos> {
 
     public AreaCard(Item.Properties properties) {
         super(properties.stacksTo(1));
@@ -104,7 +105,7 @@ public class AreaCard extends Item implements MenuProvider {
                 pPlayer.setItemInHand(pUsedHand, new ItemStack(pPlayer.getItemInHand(InteractionHand.MAIN_HAND).getItem()));
                 pPlayer.sendSystemMessage(Component.literal("Area card reset to defaults").withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
             } else if (!pLevel.isClientSide()) {
-                pPlayer.openMenu(this, pPlayer.blockPosition());
+                pPlayer.openMenu(this);
             }
         }
         return super.use(pLevel, pPlayer, pUsedHand);
@@ -120,5 +121,10 @@ public class AreaCard extends Item implements MenuProvider {
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, @Nonnull Inventory pPlayerInventory, Player pPlayer) {
         return new AreaCardContainer(pContainerId, pPlayerInventory, pPlayer.getOnPos(), pPlayer.level());
+    }
+
+    @Override
+    public BlockPos getScreenOpeningData(ServerPlayer player) {
+        return player.getOnPos();
     }
 }

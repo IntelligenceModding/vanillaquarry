@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "Simple yet powerful quarry in vanilla style. Now even Energy Powered!",
+  "authors": [
+    "UnhappyWithoutU"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/quarry",
+    "issues": "https://github.com/IntelligenceModding/vanillaquarry/issues"
+  },
+  "links": {
+    "modmenu.discord": "https://discord.intelligence-modding.de/"
+  },
+  "license": "${mod_license}",
+  "icon": "quarry_block.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.unhappycodings.quarry.Quarry"
+    ],
+    "client": [
+      "de.unhappycodings.quarry.QuarryClient"
+    ],
+    "modmenu": [
+      "de.unhappycodings.quarry.client.ModMenuIntegration"
+    ],
+    "fabric-datagen": [
+      "de.unhappycodings.quarry.common.data.DataProvider"
+    ]
+  },
+  "mixins": [
+    "quarry.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}",
+    "java": ">=25",
+    "fabric-api": ">=${fabric_api_version}",
+    "team_reborn_energy": ">=${reborn_energy_version}"
+  },
+  "suggests": {
+    "modmenu": ">=18.0.0-alpha.8",
+    "jei": ">=29.21.0.66"
+  }
+}

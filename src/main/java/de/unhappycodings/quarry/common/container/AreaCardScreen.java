@@ -28,7 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -343,7 +343,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             if (Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND).is(Quarry.AREA_CARD.get()))
                 saveFilter(Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND));
         } else {
-            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND)));
+            ClientPlayNetworking.send(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), Minecraft.getInstance().player.getItemInHand(InteractionHand.MAIN_HAND)));
         }
         super.onClose();
     }
@@ -578,7 +578,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
                             stack.set(Quarry.FILTERS, filters);
                         stack.set(Quarry.LAST_BLOCK, 0);
                         stack.set(Quarry.get("pos" + e), tag);
-                        ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+                        ClientPlayNetworking.send(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
                     }
                 }
             }
@@ -594,7 +594,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             tag.putInt("y", getOffsetPos(-blockRadius).getY());
             tag.putInt("z", getOffsetPos(-blockRadius).getZ());
             stack.set(Quarry.POS_2, tag);
-            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+            ClientPlayNetworking.send(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
         }
         if (stack.getOrDefault(Quarry.SELECTION, 0) == 2) {
             CompoundTag tag = new CompoundTag();
@@ -615,7 +615,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
             tag.putInt("y", Math.max(Integer.parseInt(down.getValue()), -64));
             tag.putInt("z", pos2.getZ());
             stack.set(Quarry.POS_2, tag);
-            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+            ClientPlayNetworking.send(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
         }
     }
 
@@ -665,7 +665,7 @@ public class AreaCardScreen extends BaseScreen<AreaCardContainer> {
 
             stack.set(Quarry.FILTERS, tag);
 
-            ClientPacketDistributor.sendToServer(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
+            ClientPlayNetworking.send(new AreaCardItemPacket(Minecraft.getInstance().player.getUUID(), stack));
         }
     }
 
